@@ -2,6 +2,13 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-20 (later) — Logo animation: composite ✅, video plan-gated ⛔
+
+- Ran step 1 of the logo animation via Higgsfield MCP: logo imported (from the repo's raw GitHub URL) → **wall composite generated with Nano Banana Pro** (2 credits) — the exact "VIDA PIENA" wordmark spray-painted on a sunlit favela wall, high fidelity. Saved to `visual-references/exports/logo-wall-composite-16x9.png` (poster frame + `end_image` anchor for the reveal video).
+- **Video generation blocked**: free Higgsfield plan can't run video jobs (`403 job_minimum_basic_plan_required`), independent of credits. Balance: 8 credits left of 10.
+- Preflighted all costs (see LOGO-ANIMATION-BRIEF): hero 1080p 6s Seedance = 54 cr; full logo deliverable ≈ 125–180 cr; future 5-clip 3D-scroll shoot ≈ 400–600 cr → one Plus month (1,000 cr) covers both. Learned: 9:16 verticals should be **regenerated (54)**, not reframed (60).
+- Reusable IDs saved in the brief (logo media_id, composite job_id). Next: Leo picks trial/Plus → run production generation.
+
 ## 2026-07-20 — Phase 0: environment & documentation ✅
 
 - Created the repo boundary: **only `vidapiena-website/` is tracked** → [github.com/LeoItaly/vidapiena](https://github.com/LeoItaly/vidapiena) (parent project folder stays local — contains sensitive client data).
