@@ -2,6 +2,13 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-20 (evening) — Logo animation COMPLETE ✅
+
+- Leo activated the 3-day Plus trial (100 credits + 8 residual). Generated and verified the full logo-animation package: **16:9 hero reveal** (Seedance 2.0, 1080p, 6s) + **9:16 vertical** (1080×1920, 5s) + both wall-composite poster frames. All in `visual-references/exports/`, specs + job IDs + the working recipe in `LOGO-ANIMATION-BRIEF.md`.
+- Verified frame-by-frame in the browser: bare wall → progressive spray-paint reveal → final frame pixel-matches the composite on both aspect ratios.
+- Credits: 103 spent total, **7 left** — ⚠️ trial auto-renews to Plus €49/mo on ~23 Jul unless cancelled ("cancel auto-renewal" in a Higgsfield-connected chat). The 5-clip 3D-scroll shoot (~400–600 cr) needs the paid month anyway.
+- Next: visual direction + hero prototype (Phase 1) — the intro video is ready to drop in.
+
 ## 2026-07-20 (later 2) — Platform trust-badge logos ✅ + hero video generated
 
 - **Platform logos collected** into `visual-references/platform-logos/` (per Leo's request — "Vidapiena is on these platforms" badge section, desktop + mobile): Viator (official Partner Resources PNGs, 1000/480/300), Airbnb (official SVG + 800/400/200 PNGs), GetYourGuide (official SVG current + alt + 800/400/200 PNGs), Civitatis (official site SVG black + white PNG variant + 800/400/200 PNGs). Sources, usage and trademark caveats in the folder README. Documented in ASSETS-MAP + VISION (social-proof block).
