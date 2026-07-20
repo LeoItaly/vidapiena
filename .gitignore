@@ -1,0 +1,28 @@
+# Dependencies & builds (for when coding starts)
+node_modules/
+dist/
+build/
+.next/
+.astro/
+.svelte-kit/
+.output/
+.vercel/
+.netlify/
+
+# Env & secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Local tooling
+.claude/
+*.local
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
