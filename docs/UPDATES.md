@@ -2,6 +2,11 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-20 (later 2) — Platform trust-badge logos ✅ + hero video generated
+
+- **Platform logos collected** into `visual-references/platform-logos/` (per Leo's request — "Vidapiena is on these platforms" badge section, desktop + mobile): Viator (official Partner Resources PNGs, 1000/480/300), Airbnb (official SVG + 800/400/200 PNGs), GetYourGuide (official SVG current + alt + 800/400/200 PNGs), Civitatis (official site SVG black + white PNG variant + 800/400/200 PNGs). Sources, usage and trademark caveats in the folder README. Documented in ASSETS-MAP + VISION (social-proof block).
+- **Trial activated** (100 credits) → hero logo-reveal video generated: Seedance 2.0 std, 1080p, 16:9, 6s, `end_image` = wall composite (54 credits). Verification + 9:16 vertical: see next entry.
+
 ## 2026-07-20 (later) — Logo animation: composite ✅, video plan-gated ⛔
 
 - Ran step 1 of the logo animation via Higgsfield MCP: logo imported (from the repo's raw GitHub URL) → **wall composite generated with Nano Banana Pro** (2 credits) — the exact "VIDA PIENA" wordmark spray-painted on a sunlit favela wall, high fidelity. Saved to `visual-references/exports/logo-wall-composite-16x9.png` (poster frame + `end_image` anchor for the reveal video).

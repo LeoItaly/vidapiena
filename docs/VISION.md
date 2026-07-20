@@ -9,7 +9,7 @@ The personal website of an Italian guide in Rio: a cinematic scroll experience t
 ### 1. Public frontend (Phase 1–2)
 
 - **Visual-first**: 3D scroll storytelling (see [PROMPT-3D-SCROLL.md](PROMPT-3D-SCROLL.md)), GSAP-driven animations, animated graffiti logo intro (see [LOGO-ANIMATION-BRIEF.md](LOGO-ANIMATION-BRIEF.md)). The bar is Awwwards-level, not template-level.
-- **Content**: 4 tour pages (Rocinha, Vidigal, Tavares Bastos, Un Giorno a Rio), About/Story (the "vida piena" narrative: Italian who chose Rio 9 years ago), Blog, Contact (WhatsApp-first), social proof (reviews + Instagram).
+- **Content**: 4 tour pages (Rocinha, Vidigal, Tavares Bastos, Un Giorno a Rio), About/Story (the "vida piena" narrative: Italian who chose Rio 9 years ago), Blog, Contact (WhatsApp-first), social proof (reviews + Instagram + **platform trust badges** — "Book us on Viator · GetYourGuide · Airbnb · Civitatis", official logos ready in `visual-references/platform-logos/`, each deep-linking to the live listing).
 - **Booking**: no custom booking engine for now — deep-link to OTA listings (Viator / GetYourGuide / Civitatis / Airbnb) and WhatsApp direct. Direct booking is a later decision.
 - **Mobile is not a variant, it's half the product.** Most travel research happens on phones. Every effect ships with a touch-friendly, battery-friendly version.
 
