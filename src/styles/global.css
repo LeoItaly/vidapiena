@@ -121,8 +121,10 @@ html {
 .motion-ok .zone-figure {
   display: none;
 }
-.motion-ok .hud {
-  display: flex;
+/* (HUD visibility lives in Hud.astro's scoped styles — specificity vs the scoped default.) */
+
+[data-hero-video].is-playing {
+  opacity: 1;
 }
 
 /* Hero scroll cue */
