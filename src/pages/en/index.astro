@@ -1,0 +1,26 @@
+---
+// M0 scaffold-verification page (EN) — replaced by the real one-pager in M2.
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/ibm-plex-mono/400.css';
+import '../../styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Vidapiena — scaffold M0 (EN)</title>
+  </head>
+  <body class="min-h-svh bg-ink text-paper">
+    <main class="mx-auto max-w-3xl px-6 py-16">
+      <p class="font-mono text-sm tracking-widest text-ambra uppercase">english locale · /en/</p>
+      <h1 class="font-display text-5xl font-bold mt-2">Vidapiena</h1>
+      <p class="mt-3 text-paper-dim">The view is just the beginning. Rio happens on the way down.</p>
+      <p class="mt-10"><a class="underline text-ambra" href={`${base}/`}>← Pagina italiana</a></p>
+    </main>
+  </body>
+</html>

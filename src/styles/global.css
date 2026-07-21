@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/*
+ * Vidapiena design tokens — descent palette (dawn → daylight → golden hour → dusk)
+ * Zone names in Italian, matching the brand voice. Refined during the M2 visual pass.
+ */
+@theme {
+  /* Descent palette stops */
+  --color-alba: #e8a33d; /* dawn gold — zone 1, O Mirante */
+  --color-giorno: #2f9ec7; /* tropical daylight — zones 2-3 */
+  --color-oro: #d96f32; /* golden hour — zone 4, A Ladeira */
+  --color-crepuscolo: #3b2d5e; /* dusk violet — zone 5, O Asfalto */
+
+  /* Single warm accent */
+  --color-ambra: #ffb03a;
+
+  /* Neutrals (warm) */
+  --color-ink: #1b1410;
+  --color-ink-soft: #35281f;
+  --color-paper: #faf5ec;
+  --color-paper-dim: #efe6d6;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* `overflow-x: clip` (never `hidden`) — hidden silently kills position: sticky */
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

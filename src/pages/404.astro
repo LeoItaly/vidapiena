@@ -1,0 +1,21 @@
+---
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>404 — Vidapiena</title>
+  </head>
+  <body class="min-h-svh bg-ink text-paper grid place-items-center">
+    <main class="text-center px-6">
+      <p class="font-mono text-sm tracking-widest text-ambra uppercase">altitude unknown</p>
+      <h1 class="font-display text-4xl font-bold mt-2">Pagina non trovata</h1>
+      <p class="mt-4"><a class="underline text-ambra" href={`${base}/`}>Torna al mirante →</a></p>
+    </main>
+  </body>
+</html>

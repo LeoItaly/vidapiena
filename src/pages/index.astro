@@ -1,0 +1,51 @@
+---
+// M0 scaffold-verification page (IT) — replaced by the real one-pager in M2.
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const swatches = [
+  { name: 'alba · dawn gold', cls: 'bg-alba' },
+  { name: 'giorno · tropical daylight', cls: 'bg-giorno' },
+  { name: 'oro · golden hour', cls: 'bg-oro' },
+  { name: 'crepuscolo · dusk violet', cls: 'bg-crepuscolo' },
+  { name: 'ambra · accent', cls: 'bg-ambra' },
+];
+---
+
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Vidapiena — scaffold M0</title>
+  </head>
+  <body class="min-h-svh bg-ink text-paper">
+    <main class="mx-auto max-w-3xl px-6 py-16">
+      <p class="font-mono text-sm tracking-widest text-ambra uppercase">304 m → 0 m</p>
+      <h1 class="font-display text-5xl font-bold mt-2">Vidapiena</h1>
+      <p class="mt-3 text-paper-dim">
+        Scaffold M0 — Astro 5 · Tailwind 4 · GSAP. La vista è solo l'inizio.
+      </p>
+
+      <section class="mt-10 grid gap-3">
+        {
+          swatches.map((s) => (
+            <div class={`${s.cls} rounded-md px-4 py-6 text-ink font-mono text-sm`}>{s.name}</div>
+          ))
+        }
+      </section>
+
+      <section class="mt-10 space-y-2">
+        <p class="font-display text-2xl font-semibold">Display — Bricolage Grotesque</p>
+        <p class="font-sans text-lg">Body — Instrument Sans</p>
+        <p class="font-mono text-sm">HUD — IBM Plex Mono · 304 m</p>
+      </section>
+
+      <p class="mt-10"><a class="underline text-ambra" href={`${base}/en/`}>English swatch page →</a></p>
+    </main>
+  </body>
+</html>
