@@ -3,7 +3,6 @@ import { getImage } from 'astro:assets';
 import ogBase from '../assets/og/og-base.jpg';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import displayFontUrl from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
-import bodyFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import {
   t,
   localeHref,
@@ -72,7 +71,8 @@ const posters = await getHeroPosters();
   media={POSTER_MEDIA.portrait}
   fetchpriority="high"
 />
+<!-- Only the display face is preloaded — it renders the headline; the body face
+     swaps in without competing with the poster (the LCP element) for 4G bandwidth. -->
 <link rel="preload" as="font" type="font/woff2" href={displayFontUrl} crossorigin />
-<link rel="preload" as="font" type="font/woff2" href={bodyFontUrl} crossorigin />
 
 <link rel="sitemap" href={`${base}/sitemap-index.xml`} />

@@ -13,7 +13,9 @@ export const POSTER_MEDIA = {
 };
 
 export async function getHeroPosters() {
-  const landscape = await getImage({ src: poster16, format: 'webp', width: 1920, quality: 72 });
-  const portrait = await getImage({ src: poster9, format: 'webp', width: 1080, quality: 68 });
+  // AVIF: ~40% smaller than webp for this texture-heavy artwork — the poster is
+  // the LCP element, its bytes are the LCP on 4G. All evergreen browsers decode AVIF.
+  const landscape = await getImage({ src: poster16, format: 'avif', width: 1440, quality: 52 });
+  const portrait = await getImage({ src: poster9, format: 'avif', width: 640, quality: 50 });
   return { landscape, portrait };
 }
