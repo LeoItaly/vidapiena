@@ -71,8 +71,9 @@ The cinematic layer (logo video, scroll-scrubbed clips, WebGL) is **progressive 
 | Phase | Deliverable | Status |
 | :--- | :--- | :--- |
 | **0** | Environment + documentation + repo | ✅ 20 Jul 2026 |
-| **1** | Logo animation (Higgsfield) · visual direction · hero prototype | next |
-| **2** | Full frontend: 4 tour pages, story, contact, SEO/GEO hardening (robots, sitemap, JSON-LD, llms.txt, hreflang) | |
+| **1** | Logo animation (Higgsfield) · visual direction · hero prototype | ✅ 21 Jul 2026 — went further: **full cinematic one-pager LIVE** (IT+EN) at leoitaly.github.io/vidapiena · stack decided: **Astro 7 + GSAP + Tailwind 4** · photo descent with `BackdropRenderer` seam for the clip scrub (see UPDATES 21/07) |
+| **1b** | 5-clip Seedance shoot post Plus renewal (~23 Jul) → `FrameSequenceBackdrop` canvas scrub | |
+| **2** | Full frontend: 4 tour pages, story, contact, SEO/GEO hardening (robots, sitemap, JSON-LD, llms.txt, hreflang — **one-pager already carries all of these**) | |
 | **3** | Headless CMS + back office (auth, article editor) | |
 | **4** | Launch: domain, Search Console, analytics, redirects from link-in-bio | |
 

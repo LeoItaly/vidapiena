@@ -2,6 +2,18 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-21 — One-pager BUILT & LIVE 🚀 (M0–M6)
+
+- **The cinematic one-pager is live** at <https://leoitaly.github.io/vidapiena/> (IT) + `/en/` (EN) — GitHub Pages via Actions, auto-deploy on every push to `main`.
+- **Decisions locked with Leo** (2 question rounds): scope = one-pager only · stack = **Astro (v7) + GSAP ScrollTrigger + Tailwind 4** · locales = **IT default + EN**, hreflang cluster · descent = **photo/gradient parallax now**, 5-clip canvas scrub post-renewal via a clean `BackdropRenderer` seam (`src/scripts/backdrop/`) · hero = existing logo-reveal video, poster-first · direction = premium base + graffiti accent (spray-stroke underline device), dawn→dusk palette · deploy = GH Pages.
+- **Built**: hero (poster = LCP, video streams after, held final frame pixel-matches poster) · 5 sticky descent zones + fixed altimeter HUD 304m→0m (PT labels + locale gloss) · guide stat-grid · 4 tour cards (prices verified vs `note tours.md`) · tagline · "Meet me at sea level" CTA (WhatsApp prefilled per locale) · OTA trust-badge strip · footer. All content readable no-JS; reduced-motion/Save-Data/2G never load GSAP (~46KB gz idle-loaded otherwise).
+- **Photos**: all 54 originals reviewed against a privacy checklist (agent pass; **zero high-risk picks used** — pure scenery + Francesco only; guest-consent note left for group shots). 9 curated → `scripts/photo-manifest.json` → sharp pipeline (EXIF/GPS stripped, mozjpeg). **Zone 5 (sea-level sunset with Dois Irmãos) didn't exist in the archive → generated with Nano Banana (2 cr, 5 left)**, source saved in `visual-references/exports/zone-5-asfalto-source.png`.
+- **SEO/GEO**: per-locale meta/OG/Twitter/canonical/hreflang · JSON-LD `@graph` (TourOperator+LocalBusiness, WebSite, ItemList of 4 TouristTrip with BRL Offers) fed from `src/data/tours.ts` · `robots.txt` + `llms.txt` (semi-inert at subpath until custom domain) · sitemap with i18n alternates.
+- **Perf (Lighthouse mobile, simulated slow-4G)**: **92 · CLS 0 · TBT 0ms · LCP 3.3s lab** (AVIF posters 96–108KB; real-device 4G expected < 2.5s — optional LQIP upgrade listed below).
+- **Credits fact-check**: balance API says **7 → 5 credits** (100 trial granted 20/07, 103 spent on logo package) — the docs were right. The 5-clip shoot (~360–450 cr) needs the Plus renewal (~23 Jul).
+- **⚠ Open data (TODOs in `src/data/`)**: 4 live OTA listing URLs (badges are non-links until then) · confirm WhatsApp number `+55 21 98148-1718` for publication · "Un Giorno a Rio" max pax (site says 15, capacity row says 20) · guest consent if any group photo is ever used.
+- **Next**: let Plus renew → 5-clip Seedance shoot → implement `FrameSequenceBackdrop` (M7, seam ready) · custom domain (one-commit switch documented in astro.config) · optional: LQIP poster placeholder, PSI field check after some traffic.
+
 ## 2026-07-20 (evening) — Logo animation COMPLETE ✅
 
 - Leo activated the 3-day Plus trial (100 credits + 8 residual). Generated and verified the full logo-animation package: **16:9 hero reveal** (Seedance 2.0, 1080p, 6s) + **9:16 vertical** (1080×1920, 5s) + both wall-composite poster frames. All in `visual-references/exports/`, specs + job IDs + the working recipe in `LOGO-ANIMATION-BRIEF.md`.

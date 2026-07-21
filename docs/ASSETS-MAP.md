@@ -13,6 +13,7 @@
 | `visual-references/Logo-Vidapiena.jpeg` | **The logo to animate**: graffiti wordmark "VIDA PIENA" — VIDA = Brazilian flag fill, PIENA = Italian tricolore fill, black outline, white background |
 | `visual-references/new-logo.jpeg` | Newer round badge (20 Jul 2026): Francesco portrait + golden-hour Rio panorama + wordmark + "GUIDA ITALIANA A RIO" banner, yellow ring — Instagram profile asset & palette reference |
 | `visual-references/exports/logo-wall-composite-16x9.png` | Generated logo-on-favela-wall composite (poster frame + video `end_image` anchor) |
+| `visual-references/exports/zone-5-asfalto-source.png` | Generated sea-level sunset (Dois Irmãos silhouette, Nano Banana 21/07) — zone-5 descent backdrop; no real beach photo exists in `media/` |
 | `visual-references/platform-logos/` | **Official OTA logos** (Viator, Airbnb, GetYourGuide, Civitatis) as SVG masters + 200/400/800 PNG sets, for the "Vidapiena is on these platforms" trust-badge section — sources & trademark notes in its [README](../visual-references/platform-logos/README.md) |
 | `visual-references/` | Drop future design screenshots/references here (subfolder per theme) |
 
