@@ -1,0 +1,92 @@
+---
+import { ZONES, ALTITUDE_TOP } from '../../data/zones';
+---
+
+<!-- Altimeter HUD — motion-mode only (revealed by descent.ts via .motion-ok).
+     Purely decorative: altitudes and labels are real text inside each zone. -->
+<div class="hud" data-hud aria-hidden="true">
+  <div class="hud-readout">
+    <span class="hud-alt tabular-nums" data-hud-alt>{ALTITUDE_TOP}</span>
+    <span class="hud-unit">m</span>
+  </div>
+  <div class="hud-rail">
+    {ZONES.map((z) => <span class="hud-tick" data-hud-tick={z.id} title={z.labelPt} />)}
+  </div>
+  <p class="hud-zone" data-hud-zone>{ZONES[0].labelPt}</p>
+</div>
+
+<style>
+  .hud {
+    position: fixed;
+    right: 1.25rem;
+    top: 50%;
+    z-index: 40;
+    display: none; /* .motion-ok flips this on — see global.css */
+    translate: 0 -50%;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--color-paper);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    text-align: right;
+  }
+  .hud.hud-visible {
+    opacity: 1;
+  }
+  .hud-readout {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+  .hud-alt {
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .hud-unit {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+  .hud-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    align-items: flex-end;
+  }
+  .hud-tick {
+    display: block;
+    height: 2px;
+    width: 1.1rem;
+    background: color-mix(in srgb, var(--color-paper) 35%, transparent);
+    transition:
+      width 0.3s ease,
+      background-color 0.3s ease;
+  }
+  .hud-tick.is-active {
+    width: 2rem;
+    background: var(--color-ambra);
+  }
+  .hud-zone {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    opacity: 0.85;
+  }
+  @media (max-width: 767px) {
+    .hud {
+      right: 0.9rem;
+      top: auto;
+      bottom: 1rem;
+      translate: 0 0;
+      gap: 0.4rem;
+    }
+    .hud-alt {
+      font-size: 1.15rem;
+    }
+    .hud-rail {
+      display: none;
+    }
+  }
+</style>

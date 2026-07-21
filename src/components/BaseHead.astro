@@ -1,0 +1,70 @@
+---
+import { getImage } from 'astro:assets';
+import poster16 from '../assets/posters/hero-poster-16x9.jpg';
+import poster9 from '../assets/posters/hero-poster-9x16.jpg';
+import ogBase from '../assets/og/og-base.jpg';
+import displayFontUrl from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
+import bodyFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import {
+  t,
+  localeHref,
+  absoluteUrl,
+  ogLocale,
+  LOCALES,
+  DEFAULT_LOCALE,
+  type Locale,
+} from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const canonical = absoluteUrl(localeHref(locale));
+
+const og = await getImage({ src: ogBase, format: 'jpeg', width: 1200 });
+// Poster preloads — media queries MUST mirror the <picture> sources in Hero.astro,
+// so exactly one poster downloads per viewport.
+const p16 = await getImage({ src: poster16, format: 'webp', width: 1920 });
+const p9 = await getImage({ src: poster9, format: 'webp', width: 1080 });
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{dict.meta.title}</title>
+<meta name="description" content={dict.meta.description} />
+<link rel="canonical" href={canonical} />
+{LOCALES.map((l) => <link rel="alternate" hreflang={l} href={absoluteUrl(localeHref(l))} />)}
+<link rel="alternate" hreflang="x-default" href={absoluteUrl(localeHref(DEFAULT_LOCALE))} />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Vidapiena" />
+<meta property="og:title" content={dict.meta.title} />
+<meta property="og:description" content={dict.meta.description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={absoluteUrl(og.src)} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={dict.meta.ogAlt} />
+<meta property="og:locale" content={ogLocale(locale)} />
+{
+  LOCALES.filter((l) => l !== locale).map((l) => (
+    <meta property="og:locale:alternate" content={ogLocale(l)} />
+  ))
+}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={dict.meta.title} />
+<meta name="twitter:description" content={dict.meta.description} />
+<meta name="twitter:image" content={absoluteUrl(og.src)} />
+
+<meta name="theme-color" content="#1b1410" />
+<link rel="icon" href={`${base}/favicon.png`} sizes="32x32" />
+<link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+
+<link rel="preload" as="image" href={p16.src} media="(min-aspect-ratio: 3/4)" fetchpriority="high" />
+<link rel="preload" as="image" href={p9.src} media="(max-aspect-ratio: 3/4)" fetchpriority="high" />
+<link rel="preload" as="font" type="font/woff2" href={displayFontUrl} crossorigin />
+<link rel="preload" as="font" type="font/woff2" href={bodyFontUrl} crossorigin />
+
+<link rel="sitemap" href={`${base}/sitemap-index.xml`} />

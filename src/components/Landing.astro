@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from './Hero.astro';
+import Descent from './descent/Descent.astro';
+import Guide from './Guide.astro';
+import Tours from './Tours.astro';
+import Tagline from './Tagline.astro';
+import FinalCta from './FinalCta.astro';
+import TrustBadges from './TrustBadges.astro';
+import Footer from './Footer.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<Base locale={locale}>
+  <Hero locale={locale} />
+  <main id="main">
+    <Descent locale={locale} />
+    <Guide locale={locale} />
+    <Tours locale={locale} />
+    <Tagline locale={locale} />
+    <FinalCta locale={locale} />
+    <TrustBadges locale={locale} />
+  </main>
+  <Footer locale={locale} />
+</Base>

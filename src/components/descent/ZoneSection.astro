@@ -1,0 +1,56 @@
+---
+import { Picture } from 'astro:assets';
+import SprayStroke from '../SprayStroke.astro';
+import type { Zone } from '../../data/zones';
+import { getPhoto } from '../../lib/photos';
+import { t, type Locale } from '../../i18n';
+
+interface Props {
+  zone: Zone;
+  locale: Locale;
+}
+const { zone, locale } = Astro.props;
+const dict = t(locale);
+const copy = dict.zones[zone.id];
+const photo = getPhoto(zone.image);
+---
+
+<section
+  id={zone.id}
+  class="zone relative z-10 min-h-[150svh]"
+  data-zone={zone.id}
+  data-altitude={zone.altitude}
+  style={`--grade: var(${zone.gradeVar})`}
+>
+  <div class="sticky top-[52svh] px-5 pb-[8svh] md:top-[48svh] md:px-10">
+    <div class="zone-card max-w-md rounded-lg bg-ink/80 p-6 md:p-8">
+      <p class="eyebrow text-paper/70">
+        {copy.gloss} · <span class="text-ambra tabular-nums">{zone.altitude} m</span>
+      </p>
+      <h2 class="font-display mt-2 text-4xl font-bold md:text-5xl" style="--stroke: var(--grade)">
+        {zone.labelPt}
+        <SprayStroke />
+      </h2>
+      <p class="mt-4 text-[0.95rem] leading-relaxed text-paper/90 md:text-base">{copy.fact}</p>
+    </div>
+  </div>
+
+  <!-- Static path (no-JS / reduced-motion / Save-Data): the zone photo in flow.
+       Hidden when the motion layer is active — the backdrop takes over. -->
+  {
+    photo && (
+      <figure class="zone-figure mx-auto max-w-4xl px-5 pb-16 md:px-10">
+        <Picture
+          src={photo}
+          formats={['avif', 'webp']}
+          widths={[640, 960, 1440]}
+          sizes="(min-width: 1024px) 56rem, 100vw"
+          alt={copy.fact}
+          class="w-full rounded-lg object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    )
+  }
+</section>

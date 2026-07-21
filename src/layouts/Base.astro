@@ -1,0 +1,26 @@
+---
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<html lang={locale}>
+  <head>
+    <BaseHead locale={locale} />
+  </head>
+  <body class="bg-ink font-sans text-paper antialiased">
+    <a href="#main" class="skip-link">{dict.a11y.skipToContent}</a>
+    <slot />
+    <!-- Analytics slot — decision deferred (VISION.md): GA4 vs privacy-light. Keep empty. -->
+  </body>
+</html>

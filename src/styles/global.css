@@ -44,3 +44,102 @@ html {
     scroll-behavior: auto;
   }
 }
+
+::selection {
+  background-color: var(--color-ambra);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ambra);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0.8rem 1.6rem;
+    font-weight: 600;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .btn-primary {
+    background-color: var(--color-ambra);
+    color: var(--color-ink);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-paper);
+  }
+  .btn-ghost {
+    border: 1px solid color-mix(in srgb, var(--color-paper) 35%, transparent);
+    color: var(--color-paper);
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-paper);
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    translate: 0 -300%;
+    background: var(--color-ambra);
+    color: var(--color-ink);
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: translate 0.2s ease;
+  }
+  .skip-link:focus-visible {
+    translate: 0 0;
+  }
+}
+
+/* ---- Descent visual states ------------------------------------------------
+   Default (no JS / reduced motion / Save-Data): backdrop shows zone 1 only,
+   inline zone figures visible, HUD hidden. descent.ts adds `.motion-ok` to
+   <html> once the motion layer is initialized, flipping the three atomically. */
+.backdrop-layer {
+  opacity: 0;
+}
+.backdrop-layer:first-child {
+  opacity: 1;
+}
+.motion-ok .zone-figure {
+  display: none;
+}
+.motion-ok .hud {
+  display: flex;
+}
+
+/* Hero scroll cue */
+@keyframes cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+.scroll-cue {
+  animation: cue-bob 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
+    animation: none;
+  }
+}

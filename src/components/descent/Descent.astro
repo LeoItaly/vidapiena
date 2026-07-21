@@ -1,0 +1,18 @@
+---
+import Backdrop from './Backdrop.astro';
+import ZoneSection from './ZoneSection.astro';
+import Hud from './Hud.astro';
+import { ZONES } from '../../data/zones';
+import type { Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<div id="descent" class="relative bg-ink">
+  <Backdrop />
+  {ZONES.map((zone) => <ZoneSection zone={zone} locale={locale} />)}
+</div>
+<Hud />

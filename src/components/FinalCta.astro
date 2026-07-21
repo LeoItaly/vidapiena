@@ -1,0 +1,35 @@
+---
+import { SITE, whatsappLink } from '../data/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const wa = whatsappLink(dict.cta.whatsappPrefill);
+---
+
+<section
+  id="contatti"
+  class="text-paper"
+  style="background: linear-gradient(185deg, var(--color-crepuscolo) 0%, var(--color-ink) 78%)"
+>
+  <div class="mx-auto max-w-4xl px-5 py-24 text-center md:px-10 md:py-36">
+    <p class="eyebrow text-ambra">0 m · {dict.zones.asfalto.gloss}</p>
+    <h2 class="font-display mt-4 text-4xl font-bold text-balance md:text-6xl">
+      {dict.cta.heading}
+    </h2>
+    <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
+      {dict.cta.sub}
+    </p>
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+      <a href={wa} class="btn btn-primary" rel="noopener" target="_blank">
+        {dict.cta.whatsappButton}
+      </a>
+      <a href={SITE.instagram} class="btn btn-ghost" rel="noopener" target="_blank">
+        {dict.cta.instagramLabel} · {SITE.instagramHandle}
+      </a>
+    </div>
+  </div>
+</section>

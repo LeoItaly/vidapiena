@@ -1,0 +1,63 @@
+---
+import { Picture } from 'astro:assets';
+import { getPhoto } from '../lib/photos';
+import { whatsappLink } from '../data/site';
+import type { Tour } from '../data/tours';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  tour: Tour;
+  locale: Locale;
+}
+const { tour, locale } = Astro.props;
+const dict = t(locale);
+const copy = dict.tours.items[tour.id];
+const photo = getPhoto(tour.image);
+const price = `R$ ${tour.priceBRL}`;
+const wa = whatsappLink(`${dict.cta.whatsappPrefill} — ${copy.name}`);
+---
+
+<article class="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-white/60">
+  {
+    photo ? (
+      <Picture
+        src={photo}
+        formats={['avif', 'webp']}
+        widths={[480, 800, 1200]}
+        sizes="(min-width: 768px) 34rem, 100vw"
+        alt={copy.name}
+        class="aspect-[3/2] w-full object-cover"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div
+        class="aspect-[3/2] w-full"
+        style="background: linear-gradient(145deg, var(--color-giorno) 0%, var(--color-crepuscolo) 100%)"
+        role="presentation"
+      />
+    )
+  }
+
+  <div class="flex grow flex-col p-6 md:p-7">
+    <h3 class="font-display text-2xl font-bold">{copy.name}</h3>
+    <p class="eyebrow mt-2 text-ink/55">
+      {dict.tours.hours(tour.durationHours)} · {dict.tours.maxPeople(tour.maxGroup)}
+    </p>
+    <p class="mt-4 grow text-[0.95rem] leading-relaxed text-ink-soft">{copy.hook}</p>
+
+    <p class="mt-6 font-mono text-sm">
+      {tour.priceIsFrom && <span class="text-ink/60">{dict.tours.from} </span>}
+      <span class="text-lg font-medium">{price}</span>
+      <span class="text-ink/60"> {dict.tours.perPerson}</span>
+    </p>
+    {copy.note && <p class="mt-1 font-mono text-xs text-ink/55">{copy.note}</p>}
+
+    <div class="mt-5">
+      <a href={wa} class="btn btn-primary text-sm" rel="noopener" target="_blank">
+        {dict.tours.bookWhatsapp}
+      </a>
+      {/* TODO(Leo): add OTA deep-link buttons when live listing URLs are confirmed (tours.ts). */}
+    </div>
+  </div>
+</article>

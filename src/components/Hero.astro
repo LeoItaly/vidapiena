@@ -1,0 +1,82 @@
+---
+import { getImage } from 'astro:assets';
+import poster16 from '../assets/posters/hero-poster-16x9.jpg';
+import poster9 from '../assets/posters/hero-poster-9x16.jpg';
+import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
+import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
+import LangSwitch from './LangSwitch.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+
+// Same media split as the BaseHead preloads — one poster per viewport.
+const p16 = await getImage({ src: poster16, format: 'webp', width: 1920 });
+const p9 = await getImage({ src: poster9, format: 'webp', width: 1080 });
+---
+
+<header class="relative h-svh overflow-hidden">
+  <!-- Poster = the LCP element. The reveal video layers on top later (M3 script),
+       and its final frame pixel-matches this poster by design of the asset. -->
+  <picture>
+    <source media="(max-aspect-ratio: 3/4)" srcset={p9.src} />
+    <img
+      src={p16.src}
+      alt={dict.meta.ogAlt}
+      class="absolute inset-0 h-full w-full object-cover"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </picture>
+  <video
+    class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500"
+    muted
+    playsinline
+    preload="none"
+    aria-label={dict.a11y.heroVideoLabel}
+    data-hero-video
+    data-src-landscape={video16Url}
+    data-src-portrait={video9Url}
+  ></video>
+
+  <!-- Legibility scrim -->
+  <div
+    class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/45"
+    aria-hidden="true"
+  >
+  </div>
+
+  <!-- Top bar -->
+  <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-4 md:px-10 md:py-6">
+    <span class="font-display text-sm font-bold tracking-[0.28em] uppercase">Vidapiena</span>
+    <LangSwitch locale={locale} />
+  </div>
+
+  <!-- Headline block -->
+  <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-24 md:px-10 md:pb-28">
+    <p class="eyebrow text-ambra">{dict.hero.kicker}</p>
+    <h1
+      class="font-display mt-3 max-w-[16ch] text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
+    >
+      <span class="block">{dict.hero.h1[0]}</span>
+      <span class="block text-ambra">{dict.hero.h1[1]}</span>
+    </h1>
+    <p class="mt-5 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
+      {dict.hero.sub}
+    </p>
+  </div>
+
+  <!-- Scroll cue + starting altitude -->
+  <div
+    class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-5 pb-5 md:px-10 md:pb-7"
+    aria-hidden="true"
+  >
+    <p class="scroll-cue font-mono text-xs tracking-[0.2em] uppercase opacity-80">
+      ↓ {dict.hero.scrollCue}
+    </p>
+    <p class="font-mono text-sm tracking-[0.2em] opacity-80">{dict.hero.altitudeStart}</p>
+  </div>
+</header>

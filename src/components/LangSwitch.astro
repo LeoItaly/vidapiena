@@ -1,0 +1,29 @@
+---
+import { t, localeHref, LOCALES, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+const { locale, class: className = '' } = Astro.props;
+const dict = t(locale);
+---
+
+<nav class={`font-mono text-xs uppercase tracking-[0.18em] ${className}`} aria-label={dict.a11y.langLabel}>
+  {
+    LOCALES.map((l, i) => (
+      <>
+        {i > 0 && <span class="mx-1 opacity-40">/</span>}
+        {l === locale ? (
+          <span aria-current="page" class="text-ambra">
+            {l}
+          </span>
+        ) : (
+          <a href={localeHref(l)} class="opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100">
+            {l}
+          </a>
+        )}
+      </>
+    ))
+  }
+</nav>

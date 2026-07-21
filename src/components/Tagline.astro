@@ -1,0 +1,17 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<section class="bg-ink py-20 md:py-28">
+  <p
+    class="font-display mx-auto max-w-4xl px-5 text-center text-3xl font-bold text-balance text-paper md:px-10 md:text-5xl"
+  >
+    {dict.tagline}
+  </p>
+</section>
