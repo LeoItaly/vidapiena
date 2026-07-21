@@ -16,12 +16,13 @@ function motionAllowed(): boolean {
 }
 
 function boot(): void {
-  Promise.all([import('./descent'), import('./hero-video')])
-    .then(([descent, hero]) => {
-      // Flip first so backdrop/figures/HUD switch atomically, then init after
-      // the layout settles, then re-measure triggers.
+  Promise.all([import('./descent'), import('./hero-video'), import('./tours-deck')])
+    .then(([descent, hero, deck]) => {
+      // Flip first so backdrop/figures/HUD/deck switch atomically, then init
+      // after the layout settles, then re-measure triggers.
       document.documentElement.classList.add('motion-ok');
       requestAnimationFrame(() => {
+        deck.initToursDeck();
         descent.initDescent();
         hero.initHeroVideo();
       });

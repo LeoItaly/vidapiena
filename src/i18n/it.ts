@@ -6,9 +6,9 @@
  */
 export const it = {
   meta: {
-    title: 'Vidapiena — Favela tour in italiano a Rio de Janeiro',
+    title: 'Favela tour a Rio de Janeiro in italiano — Vidapiena',
     description:
-      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio", guidati da Francesco: italiano, da 9 anni a Rio. Gruppi piccoli, mototaxi incluso, da R$270 a persona.',
+      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio" con Francesco, guida italiana a Rio de Janeiro da 9 anni. Gruppi piccoli, mototaxi incluso, da R$270 a persona.',
     ogAlt: 'Il logo Vidapiena dipinto con lo spray su un muro di Rio',
   },
 
@@ -19,11 +19,19 @@ export const it = {
   },
 
   hero: {
-    kicker: 'Guida italiana a Rio de Janeiro',
-    h1: ['La vista è solo l’inizio.', 'Rio si vive scendendo.'],
-    sub: 'Tutti fotografano Rio dall’alto. Con me la attraversi: saliamo in mototaxi, scendiamo a piedi dentro la vita vera della comunità — in italiano, inglese o portoghese.',
-    scrollCue: 'Scorri per scendere',
-    altitudeStart: '304 m',
+    kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
+    h1: ['Favela tour a Rio de Janeiro,', 'in italiano.'],
+    sub: 'Sono Francesco, guida italiana a Rio de Janeiro da 9 anni: ti porto a piedi dentro la vita vera della comunità. Gruppi piccoli, mototaxi incluso, da R$270 a persona.',
+    ctaTours: 'Scopri i tour',
+    otaLabel: 'Mi trovi anche su',
+    scrollCue: 'Scorri per esplorare',
+  },
+
+  /* La vecchia headline dell’hero: ora introduce la discesa, dove il senso è pieno. */
+  descentIntro: {
+    kicker: 'La discesa · 304 m → 0 m',
+    h2: ['La vista è solo l’inizio.', 'Rio si vive scendendo.'],
+    sub: 'Un assaggio di come si scende: dal mirante al mare, zona per zona.',
   },
 
   zones: {

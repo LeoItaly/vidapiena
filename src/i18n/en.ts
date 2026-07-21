@@ -7,9 +7,9 @@ import type { it } from './it';
 
 export const en: typeof it = {
   meta: {
-    title: 'Vidapiena — Favela tours in Rio de Janeiro with an Italian guide',
+    title: 'Favela tours in Rio de Janeiro with an Italian guide — Vidapiena',
     description:
-      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour, led by Francesco: Italian, 9 years in Rio. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from R$270 per person.',
+      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour with Francesco, Italian guide in Rio de Janeiro for 9 years. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from R$270 per person.',
     ogAlt: 'The Vidapiena logo spray-painted on a wall in Rio',
   },
 
@@ -20,11 +20,18 @@ export const en: typeof it = {
   },
 
   hero: {
-    kicker: 'Italian guide in Rio de Janeiro',
-    h1: ['The view is just the beginning.', 'Rio happens on the way down.'],
-    sub: 'Everyone photographs Rio from above. With me you walk through it: mototaxi up, then down on foot through the real life of the community — in English, Italian or Portuguese.',
-    scrollCue: 'Scroll to descend',
-    altitudeStart: '304 m',
+    kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
+    h1: ['Favela tours in Rio de Janeiro,', 'with an Italian guide.'],
+    sub: 'I’m Francesco — Italian, 9 years in Rio. I take you on foot through the real life of the community: small groups, mototaxi included, in English, Italian or Portuguese, from R$270 per person.',
+    ctaTours: 'See the tours',
+    otaLabel: 'Also on',
+    scrollCue: 'Scroll to explore',
+  },
+
+  descentIntro: {
+    kicker: 'The descent · 304 m → 0 m',
+    h2: ['The view is just the beginning.', 'Rio happens on the way down.'],
+    sub: 'A taste of the way down: from the lookout to the sea, zone by zone.',
   },
 
   zones: {

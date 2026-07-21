@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Hero from './Hero.astro';
 import Descent from './descent/Descent.astro';
 import Guide from './Guide.astro';
-import Tours from './Tours.astro';
+import ToursDeck from './ToursDeck.astro';
 import Tagline from './Tagline.astro';
 import FinalCta from './FinalCta.astro';
 import TrustBadges from './TrustBadges.astro';
@@ -19,9 +19,11 @@ const { locale } = Astro.props;
 <Base locale={locale}>
   <Hero locale={locale} />
   <main id="main">
+    {/* Catalogue before atmosphere: a first-time visitor sees what is on sale
+        one scroll in, then the descent explains what it feels like. */}
+    <ToursDeck locale={locale} />
     <Descent locale={locale} />
     <Guide locale={locale} />
-    <Tours locale={locale} />
     <Tagline locale={locale} />
     <FinalCta locale={locale} />
     <TrustBadges locale={locale} />

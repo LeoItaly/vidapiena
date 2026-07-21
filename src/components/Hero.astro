@@ -1,8 +1,13 @@
 ---
 import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
 import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
+import viatorLogo from '../assets/logos/viator.png';
+import airbnbLogo from '../assets/logos/airbnb.svg';
+import gygLogo from '../assets/logos/getyourguide.svg';
+import civitatisLogo from '../assets/logos/civitatis.svg';
 import LangSwitch from './LangSwitch.astro';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
+import { whatsappLink } from '../data/site';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -13,6 +18,20 @@ const dict = t(locale);
 
 // Shared transforms with BaseHead's preloads — one poster download per viewport.
 const posters = await getHeroPosters();
+const wa = whatsappLink(dict.cta.whatsappPrefill);
+
+/*
+ * Mini trust row — same assets and trademark rules as TrustBadges (official
+ * variants, no recoloring, light background), scaled down and set on light
+ * chips so they stay legible over the dark hero. Lazy + low priority: nothing
+ * here may compete with the poster for the LCP.
+ */
+const badges = [
+  { name: 'Viator', logo: viatorLogo, h: 'h-3' },
+  { name: 'GetYourGuide', logo: gygLogo, h: 'h-3.5' },
+  { name: 'Airbnb', logo: airbnbLogo, h: 'h-3.5' },
+  { name: 'Civitatis', logo: civitatisLogo, h: 'h-2.5' },
+];
 ---
 
 <header class="relative h-svh overflow-hidden">
@@ -52,28 +71,55 @@ const posters = await getHeroPosters();
     <LangSwitch locale={locale} />
   </div>
 
-  <!-- Headline block -->
-  <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-24 md:px-10 md:pb-28">
+  <!-- Headline block — says what this is (guide, city, language) before anything moves -->
+  <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-20 md:px-10 md:pb-24">
     <p class="eyebrow text-ambra">{dict.hero.kicker}</p>
     <h1
-      class="font-display mt-3 max-w-[16ch] text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
+      class="font-display mt-3 max-w-[16ch] text-[clamp(2.1rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
     >
       <span class="block">{dict.hero.h1[0]}</span>
       <span class="block text-ambra">{dict.hero.h1[1]}</span>
     </h1>
-    <p class="mt-5 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">
+    <p class="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-paper/85 md:text-lg">
       {dict.hero.sub}
     </p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <a href="#tour" class="btn btn-primary">{dict.hero.ctaTours}</a>
+      <a href={wa} class="btn btn-ghost" rel="noopener" target="_blank">
+        {dict.cta.whatsappButton}
+      </a>
+    </div>
+
+    <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span class="eyebrow text-paper/55">{dict.hero.otaLabel}</span>
+      <ul class="flex flex-wrap items-center gap-2">
+        {
+          badges.map((b) => (
+            <li class="flex items-center rounded-full bg-paper/90 px-2.5 py-1">
+              {/* Intrinsic size given so the row reserves its width before the
+                  logos arrive — these sit above the fold, and a reflow here
+                  would shift the whole bottom-anchored headline block. */}
+              <img
+                src={b.logo.src}
+                alt={b.name}
+                width={b.logo.width}
+                height={b.logo.height}
+                class={`w-auto ${b.h}`}
+                fetchpriority="low"
+                decoding="async"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 
-  <!-- Scroll cue + starting altitude -->
-  <div
-    class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-5 pb-5 md:px-10 md:pb-7"
-    aria-hidden="true"
-  >
+  <!-- Scroll cue -->
+  <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-5 md:px-10 md:pb-7" aria-hidden="true">
     <p class="scroll-cue font-mono text-xs tracking-[0.2em] uppercase opacity-80">
       ↓ {dict.hero.scrollCue}
     </p>
-    <p class="font-mono text-sm tracking-[0.2em] opacity-80">{dict.hero.altitudeStart}</p>
   </div>
 </header>

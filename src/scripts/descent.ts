@@ -101,5 +101,9 @@ export function initDescent(): void {
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px)', () => build(0.6));
   mm.add('(prefers-reduced-motion: no-preference) and (max-width: 767.98px)', () => build(true));
 
-  window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+  // One refresh covers every trigger on the page, the tours deck included.
+  // Idle boot can land after `load` has already fired, in which case waiting
+  // for the event would mean never measuring at all.
+  if (document.readyState === 'complete') ScrollTrigger.refresh();
+  else window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
 }
