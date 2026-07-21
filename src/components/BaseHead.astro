@@ -1,8 +1,7 @@
 ---
 import { getImage } from 'astro:assets';
-import poster16 from '../assets/posters/hero-poster-16x9.jpg';
-import poster9 from '../assets/posters/hero-poster-9x16.jpg';
 import ogBase from '../assets/og/og-base.jpg';
+import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import displayFontUrl from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
 import bodyFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import {
@@ -24,10 +23,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const canonical = absoluteUrl(localeHref(locale));
 
 const og = await getImage({ src: ogBase, format: 'jpeg', width: 1200 });
-// Poster preloads — media queries MUST mirror the <picture> sources in Hero.astro,
-// so exactly one poster downloads per viewport.
-const p16 = await getImage({ src: poster16, format: 'webp', width: 1920 });
-const p9 = await getImage({ src: poster9, format: 'webp', width: 1080 });
+const posters = await getHeroPosters();
 ---
 
 <meta charset="utf-8" />
@@ -62,8 +58,20 @@ const p9 = await getImage({ src: poster9, format: 'webp', width: 1080 });
 <link rel="icon" href={`${base}/favicon.png`} sizes="32x32" />
 <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
 
-<link rel="preload" as="image" href={p16.src} media="(min-aspect-ratio: 3/4)" fetchpriority="high" />
-<link rel="preload" as="image" href={p9.src} media="(max-aspect-ratio: 3/4)" fetchpriority="high" />
+<link
+  rel="preload"
+  as="image"
+  href={posters.landscape.src}
+  media={POSTER_MEDIA.landscape}
+  fetchpriority="high"
+/>
+<link
+  rel="preload"
+  as="image"
+  href={posters.portrait.src}
+  media={POSTER_MEDIA.portrait}
+  fetchpriority="high"
+/>
 <link rel="preload" as="font" type="font/woff2" href={displayFontUrl} crossorigin />
 <link rel="preload" as="font" type="font/woff2" href={bodyFontUrl} crossorigin />
 

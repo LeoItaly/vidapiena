@@ -1,0 +1,34 @@
+# Vidapiena
+
+> Vidapiena is Francesco's tour brand in Rio de Janeiro, Brazil. Francesco is an
+> Italian native speaker who has lived in Rio for 9 years. He leads small-group
+> walking tours of Rio's favelas and a full-day city tour — in Italian, English
+> and Portuguese. Instagram: https://www.instagram.com/vidapiena/
+
+## The four tours
+
+- **Favela Tour Rocinha** — 3 hours, max 19 people, R$270 per person (children up to 12: R$180).
+  Meeting point: Av. Niemeyer 780, São Conrado, Rio de Janeiro. Includes mototaxi ride,
+  community visitation fee and viewpoint entries. Brazil's largest favela: graffiti artist's
+  gallery, the football pitch rebuilt by a local player, an Italian NGO active for 20+ years.
+- **Favela Tour Vidigal** — 2.5 hours, max 19 people, R$270 per person.
+  Meeting point: Praça do Vidigal, Rio de Janeiro. Includes mototaxi and community fee.
+  Ends at a panoramic terrace bar facing Christ the Redeemer.
+- **Favela Tour Tavares Bastos** — 2.5 hours, max 20 people, R$270 per person.
+  Meeting point: Rua Bento Lisboa 72, Catete, Rio de Janeiro. Includes mototaxi.
+  Features the iconic FIFA Street football pitch.
+- **Un Giorno a Rio** — full-day (8–9 h) premium city tour, from R$780 per person
+  (tiered by group size), daily from 08:00 with hotel pick-up anywhere in Rio.
+  Christ the Redeemer (Corcovado rack train), Santa Teresa, Selarón Steps, Sugarloaf
+  cable car, private car/van with driver, buffet lunch included.
+
+## Key facts
+
+- All tours depart daily; minimum 2 participants.
+- Favela tours open with an included mototaxi ride to the top of the hill; the tour
+  walks back down through the community.
+- Languages: Italian (native guide), English, Portuguese.
+- Booking: WhatsApp-first; also listed on Viator, GetYourGuide, Airbnb Experiences
+  and Civitatis.
+- Website: https://leoitaly.github.io/vidapiena/ (Italian) and
+  https://leoitaly.github.io/vidapiena/en/ (English).

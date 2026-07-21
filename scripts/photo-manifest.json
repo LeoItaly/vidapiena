@@ -1,0 +1,12 @@
+[
+  { "src": "media/favela-tour-vidigal/image00005.jpeg", "out": "zone-1-mirante.jpg", "maxW": 2400 },
+  { "src": "media/favela-tour-vidigal/image00006.jpeg", "out": "zone-2-lajes.jpg", "maxW": 2400 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00009.jpeg", "out": "zone-3-becos.jpg", "maxW": 2400 },
+  { "src": "media/favela-tour-vidigal/image00016.jpeg", "out": "zone-4-ladeira.jpg", "maxW": 2400 },
+  { "src": "vidapiena-website/visual-references/exports/zone-5-asfalto-source.png", "out": "zone-5-asfalto.jpg", "maxW": 1376 },
+  { "src": "media/foto-profilo-varie-opzioni-attuali-di-foto-a-rio/image00006.jpeg", "out": "guide-francesco.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00011.jpeg", "out": "tour-rocinha.jpg", "maxW": 1200 },
+  { "src": "media/favela-tour-vidigal/image00012.jpeg", "out": "tour-vidigal.jpg", "maxW": 1200 },
+  { "src": "media/favela-tour-tavares-bastos/image00007.jpeg", "out": "tour-tavares.jpg", "maxW": 1200 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00007.jpeg", "out": "tour-giorno.jpg", "maxW": 1200 }
+]

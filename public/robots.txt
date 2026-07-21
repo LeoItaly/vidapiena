@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# NOTE: on the GitHub Pages project subpath this file is technically inert
+# (crawlers read the origin root). It becomes authoritative the moment the
+# custom domain lands. Sitemap is also submitted manually in Search Console.
+Sitemap: https://leoitaly.github.io/vidapiena/sitemap-index.xml

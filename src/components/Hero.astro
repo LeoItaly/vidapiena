@@ -1,10 +1,8 @@
 ---
-import { getImage } from 'astro:assets';
-import poster16 from '../assets/posters/hero-poster-16x9.jpg';
-import poster9 from '../assets/posters/hero-poster-9x16.jpg';
 import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
 import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
 import LangSwitch from './LangSwitch.astro';
+import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -13,18 +11,17 @@ interface Props {
 const { locale } = Astro.props;
 const dict = t(locale);
 
-// Same media split as the BaseHead preloads — one poster per viewport.
-const p16 = await getImage({ src: poster16, format: 'webp', width: 1920 });
-const p9 = await getImage({ src: poster9, format: 'webp', width: 1080 });
+// Shared transforms with BaseHead's preloads — one poster download per viewport.
+const posters = await getHeroPosters();
 ---
 
 <header class="relative h-svh overflow-hidden">
   <!-- Poster = the LCP element. The reveal video layers on top later (M3 script),
        and its final frame pixel-matches this poster by design of the asset. -->
   <picture>
-    <source media="(max-aspect-ratio: 3/4)" srcset={p9.src} />
+    <source media={POSTER_MEDIA.portrait} srcset={posters.portrait.src} />
     <img
-      src={p16.src}
+      src={posters.landscape.src}
       alt={dict.meta.ogAlt}
       class="absolute inset-0 h-full w-full object-cover"
       fetchpriority="high"
