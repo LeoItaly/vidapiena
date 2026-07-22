@@ -295,10 +295,12 @@ html {
 }
 /* The duplicate sequences exist only for the loop; the static presentations
    (wrapped words, swipeable strip, centred badge row) must not show doubled
-   content. */
-[data-marquee-track] .mq-dupe {
+   content. The class is doubled on purpose: Astro's scoped sequence rules
+   (`.mq-seq[data-astro-cid-*]`, display:flex) land at (0,2,0) AFTER this file
+   in the bundle — these must outrank them in both states. */
+[data-marquee-track] .mq-dupe.mq-dupe {
   display: none;
 }
-.motion-ok [data-marquee-track] .mq-dupe {
+.motion-ok [data-marquee-track] .mq-dupe.mq-dupe {
   display: flex;
 }
