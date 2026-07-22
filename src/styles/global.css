@@ -185,6 +185,46 @@ html {
     }
   }
 
+  /* Legibility scrim for text over photography — bottom-anchored with a
+     raised floor: ≥80% ink where the copy sits and never fully transparent
+     at the top, so text stays ≥7:1 against any photograph. One of the
+     sanctioned gradient uses (scrims and zone washes — DESIGN.md §2). */
+  .scrim-b {
+    background: linear-gradient(
+      to top,
+      var(--color-ink) 0%,
+      color-mix(in srgb, var(--color-ink) 80%, transparent) 30%,
+      color-mix(in srgb, var(--color-ink) 44%, transparent) 62%,
+      color-mix(in srgb, var(--color-ink) 38%, transparent) 100%
+    );
+  }
+
+  /* Ambient zone washes — the descent grade returned as continuum: each ink
+     band carries one low-opacity hue from the 304m→0m journey, so the page
+     reads as one evolving canvas instead of stacked blocks. Mixes ≤13% move
+     the ink's channels by under 10/255: every measured text ratio holds. */
+  .band-tint-azzurro {
+    background-image: radial-gradient(
+      56% 44% at 88% 92%,
+      color-mix(in srgb, var(--color-azzurro) 12%, transparent),
+      transparent 70%
+    );
+  }
+  .band-tint-verde {
+    background-image: radial-gradient(
+      56% 44% at 10% 6%,
+      color-mix(in srgb, var(--color-verde) 13%, transparent),
+      transparent 70%
+    );
+  }
+  .band-tint-ouro {
+    background-image: radial-gradient(
+      50% 40% at 90% 10%,
+      color-mix(in srgb, var(--color-ouro) 9%, transparent),
+      transparent 70%
+    );
+  }
+
   .skip-link {
     position: fixed;
     top: 0.75rem;

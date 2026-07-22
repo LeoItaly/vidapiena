@@ -2,6 +2,7 @@
 import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
 import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
 import OtaLogo from './OtaLogo.astro';
+import SprayStroke from './SprayStroke.astro';
 import { PLATFORMS } from '../lib/platforms';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import { t, pagePath, type Locale } from '../i18n';
@@ -56,12 +57,8 @@ const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
     data-src-portrait={video9Url}
   ></video>
 
-  <!-- Legibility scrim -->
-  <div
-    class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/45"
-    aria-hidden="true"
-  >
-  </div>
+  <!-- Legibility scrim (shared utility — raised floor for the headline zone) -->
+  <div class="scrim-b absolute inset-0" aria-hidden="true"></div>
 
   <!-- Headline block — says what this is (guide, city, language) before anything moves -->
   <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-20 md:px-10 md:pb-24">
@@ -70,7 +67,12 @@ const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
       class="font-display mt-3 max-w-[16ch] text-[clamp(2.1rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
     >
       <span class="block">{dict.hero.h1[0]}</span>
-      <span class="block text-ouro">{dict.hero.h1[1]}</span>
+      {/* The Italy moment: rosso points (the sprayed stroke), never fills —
+          the line itself stays gold for its 11.32:1 on the scrim. */}
+      <span class="block text-ouro" style="--stroke: var(--color-rosso)">
+        {dict.hero.h1[1]}
+        <SprayStroke />
+      </span>
     </h1>
     <p class="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-paper/85 md:text-lg">
       {dict.hero.sub}

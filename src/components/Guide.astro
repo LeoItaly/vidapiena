@@ -27,10 +27,13 @@ const photo = getPhoto('guide-francesco');
 
       <dl class="mt-10 border-t border-ink/15">
         {
-          dict.guide.stats.map((s) => (
+          dict.guide.stats.map((s, i) => (
             <div class="grid grid-cols-[9rem_1fr] items-baseline gap-4 border-b border-ink/15 py-3.5 md:grid-cols-[11rem_1fr]">
               <dt class="eyebrow text-ink/55">{s.k}</dt>
-              <dd class="font-display text-lg font-semibold md:text-xl">{s.v}</dd>
+              <dd class="font-display text-lg font-semibold md:text-xl">
+                {i === 0 && <span class="stat-dot" aria-hidden="true" />}
+                {s.v}
+              </dd>
             </div>
           ))
         }
@@ -70,3 +73,17 @@ const photo = getPhoto('guide-francesco');
     </div>
   </div>
 </section>
+
+<style>
+  /* The intro's rosso signal device, reused exactly once in the page body:
+     it points at Italy (the first stat — the native-Italian guide). */
+  .stat-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0.55rem;
+    border-radius: 999px;
+    background: var(--color-rosso);
+    vertical-align: 0.18em;
+  }
+</style>

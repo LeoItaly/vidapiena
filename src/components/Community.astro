@@ -34,7 +34,7 @@ const PHOTOS = [
 const WORDS = ['Comunidade', 'Vida Piena'];
 ---
 
-<section class="community bg-ink text-paper" data-community>
+<section class="community band-tint-verde bg-ink text-paper" data-community>
   <div class="community-curtain" data-community-curtain aria-hidden="true"></div>
 
   <div class="mx-auto w-full max-w-6xl px-5 pt-20 pb-10 md:px-10 md:pt-28 md:pb-12">
@@ -108,6 +108,7 @@ const WORDS = ['Comunidade', 'Vida Piena'];
                 ) : (
                   <div class="mq-img mq-fallback" role="presentation" />
                 )}
+                <span class="mq-tint" aria-hidden="true" />
               </figure>
             ))}
           </div>
@@ -201,6 +202,11 @@ const WORDS = ['Comunidade', 'Vida Piena'];
   .mq-fallback {
     background: linear-gradient(150deg, var(--color-verde) 0%, var(--color-notturno) 100%);
   }
+  /* The verde wash exists only on the motion path — the static strip keeps
+     today's full-colour photos. */
+  .mq-tint {
+    display: none;
+  }
 
   /* ---- Motion path — the counter-flowing marquee ------------------------- */
   :global(.motion-ok) .community {
@@ -260,6 +266,25 @@ const WORDS = ['Comunidade', 'Vida Piena'];
     filter: grayscale(0.05) saturate(1.05);
     transform: scale(1.04);
   }
+  /* Verde duotone at rest — the community's hue (the bridge green) — lifting
+     together with the grayscale so colour stays the reward for stopping. */
+  :global(.motion-ok) .mq-figure {
+    position: relative;
+  }
+  :global(.motion-ok) .mq-tint {
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-radius: 0.5rem;
+    background: var(--color-verde);
+    mix-blend-mode: color;
+    opacity: 0.28;
+    pointer-events: none;
+    transition: opacity 1.6s var(--ease-vp-out);
+  }
+  :global(.motion-ok) .mq-figure:hover .mq-tint {
+    opacity: 0;
+  }
 
   @media (max-width: 767px) {
     :global(.motion-ok) .mq-img {
@@ -274,6 +299,9 @@ const WORDS = ['Comunidade', 'Vida Piena'];
   @media (pointer: coarse) {
     :global(.motion-ok) .mq-img {
       filter: grayscale(0.35) contrast(1.02);
+    }
+    :global(.motion-ok) .mq-tint {
+      opacity: 0.12;
     }
   }
 </style>

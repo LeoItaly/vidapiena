@@ -13,9 +13,11 @@ const { locale } = Astro.props;
 const dict = t(locale);
 ---
 
+{/* Guanabara dusk as a dip, not a block: the gradient enters and exits on ink,
+    welding this band to its ink neighbors — no seam either side. */}
 <section
   class="text-paper"
-  style="background: linear-gradient(185deg, var(--color-notturno) 0%, var(--color-ink) 78%)"
+  style="background: linear-gradient(180deg, var(--color-ink) 0%, var(--color-notturno) 46%, var(--color-ink) 94%)"
 >
   <div class="mx-auto max-w-4xl px-5 py-20 text-center md:px-10 md:py-28">
     <h2 class="font-display text-4xl font-bold text-balance md:text-6xl" data-reveal-heading>
