@@ -3,6 +3,7 @@
  * The minimal close — one heading, one line, two exits (tours, Instagram).
  * The sea-level/altitude framing retired with the descent.
  */
+import RouteMark from './RouteMark.astro';
 import { SITE } from '../data/site';
 import { t, localeHref, type Locale } from '../i18n';
 
@@ -16,9 +17,11 @@ const dict = t(locale);
 {/* Guanabara dusk as a dip, not a block: the gradient enters and exits on ink,
     welding this band to its ink neighbors — no seam either side. */}
 <section
-  class="text-paper"
+  class="relative text-paper"
   style="background: linear-gradient(180deg, var(--color-ink) 0%, var(--color-notturno) 46%, var(--color-ink) 94%)"
 >
+  {/* The descent lands: 0 m, sea level — rosso points at the arrival. */}
+  <RouteMark alt={0} accent="rosso" label={dict.route.seaLevel} />
   <div class="mx-auto max-w-4xl px-5 py-20 text-center md:px-10 md:py-28">
     <h2 class="font-display text-4xl font-bold text-balance md:text-6xl" data-reveal-heading>
       {dict.finalCta.heading}

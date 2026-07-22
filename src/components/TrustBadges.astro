@@ -26,9 +26,13 @@ const SIZES: Record<string, string> = {
 const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key] }));
 ---
 
-<section class="bg-paper text-ink">
-  <div class="mx-auto max-w-5xl px-5 py-14 md:px-10 md:py-16">
-    <p class="eyebrow text-center text-ink/55" data-scramble>{dict.badges.heading}</p>
+{/* The band is ink like its neighbours; the trademark "light neutral
+    background" now lives on a floating paper panel — two hard seams
+    (FinalCta→here, here→Footer) become none. */}
+<section class="bg-ink text-paper">
+  <div class="mx-auto max-w-5xl px-5 py-16 md:px-10 md:py-20">
+    <div class="badge-panel rounded-xl bg-paper px-6 py-10 text-ink md:px-10">
+      <p class="eyebrow text-center text-ink/55" data-scramble>{dict.badges.heading}</p>
 
     {/* Default: the centred row it has always been. With motion: the same list
         becomes a slow, endless drift that quickens as you scroll past. Four
@@ -54,10 +58,14 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
         }
       </div>
     </div>
+    </div>
   </div>
 </section>
 
 <style>
+  .badge-panel {
+    box-shadow: 0 24px 80px -32px rgb(0 0 0 / 0.8);
+  }
   /* ---- Static path (default) — the centred, wrapping row ----------------- */
   .badge-seq {
     display: flex;

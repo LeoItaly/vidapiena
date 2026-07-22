@@ -12,6 +12,7 @@ import TrustBadges from './TrustBadges.astro';
 import Footer from './Footer.astro';
 import HudCorners from './HudCorners.astro';
 import BrandBadge from './BrandBadge.astro';
+import MorroDivider from './MorroDivider.astro';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -48,9 +49,13 @@ const dict = t(locale);
     {/* Catalogue first: a first-time visitor sees what is on sale one scroll
         in — all four tours at once, each linking to its own page. */}
     <ToursGrid locale={locale} />
-    {/* The community band sets the scene, then the guide introduces himself. */}
+    {/* The community band sets the scene, then the guide introduces himself.
+        The two ink↔paper seams cross a favela roofline instead of a hard
+        edge; the guide's portrait straddles the first one. */}
     <Community locale={locale} />
+    <MorroDivider from="ink" to="paper" accent="ouro" />
     <Guide locale={locale} />
+    <MorroDivider from="paper" to="ink" accent="verde" flip />
     <InstagramBand locale={locale} />
     <FinalCta locale={locale} />
     <TrustBadges locale={locale} />

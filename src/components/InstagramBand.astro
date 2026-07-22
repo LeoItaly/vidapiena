@@ -7,6 +7,7 @@
  * seven identical ones.
  */
 import { Picture } from 'astro:assets';
+import RouteMark from './RouteMark.astro';
 import { getPhoto } from '../lib/photos';
 import { SITE } from '../data/site';
 import { t, type Locale } from '../i18n';
@@ -30,8 +31,9 @@ const TILE_KEYS = [
 const tiles = TILE_KEYS.map((key) => getPhoto(key)).filter((p) => p !== null);
 ---
 
-<section class="band-tint-ouro bg-ink text-paper" data-instagram>
-  <div class="mx-auto w-full max-w-6xl px-5 py-16 md:px-10 md:py-24">
+<section class="band-tint-ouro relative bg-ink text-paper" data-instagram>
+  <RouteMark alt={60} accent="ouro" />
+  <div class="mx-auto w-full max-w-6xl px-5 pt-10 pb-16 md:px-10 md:pt-14 md:pb-24">
     <p class="eyebrow text-ouro" data-scramble>{dict.instagram.kicker}</p>
     <h2 class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl" data-reveal-heading>
       {dict.instagram.heading}

@@ -1,0 +1,88 @@
+---
+/**
+ * One segment of the descent rail: a dashed vertical line down the left
+ * gutter with an altitude waypoint at its head. The landing's bands each
+ * mount one; stacked they read as a single line travelling 304 m → 0 m —
+ * the descent kept as the page's spine after the section itself retired.
+ *
+ * Desktop-wide only (≥1440px): below that the content column owns the
+ * gutter — same budget as the HUD corners. Static path: the full line is
+ * visible as rendered. Motion path: spatial.ts pre-hides and scrubs each
+ * segment's scaleY as its section crosses the viewport (pre-hide in JS,
+ * never CSS — house rule).
+ */
+interface Props {
+  /** Altitude, metres. */
+  alt: number;
+  /** Waypoint dot color. */
+  accent: 'ouro' | 'azzurro' | 'verde' | 'verde-scuro' | 'rosso' | 'notturno';
+  /** 'dark' on ink bands (paper dashes), 'light' on paper bands (ink dashes). */
+  tone?: 'dark' | 'light';
+  /** Optional caption after the altitude (the sea-level waypoint). */
+  label?: string;
+}
+const { alt, accent, tone = 'dark', label } = Astro.props;
+---
+
+<div
+  class:list={['route', tone === 'light' && 'route-light']}
+  aria-hidden="true"
+  style={`--accent: var(--color-${accent})`}
+>
+  <span class="route-line" data-route-seg></span>
+  <span class="route-mark">
+    <span class="route-dot"></span>
+    <span class="route-alt" data-scramble>{alt} M{label ? ` · ${label}` : ''}</span>
+  </span>
+</div>
+
+<style>
+  .route {
+    display: none;
+  }
+  @media (min-width: 1440px) {
+    .route {
+      display: block;
+      position: absolute;
+      inset-block: 0;
+      left: 2.5rem;
+      width: 0;
+      pointer-events: none;
+    }
+  }
+  .route-line {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    border-left: 1px dashed color-mix(in srgb, var(--color-paper) 26%, transparent);
+  }
+  .route-light .route-line {
+    border-left-color: color-mix(in srgb, var(--color-ink) 26%, transparent);
+  }
+  .route-mark {
+    position: absolute;
+    top: 5.75rem;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+  }
+  .route-dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--accent);
+    translate: -50% 0;
+  }
+  /* Mono means instrument: a reading, uppercase, tracked wide. Inherits the
+     band's text color. */
+  .route-alt {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+</style>

@@ -291,6 +291,11 @@ export const it = {
     heading: 'Prenota Vidapiena anche su',
   },
 
+  /* La rotta della discesa — i waypoint del binario laterale (304 m → 0 m). */
+  route: {
+    seaLevel: 'livello del mare',
+  },
+
   footer: {
     line: 'Vidapiena — Francesco, guida italiana a Rio de Janeiro.',
     langNames: { it: 'Italiano', en: 'English' },

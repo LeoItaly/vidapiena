@@ -8,6 +8,7 @@
  * same nodes into the counter-flowing marquee.
  */
 import { Picture } from 'astro:assets';
+import RouteMark from './RouteMark.astro';
 import { getPhoto } from '../lib/photos';
 import { t, type Locale } from '../i18n';
 
@@ -36,8 +37,9 @@ const WORDS = ['Comunidade', 'Vida Piena'];
 
 <section class="community band-tint-verde bg-ink text-paper" data-community>
   <div class="community-curtain" data-community-curtain aria-hidden="true"></div>
+  <RouteMark alt={180} accent="verde" />
 
-  <div class="mx-auto w-full max-w-6xl px-5 pt-20 pb-10 md:px-10 md:pt-28 md:pb-12">
+  <div class="mx-auto w-full max-w-6xl px-5 pt-12 pb-10 md:px-10 md:pt-16 md:pb-12">
     <p class="eyebrow text-ouro" data-scramble>{dict.community.eyebrow}</p>
     <h2
       class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl"
@@ -122,7 +124,8 @@ const WORDS = ['Comunidade', 'Vida Piena'];
   /* ---- Static path (default) — readable, swipeable, no JS ---------------- */
   .community {
     position: relative;
-    padding-bottom: 5rem;
+    /* The morro divider below is the breathing room — not padding + divider. */
+    padding-bottom: 2.5rem;
   }
   .community-curtain {
     display: none;

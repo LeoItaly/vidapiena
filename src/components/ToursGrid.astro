@@ -5,6 +5,7 @@
  * (cards rise from translateZ with a stagger, see tours-grid.ts) plus a light
  * pointer tilt. The static path renders this exact grid untouched.
  */
+import RouteMark from './RouteMark.astro';
 import SprayStroke from './SprayStroke.astro';
 import TourCard from './TourCard.astro';
 import { TOURS } from '../data/tours';
@@ -17,8 +18,11 @@ const { locale } = Astro.props;
 const dict = t(locale);
 ---
 
-<section id="tour" class="band-tint-azzurro bg-ink text-paper" data-tours-grid>
-  <div class="mx-auto w-full max-w-6xl px-5 py-16 md:px-10 md:py-24">
+<section id="tour" class="band-tint-azzurro relative bg-ink text-paper" data-tours-grid>
+  <RouteMark alt={304} accent="azzurro" />
+  {/* Bottom is tighter than top: Community shares this ink ground, and the
+      rail + curtain carry the hand-off — padding must not reopen the seam. */}
+  <div class="mx-auto w-full max-w-6xl px-5 pt-16 pb-12 md:px-10 md:pt-24 md:pb-16">
     <h2
       class="font-display text-3xl font-bold md:text-4xl"
       style="--stroke: var(--color-azzurro)"

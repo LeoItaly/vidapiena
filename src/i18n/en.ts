@@ -289,6 +289,11 @@ export const en: typeof it = {
     heading: 'Book Vidapiena also on',
   },
 
+  /* The descent route — the side rail's waypoints (304 m → 0 m). */
+  route: {
+    seaLevel: 'sea level',
+  },
+
   footer: {
     line: 'Vidapiena — Francesco, Italian tour guide in Rio de Janeiro.',
     langNames: { it: 'Italiano', en: 'English' },

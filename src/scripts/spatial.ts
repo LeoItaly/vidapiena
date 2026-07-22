@@ -119,8 +119,27 @@ function initStaggerReveals(): void {
   });
 }
 
+/** The descent rail: each gutter segment draws itself as its section crosses. */
+function initRouteRail(): void {
+  gsap.utils.toArray<HTMLElement>('[data-route-seg]').forEach((seg) => {
+    // Pre-hide in JS, not CSS — a failed init must never hide the line.
+    gsap.set(seg, { scaleY: 0, transformOrigin: 'top center' });
+    gsap.to(seg, {
+      scaleY: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: seg.parentElement,
+        start: 'top 85%',
+        end: 'bottom 60%',
+        scrub: 0.6,
+      },
+    });
+  });
+}
+
 export function initSpatial(): void {
   initCorners();
   initGuideParallax();
   initStaggerReveals();
+  initRouteRail();
 }

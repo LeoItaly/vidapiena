@@ -1,0 +1,59 @@
+---
+/**
+ * The favela skyline as a seam. Where two bands used to butt into each other
+ * along a hard horizontal edge, a stepped roofline now crosses between them —
+ * flat-top houses, one water tank, one antenna, one lit window. Geometry over
+ * illustration: precise steps, no curves, max one accent (the window), per
+ * the one-hue-per-band rule.
+ *
+ * Pure markup and CSS — identical on the static and motion paths. A seam that
+ * needs JavaScript is a seam that can break.
+ *
+ * `to` fills the skyline (the houses belong to the band below); `from` is the
+ * sky above them.
+ */
+interface Props {
+  /** Band above (the sky). */
+  from: 'ink' | 'paper';
+  /** Band below (the skyline fill). */
+  to: 'ink' | 'paper';
+  /** The single lit window. */
+  accent?: 'ouro' | 'verde' | 'azzurro' | 'rosso';
+  /** Mirror the roofline so the two seams don't repeat. */
+  flip?: boolean;
+}
+const { from, to, accent = 'ouro', flip = false } = Astro.props;
+---
+
+<div
+  class:list={['morro', flip && 'morro-flip']}
+  aria-hidden="true"
+  style={`--from: var(--color-${from}); --to: var(--color-${to}); --accent: var(--color-${accent})`}
+>
+  <svg viewBox="0 0 1440 96" preserveAspectRatio="none">
+    <path
+      fill="var(--to)"
+      d="M0 96V54H86V38H172V60H258V30H344V52H430V44H516V64H602V26H688V50H774V58H860V34H946V56H1032V42H1118V62H1204V30H1290V50H1376V60H1440V96Z"
+    ></path>
+    {/* Water tank + antenna sit on their roofs; the lit window sits in a wall. */}
+    <rect fill="var(--to)" x="620" y="12" width="22" height="14" rx="1"></rect>
+    <rect fill="var(--to)" x="1240" y="8" width="3" height="22"></rect>
+    <rect fill="var(--accent)" x="368" y="62" width="5" height="7"></rect>
+  </svg>
+</div>
+
+<style>
+  .morro {
+    background: var(--from);
+    height: clamp(48px, 9vw, 110px);
+    line-height: 0;
+  }
+  .morro svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .morro-flip svg {
+    transform: scaleX(-1);
+  }
+</style>
