@@ -36,7 +36,9 @@ which is what makes the one graffiti moment land.
 - Flag salad. Never render either flag literally outside the logo artwork.
 - More than one saturated hue per section band.
 - Recolouring, filtering or greyscaling partner logos (Viator, GetYourGuide, Airbnb, Civitatis).
-- Neon, glow, or gradients as decoration. The only gradients are the two scrims.
+- Neon, glow, or gradients as decoration. Sanctioned gradients are exactly:
+  legibility scrims (`.scrim-b`, the intro vignette), the FinalCta dusk dip,
+  and the low-opacity zone washes (`band-tint-*` — §12).
 - Greyscale-at-rest on tour photos. Those photos are the product (the community
   strip is different — see §2).
 - Any animated presentation without a static fallback (§4).
@@ -229,6 +231,14 @@ down — the reveal is never played twice in one view.
 - The sprayed underline (`SprayStroke.astro`) is the one graffiti device
   available to other sections. One per section heading, coloured via `--stroke`,
   defaulting to `ouro`.
+- **The circular badge** (22 Jul amendment): `visual-references/new-logo.jpeg`
+  is the official round mark — Francesco inside the yellow ring. In-repo copy:
+  `src/assets/logos/vidapiena-badge.jpg`, rendered only through
+  `BrandBadge.astro` (circle crop, 4% overscan so the ring is the edge; the
+  JPEG's black corners must never show). Never recolored, never rotated — the
+  hero's orbit ring spins around it, not with it. Placements: nav (34px, every
+  page), footer (56px), the hero sticker, the site icons
+  (`scripts/make-icons.mjs`), JSON-LD `logo`.
 
 ---
 
@@ -347,3 +357,49 @@ Subpages open with `PageHero` (mono kicker + display h1 on ink, cleared under
 the nav) and close with the shared Footer. Long-form copy sits on paper bands,
 `max-w-prose`. JSON-LD is per-page (`Base`'s `head` slot), breadcrumbs on tour
 pages only.
+
+---
+
+## 12. The continuum (22 Jul 2026 amendment)
+
+The landing no longer reads as stacked bands: the descent (304 m → 0 m) came
+back as the page's spine, told through ambient colour and a handful of
+structural devices.
+
+- **Zone washes.** Each ink band carries ONE radial wash from the descent
+  grade — azzurro (tours), verde (community), ouro (instagram) — via the
+  `band-tint-*` utilities, mixes ≤13%. They are grade-scrims, not decoration;
+  they never become text colours and never stack two hues on one band.
+- **Scrims.** Text over photography sits on `.scrim-b` (raised floor: ≥80%
+  ink under the copy, never under 38% at the top). No ad-hoc gradients.
+- **Morro seams.** Ink↔paper transitions cross `MorroDivider.astro` — a
+  stepped favela roofline (flat tops, one water tank, one antenna, max one
+  accent window). Pure markup, identical on both paths: a seam that needs JS
+  is a seam that can break. Adjacent sections trim their padding — the
+  divider IS the gap.
+- **The descent rail.** `RouteMark.astro` per band (≥1440px, HudCorners'
+  budget): dashed gutter line + mono altitude waypoint (304 azzurro · 180
+  verde · 120 verde-scuro · 60 ouro · 0 rosso "livello del mare").
+  `spatial.ts` scrubs each segment's scaleY as its section crosses; the
+  static path shows the full line (pre-hide in JS only).
+- **Straddles.** Objects may cross seams — the hero badge sticker, the guide
+  portrait (`md:-mt-24`). One straddle per seam; never text.
+- **Light bands float.** Full-bleed paper is retired as a rhythm device on
+  the landing: light surfaces are floating paper panels on the ink canvas
+  (TrustBadges). `#guida` remains the one full-bleed paper band, bounded by
+  morro seams on both sides.
+
+### Marquee resilience (same amendment)
+
+Marquee rows are dual-engine. Base: a pure CSS `mq-drift` loop under
+`.motion-ok` (global.css) over a server-rendered EVEN count of identical
+sequences — `translateX(-50%)` always lands on identical content; duplicates
+carry `.mq-dupe` and stay `display:none` on the static path. Enhancement:
+`marquees.ts` adopts the live CSS position (DOMMatrix `m41`), pins it inline,
+adds `.is-js` (kills the keyframe loop) and continues with the
+scroll-velocity boost — no blank frame at the handoff, and it must run before
+`fill()` adds clones. One failed init can no longer freeze a band: `main.ts`
+isolates every init in its own try/catch (`[vp] <name> init failed` in the
+console is the tell). `?vpdebug=1` exposes `window.__vp = { gsap,
+ScrollTrigger }` for manual-clock verification on machines where rAF is
+frozen.
