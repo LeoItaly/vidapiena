@@ -16,16 +16,33 @@ function motionAllowed(): boolean {
 }
 
 function boot(): void {
-  Promise.all([import('./descent'), import('./hero-video'), import('./tours-deck')])
-    .then(([descent, hero, deck]) => {
-      // Flip first so backdrop/figures/HUD/deck switch atomically, then init
+  Promise.all([
+    import('./hero-video'),
+    import('./tours-grid'),
+    import('./text-reveals'),
+    import('./marquees'),
+    import('./spatial'),
+    import('./nav'),
+  ])
+    .then(([hero, grid, texts, marquees, spatial, nav]) => {
+      // Flip first so every gated presentation switches atomically, then init
       // after the layout settles, then re-measure triggers.
       document.documentElement.classList.add('motion-ok');
       requestAnimationFrame(() => {
-        deck.initToursDeck();
-        descent.initDescent();
+        grid.initToursGrid();
         hero.initHeroVideo();
+        // Waits on document.fonts internally — splitting early mis-measures.
+        texts.initTextReveals();
+        marquees.initMarquees();
+        spatial.initSpatial();
+        nav.initNav();
       });
+
+      // The boot can land mid-intro, with the scroll still locked. Re-measure
+      // once the overlay lifts and the page is its real height again.
+      if (document.documentElement.classList.contains('intro-pending')) {
+        window.addEventListener('vp:intro-done', () => texts.refreshTriggers(), { once: true });
+      }
     })
     .catch(() => {
       // Import failed (offline, blocked) — restore the static path.

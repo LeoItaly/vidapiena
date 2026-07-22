@@ -1,14 +1,13 @@
 ---
 import { SITE } from '../data/site';
 import { TOURS } from '../data/tours';
-import { t, localeHref, absoluteUrl, type Locale } from '../i18n';
+import { t, localeHref, pagePath, absoluteUrl, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const dict = t(locale);
-const pageUrl = absoluteUrl(localeHref(locale));
 
 /*
  * One @graph, all values imported from src/data/ — the same modules that render
@@ -40,6 +39,8 @@ const graph = {
       inLanguage: locale,
     },
     {
+      /* Summary list only — the full TouristTrip (offers, itinerary, image)
+         lives on each detail page. Google's recommended list→detail split. */
       '@type': 'ItemList',
       name: dict.tours.heading,
       itemListElement: TOURS.map((tour, i) => ({
@@ -48,27 +49,7 @@ const graph = {
         item: {
           '@type': 'TouristTrip',
           name: dict.tours.items[tour.id].name,
-          description: dict.tours.items[tour.id].hook,
-          url: `${pageUrl}#tour`,
-          provider: { '@id': operatorId },
-          inLanguage: ['it', 'en', 'pt'],
-          itinerary: {
-            '@type': 'Place',
-            name: tour.meetingPoint,
-            address: { '@type': 'PostalAddress', addressLocality: 'Rio de Janeiro', addressCountry: 'BR' },
-          },
-          offers: {
-            '@type': 'Offer',
-            price: tour.priceBRL,
-            priceCurrency: 'BRL',
-            availability: 'https://schema.org/InStock',
-            ...(tour.priceIsFrom && { priceSpecification: {
-              '@type': 'PriceSpecification',
-              minPrice: tour.priceBRL,
-              priceCurrency: 'BRL',
-            }}),
-          },
-          subjectOf: { '@type': 'CreativeWork', abstract: `Duration ${tour.isoDuration}, max ${tour.maxGroup} participants` },
+          url: absoluteUrl(pagePath(locale, `tour/${tour.slug}/`)),
         },
       })),
     },

@@ -1,0 +1,9 @@
+---
+/** Generic JSON-LD emitter — pages build their graph and pass it in. */
+interface Props {
+  graph: object;
+}
+const { graph } = Astro.props;
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(graph)} is:inline />

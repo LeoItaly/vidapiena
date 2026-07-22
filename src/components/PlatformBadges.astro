@@ -1,0 +1,73 @@
+---
+/**
+ * OTA logo chips, two modes (rules from Context Knowledge/OTA-LINKS.md):
+ * - With `links` (a tour's otaLinks): one chip per LIVE platform, each a deep
+ *   link to that tour's own booking page. Never a placeholder for a missing
+ *   platform — two badges honestly reads "bookable on these two".
+ * - Without `links`: all four marks, unlinked — a trust row, not navigation
+ *   (a global badge deep-linking one arbitrary tour would mislead).
+ * `sponsored` is the correct rel for commercial OTA outbound links.
+ */
+import { PLATFORMS, type PlatformKey } from '../lib/platforms';
+
+interface Props {
+  links?: Partial<Record<PlatformKey, string>>;
+  /** aria-label prefix for linked chips, e.g. "Prenota su" */
+  linkLabel?: string;
+  class?: string;
+}
+const { links, linkLabel = '', class: className = '' } = Astro.props;
+
+const rows = links
+  ? PLATFORMS.filter((p) => links[p.key]).map((p) => ({ ...p, url: links[p.key] }))
+  : PLATFORMS.map((p) => ({ ...p, url: undefined as string | undefined }));
+---
+
+<ul class={`flex flex-wrap items-center gap-2.5 ${className}`}>
+  {
+    rows.map((p) => (
+      <li>
+        {p.url ? (
+          <a
+            href={p.url}
+            class="badge-chip is-link"
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            aria-label={`${linkLabel} ${p.name}`.trim()}
+          >
+            <img src={p.logo.src} alt={p.name} class="badge-logo" loading="lazy" decoding="async" />
+          </a>
+        ) : (
+          <span class="badge-chip">
+            <img src={p.logo.src} alt={p.name} class="badge-logo" loading="lazy" decoding="async" />
+          </span>
+        )}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  /* Official marks live on a light neutral chip regardless of the band behind. */
+  .badge-chip {
+    display: flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+    background: #fff;
+    padding: 0.55rem 1.05rem;
+  }
+  a.badge-chip {
+    transition:
+      border-color 0.2s ease,
+      transform 0.25s var(--ease-vp-out);
+  }
+  a.badge-chip:hover {
+    border-color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+    transform: translateY(-2px);
+  }
+  .badge-logo {
+    height: 1.15rem;
+    width: auto;
+  }
+</style>

@@ -1,0 +1,29 @@
+---
+/**
+ * Shared opening band for subpages: mono kicker + display h1 on ink, with
+ * enough top padding to clear the fixed nav. Text reveals (scramble + masked
+ * rise) pick the elements up on the motion path; the static path is complete
+ * as rendered.
+ */
+interface Props {
+  kicker: string;
+  heading: string;
+  sub?: string;
+}
+const { kicker, heading, sub } = Astro.props;
+---
+
+<header class="bg-ink text-paper">
+  <div
+    class="mx-auto w-full max-w-6xl px-5 pt-[calc(var(--nav-h)+3.5rem)] pb-12 md:px-10 md:pt-[calc(var(--nav-h)+5.5rem)] md:pb-16"
+  >
+    <p class="eyebrow text-ouro" data-scramble>{kicker}</p>
+    <h1
+      class="font-display mt-3 max-w-[20ch] text-4xl leading-[1.05] font-bold text-balance md:text-6xl"
+      data-reveal-heading
+    >
+      {heading}
+    </h1>
+    {sub && <p class="mt-5 max-w-xl text-base leading-relaxed text-paper/85 md:text-lg">{sub}</p>}
+  </div>
+</header>

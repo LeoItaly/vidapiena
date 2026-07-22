@@ -1,0 +1,256 @@
+---
+/**
+ * The community band — two rows travelling in opposite directions, both keyed
+ * to how fast you are scrolling. Near-still when you stop, quick when you move.
+ *
+ * One markup tree, two presentations (the deck's trick): by default this is a
+ * readable heading over a swipeable photo strip; `.motion-ok` turns the exact
+ * same nodes into the counter-flowing marquee.
+ */
+import { Picture } from 'astro:assets';
+import { getPhoto } from '../lib/photos';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+
+/* Widths track each photo's own aspect at the row height, so portraits aren't
+   cropped to slivers and the strip gets its rhythm from the pictures. */
+const PHOTOS = [
+  { key: 'marquee-1', w: 580, alt: 'Poesia dipinta su un muro del Vidigal, con il mare sullo sfondo' },
+  { key: 'marquee-2', w: 600, alt: 'Murale colorato "Vidigal 314" con gli aquiloni' },
+  { key: 'marquee-3', w: 340, alt: 'I tetti di Tavares Bastos verso il Pan di Zucchero' },
+  { key: 'marquee-4', w: 590, alt: 'Murale delle ali "Paz — Vidigal"' },
+  { key: 'marquee-5', w: 330, alt: 'Rio de Janeiro vista dall’alto, tra il Pan di Zucchero e la baia' },
+  { key: 'marquee-6', w: 340, alt: 'Murale "I love Rio" dipinto in un locale del Vidigal' },
+  { key: 'marquee-7', w: 320, alt: 'Mosaico "Vidigal" su una parete della comunità' },
+].map((p) => ({ ...p, photo: getPhoto(p.key) }));
+
+/* Portuguese is brand voice — identical in both locales, like the zone labels.
+   The row is decorative; the real heading above carries the meaning. */
+const WORDS = ['Comunidade', 'Vida Piena'];
+---
+
+<section class="community bg-ink text-paper" data-community>
+  <div class="community-curtain" data-community-curtain aria-hidden="true"></div>
+
+  <div class="mx-auto w-full max-w-6xl px-5 pt-20 pb-10 md:px-10 md:pt-28 md:pb-12">
+    <p class="eyebrow text-ouro" data-scramble>{dict.community.eyebrow}</p>
+    <h2
+      class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl"
+      data-reveal-heading
+      data-reveal-trigger="[data-community]"
+    >
+      {dict.community.heading}
+    </h2>
+  </div>
+
+  {/* Row 1 — the giant words, travelling right. */}
+  <div class="mq-row mq-words" data-marquee-row data-dir="1" data-speed="76" aria-hidden="true">
+    <div class="mq-track" data-marquee-track>
+      <div class="mq-seq" data-marquee-seq>
+        {
+          WORDS.map((w) => (
+            <>
+              <span class="mq-word">{w}</span>
+              <span class="mq-chip" />
+            </>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  {/* Row 2 — the pictures, counter-flowing left. */}
+  <div class="mq-row mq-photos" data-marquee-row data-dir="-1" data-speed="96">
+    <div class="mq-track" data-marquee-track>
+      <div class="mq-seq" data-marquee-seq>
+        {
+          PHOTOS.map((p) => (
+            <figure class="mq-figure" style={`--w: ${p.w}px`}>
+              {p.photo ? (
+                <Picture
+                  src={p.photo}
+                  formats={['avif', 'webp']}
+                  widths={[360, 640, 960]}
+                  sizes="(min-width: 768px) 600px, 60vw"
+                  alt={p.alt}
+                  class="mq-img"
+                  loading="lazy"
+                  decoding="async"
+                  draggable="false"
+                />
+              ) : (
+                <div class="mq-img mq-fallback" role="presentation" />
+              )}
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---- Static path (default) — readable, swipeable, no JS ---------------- */
+  .community {
+    position: relative;
+    padding-bottom: 5rem;
+  }
+  .community-curtain {
+    display: none;
+  }
+
+  .mq-words {
+    padding: 0 1.25rem;
+    text-align: center;
+  }
+  .mq-seq {
+    display: flex;
+    align-items: center;
+  }
+  .mq-words .mq-seq {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.2rem;
+  }
+  .mq-word {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 8vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  /* The dash chip — a gold tile with a bar punched out of it. Sized off the
+     viewport rather than `em`: the giant size lives on .mq-word, so an em here
+     would resolve against the row's base font and collapse to a speck. */
+  .mq-chip {
+    position: relative;
+    display: block;
+    height: clamp(24px, 3.4vw, 52px);
+    width: clamp(24px, 3.4vw, 52px);
+    flex: none;
+    background: var(--color-ouro);
+  }
+  .mq-chip::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 22%;
+    height: 3px;
+    width: 56%;
+    translate: 0 -50%;
+    background: var(--color-ink);
+  }
+  :global(.motion-ok) .mq-chip {
+    height: clamp(52px, 7.6vw, 116px);
+    width: clamp(52px, 7.6vw, 116px);
+  }
+  :global(.motion-ok) .mq-chip::before {
+    height: 5px;
+  }
+
+  .mq-photos {
+    margin-top: 2.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mq-photos .mq-seq {
+    gap: 0.75rem;
+    padding-inline: 1.25rem;
+  }
+  .mq-figure {
+    flex: none;
+    width: min(var(--w), 72vw);
+    scroll-snap-align: center;
+  }
+  .mq-img {
+    height: 260px;
+    width: 100%;
+    border-radius: 0.5rem;
+    object-fit: cover;
+  }
+  .mq-fallback {
+    background: linear-gradient(150deg, var(--color-verde) 0%, var(--color-notturno) 100%);
+  }
+
+  /* ---- Motion path — the counter-flowing marquee ------------------------- */
+  :global(.motion-ok) .community {
+    overflow: hidden;
+  }
+  :global(.motion-ok) .community-curtain {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: block;
+    background: var(--color-ink);
+    transform-origin: top center;
+  }
+
+  :global(.motion-ok) .mq-row {
+    overflow: hidden;
+    padding: 0;
+    /* A row that can't be scrolled by hand can't fight the tween. */
+    overflow-x: hidden;
+  }
+  :global(.motion-ok) .mq-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  :global(.motion-ok) .mq-seq {
+    flex-wrap: nowrap;
+    /* The trailing gap lives inside the sequence, so its measured width is
+       exactly the wrap distance and the seam never opens. */
+    gap: 1.5rem;
+    padding-right: 1.5rem;
+    padding-inline-start: 0;
+  }
+  :global(.motion-ok) .mq-word {
+    font-size: clamp(100px, 15vw, 230px);
+    line-height: 0.86;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+  }
+  :global(.motion-ok) .mq-photos {
+    margin-top: 1.5rem;
+    scroll-snap-type: none;
+  }
+  :global(.motion-ok) .mq-figure {
+    width: var(--w);
+    scroll-snap-align: none;
+  }
+  :global(.motion-ok) .mq-img {
+    height: 420px;
+    /* Colour is the reward for stopping on one. */
+    filter: grayscale(0.85) contrast(1.04) brightness(0.92);
+    transition:
+      transform 1.8s var(--ease-vp-out),
+      filter 1.6s var(--ease-vp-out);
+  }
+  :global(.motion-ok) .mq-figure:hover .mq-img {
+    filter: grayscale(0.05) saturate(1.05);
+    transform: scale(1.04);
+  }
+
+  @media (max-width: 767px) {
+    :global(.motion-ok) .mq-img {
+      height: 260px;
+    }
+    :global(.motion-ok) .mq-seq {
+      gap: 0.9rem;
+      padding-right: 0.9rem;
+    }
+  }
+  /* No hover on touch — rest closer to colour so phones aren't left grey. */
+  @media (pointer: coarse) {
+    :global(.motion-ok) .mq-img {
+      filter: grayscale(0.35) contrast(1.02);
+    }
+  }
+</style>

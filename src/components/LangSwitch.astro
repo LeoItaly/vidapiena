@@ -1,11 +1,14 @@
 ---
-import { t, localeHref, LOCALES, type Locale } from '../i18n';
+import { t, pagePath, LOCALES, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
+  /** Locale-neutral tail of the current page ('' = home), so switching language
+      lands on the same page instead of bouncing to the other homepage. */
+  path?: string;
   class?: string;
 }
-const { locale, class: className = '' } = Astro.props;
+const { locale, path = '', class: className = '' } = Astro.props;
 const dict = t(locale);
 ---
 
@@ -15,11 +18,11 @@ const dict = t(locale);
       <>
         {i > 0 && <span class="mx-1 opacity-40">/</span>}
         {l === locale ? (
-          <span aria-current="page" class="text-ambra">
+          <span aria-current="page" class="text-ouro">
             {l}
           </span>
         ) : (
-          <a href={localeHref(l)} class="opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100">
+          <a href={pagePath(l, path)} class="opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100">
             {l}
           </a>
         )}

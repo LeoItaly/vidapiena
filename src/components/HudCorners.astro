@@ -1,0 +1,68 @@
+---
+/**
+ * Instrument furniture pinned to the viewport corners — the page slides under
+ * it. Blend mode does the legibility work: white in `difference` inverts itself
+ * against whatever band is behind it, so the same label reads on ink and on
+ * paper without a scrim.
+ *
+ * Decorative only (the altimeter carries the real readout, and every fact here
+ * is stated in the page text). Desktop + motion path only: on phones the
+ * altimeter already owns the corner budget.
+ */
+---
+
+<div class="corners" data-corners aria-hidden="true">
+  <p class="corner corner-br">Vidapiena — Rio de Janeiro · 22°54′S 43°11′W</p>
+  <p class="corner corner-bl tabular-nums">
+    [ RIO <span data-corner-clock="America/Sao_Paulo">--:--:--</span> · ROMA <span
+      data-corner-clock="Europe/Rome">--:--:--</span> ]
+  </p>
+</div>
+
+<style>
+  .corners {
+    display: none;
+  }
+  :global(.motion-ok) .corners {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    /* Furniture, never a target. */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-vp);
+    /* The blend has to happen against the page, so the layer cannot be
+       isolated by a stacking context of its own beyond this one. */
+    mix-blend-mode: difference;
+  }
+  :global(.motion-ok) .corners.is-visible {
+    opacity: 1;
+  }
+  .corner {
+    position: absolute;
+    margin: 0;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* Bottom corners only — the fixed nav owns the top strip now. */
+  .corner-br {
+    bottom: 1.6rem;
+    right: 2.5rem;
+  }
+  .corner-bl {
+    bottom: 1.6rem;
+    left: 2.5rem;
+  }
+
+  /* Phones: the altimeter is already bottom-right and space is tight. */
+  @media (max-width: 1023px) {
+    :global(.motion-ok) .corners {
+      display: none;
+    }
+  }
+</style>

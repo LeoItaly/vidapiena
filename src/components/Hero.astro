@@ -5,10 +5,8 @@ import viatorLogo from '../assets/logos/viator.png';
 import airbnbLogo from '../assets/logos/airbnb.svg';
 import gygLogo from '../assets/logos/getyourguide.svg';
 import civitatisLogo from '../assets/logos/civitatis.svg';
-import LangSwitch from './LangSwitch.astro';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
-import { whatsappLink } from '../data/site';
-import { t, type Locale } from '../i18n';
+import { t, pagePath, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -18,7 +16,6 @@ const dict = t(locale);
 
 // Shared transforms with BaseHead's preloads — one poster download per viewport.
 const posters = await getHeroPosters();
-const wa = whatsappLink(dict.cta.whatsappPrefill);
 
 /*
  * Mini trust row — same assets and trademark rules as TrustBadges (official
@@ -34,7 +31,9 @@ const badges = [
 ];
 ---
 
-<header class="relative h-svh overflow-hidden">
+{/* `data-hero` (not <header>) — the site header is the fixed Nav now; the
+    corner furniture and the nav's scrolled-state trigger both key off this. */}
+<section data-hero class="relative h-svh overflow-hidden">
   <!-- Poster = the LCP element. The reveal video layers on top later (M3 script),
        and its final frame pixel-matches this poster by design of the asset. -->
   <picture>
@@ -65,20 +64,14 @@ const badges = [
   >
   </div>
 
-  <!-- Top bar -->
-  <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-4 md:px-10 md:py-6">
-    <span class="font-display text-sm font-bold tracking-[0.28em] uppercase">Vidapiena</span>
-    <LangSwitch locale={locale} />
-  </div>
-
   <!-- Headline block — says what this is (guide, city, language) before anything moves -->
   <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-20 md:px-10 md:pb-24">
-    <p class="eyebrow text-ambra">{dict.hero.kicker}</p>
+    <p class="eyebrow text-ouro" data-scramble>{dict.hero.kicker}</p>
     <h1
       class="font-display mt-3 max-w-[16ch] text-[clamp(2.1rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
     >
       <span class="block">{dict.hero.h1[0]}</span>
-      <span class="block text-ambra">{dict.hero.h1[1]}</span>
+      <span class="block text-ouro">{dict.hero.h1[1]}</span>
     </h1>
     <p class="mt-4 max-w-xl text-[0.95rem] leading-relaxed text-paper/85 md:text-lg">
       {dict.hero.sub}
@@ -86,9 +79,7 @@ const badges = [
 
     <div class="mt-6 flex flex-wrap items-center gap-3">
       <a href="#tour" class="btn btn-primary">{dict.hero.ctaTours}</a>
-      <a href={wa} class="btn btn-ghost" rel="noopener" target="_blank">
-        {dict.cta.whatsappButton}
-      </a>
+      <a href={pagePath(locale, 'contatti/')} class="btn btn-ghost">{dict.nav.contact}</a>
     </div>
 
     <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -122,4 +113,4 @@ const badges = [
       ↓ {dict.hero.scrollCue}
     </p>
   </div>
-</header>
+</section>

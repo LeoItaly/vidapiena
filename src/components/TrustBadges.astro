@@ -1,8 +1,5 @@
 ---
-import viatorLogo from '../assets/logos/viator.png';
-import airbnbLogo from '../assets/logos/airbnb.svg';
-import gygLogo from '../assets/logos/getyourguide.svg';
-import civitatisLogo from '../assets/logos/civitatis.svg';
+import { PLATFORMS } from '../lib/platforms';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -13,34 +10,82 @@ const dict = t(locale);
 
 /*
  * Trademark rules (visual-references/platform-logos/README.md): official variants
- * only, no recoloring, equal optical height, light neutral background.
- * TODO(Leo): wrap each badge in a deep link once live listing URLs are confirmed.
+ * only, no recoloring, equal optical height, light neutral background. The
+ * marquee only translates the row — no filters are ever applied to these marks.
+ * Deliberately UNLINKED (OTA-LINKS.md rule): this is the global "Vidapiena is
+ * on…" row — per-tour deep links belong on the cards and tour pages, and a
+ * global badge pointing at one arbitrary tour's listing would mislead.
  */
-const badges = [
-  { name: 'Viator', logo: viatorLogo, h: 'h-6 md:h-7' },
-  { name: 'GetYourGuide', logo: gygLogo, h: 'h-7 md:h-8' },
-  { name: 'Airbnb', logo: airbnbLogo, h: 'h-7 md:h-8' },
-  { name: 'Civitatis', logo: civitatisLogo, h: 'h-5 md:h-6' },
-];
+const SIZES: Record<string, string> = {
+  viator: 'h-6 md:h-7',
+  getyourguide: 'h-7 md:h-8',
+  airbnb: 'h-7 md:h-8',
+  civitatis: 'h-5 md:h-6',
+};
+const badges = PLATFORMS.map((p) => ({ name: p.name, logo: p.logo, h: SIZES[p.key] }));
 ---
 
 <section class="bg-paper text-ink">
   <div class="mx-auto max-w-5xl px-5 py-14 md:px-10 md:py-16">
-    <p class="eyebrow text-center text-ink/55">{dict.badges.heading}</p>
-    <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-      {
-        badges.map((b) => (
-          <li class="flex items-center">
-            <img
-              src={b.logo.src}
-              alt={b.name}
-              class={`w-auto ${b.h}`}
-              loading="lazy"
-              decoding="async"
-            />
-          </li>
-        ))
-      }
-    </ul>
+    <p class="eyebrow text-center text-ink/55" data-scramble>{dict.badges.heading}</p>
+
+    {/* Default: the centred row it has always been. With motion: the same list
+        becomes a slow, endless drift that quickens as you scroll past. */}
+    <div class="badge-row mt-8" data-marquee-row data-dir="-1" data-speed="38">
+      <div class="badge-track" data-marquee-track>
+        <ul class="badge-seq" data-marquee-seq>
+          {
+            badges.map((b) => (
+              <li class="flex items-center">
+                <img
+                  src={b.logo.src}
+                  alt={b.name}
+                  class={`w-auto ${b.h}`}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
+
+<style>
+  /* ---- Static path (default) — the centred, wrapping row ----------------- */
+  .badge-seq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem 3rem;
+  }
+
+  /* ---- Motion path — endless drift -------------------------------------- */
+  :global(.motion-ok) .badge-row {
+    overflow: hidden;
+    /* Edges dissolve instead of clipping a logo in half. */
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+  }
+  :global(.motion-ok) .badge-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  :global(.motion-ok) .badge-seq {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    /* Trailing gap inside the sequence — its measured width is the exact wrap
+       distance, so the loop has no seam. */
+    gap: 3rem;
+    padding-right: 3rem;
+  }
+</style>

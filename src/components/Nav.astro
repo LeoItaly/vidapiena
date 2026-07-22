@@ -1,0 +1,270 @@
+---
+/**
+ * The fixed site header — every page gets it via Base.
+ *
+ * Variants: `overlay` (landing — transparent over the hero, turns solid once
+ * the hero is behind; the solid flip needs JS, so the static path forces it
+ * solid from first paint) and `solid` (subpages — always ink).
+ *
+ * The drawer's a11y toggle is the small component script below — it must work
+ * on the static path too, so it is not gated behind `.motion-ok`. The open/
+ * close choreography itself is pure CSS transitions (per-link stagger via
+ * `--i`), guarded by prefers-reduced-motion. `scripts/nav.ts` adds only the
+ * motion-path extras: the scrolled-state trigger and the entrance after the
+ * intro lifts.
+ */
+import LangSwitch from './LangSwitch.astro';
+import { SITE } from '../data/site';
+import { t, pagePath, localeHref, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+  variant?: 'overlay' | 'solid';
+}
+const { locale, path = '', variant = 'solid' } = Astro.props;
+const dict = t(locale);
+
+const links = [
+  { label: dict.nav.home, href: pagePath(locale) },
+  { label: dict.nav.tours, href: localeHref(locale, '#tour') },
+  { label: dict.nav.blog, href: pagePath(locale, 'blog/') },
+  { label: dict.nav.guide, href: pagePath(locale, 'la-guida/') },
+  { label: dict.nav.contact, href: pagePath(locale, 'contatti/') },
+];
+---
+
+<header class="site-nav" data-nav data-variant={variant}>
+  <div class="flex h-(--nav-h) w-full items-center justify-between px-5 md:px-10">
+    <a
+      href={pagePath(locale)}
+      class="font-display relative z-10 text-sm font-bold tracking-[0.28em] uppercase"
+    >
+      Vidapiena
+    </a>
+
+    <nav class="nav-desktop" aria-label={dict.nav.menuLabel}>
+      <ul class="flex items-center gap-7">
+        {
+          links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="link-sweep font-mono text-xs tracking-[0.18em] uppercase opacity-85 transition-opacity hover:opacity-100"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="relative z-10 flex items-center gap-5">
+      <LangSwitch locale={locale} path={path} />
+      <button
+        type="button"
+        class="nav-toggle"
+        data-nav-toggle
+        aria-expanded="false"
+        aria-controls="nav-drawer"
+        aria-label={dict.nav.open}
+        data-label-open={dict.nav.open}
+        data-label-close={dict.nav.close}
+      >
+        <span class="nav-toggle-line"></span>
+        <span class="nav-toggle-line"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="nav-drawer" class="nav-drawer" data-nav-drawer hidden>
+  <nav aria-label={dict.nav.menuLabel}>
+    <ul>
+      {
+        links.map((l, i) => (
+          <li class="drawer-item" style={`--i: ${i}`}>
+            <a href={l.href} class="drawer-link font-display" data-drawer-link>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <a
+    href={SITE.instagram}
+    class="drawer-ig eyebrow"
+    rel="noopener"
+    target="_blank"
+    data-drawer-link
+  >
+    Instagram · {SITE.instagramHandle}
+  </a>
+</div>
+
+<script>
+  // Drawer state owner — aria, hidden, scroll lock. Deliberately outside the
+  // motion gate: the menu must open for every visitor with JS at all.
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const drawer = document.querySelector<HTMLElement>('[data-nav-drawer]');
+  const html = document.documentElement;
+
+  if (toggle && drawer) {
+    let open = false;
+    let hideTimer = 0;
+
+    const setOpen = (next: boolean) => {
+      if (next === open) return;
+      open = next;
+      toggle.setAttribute('aria-expanded', String(next));
+      const label = next ? toggle.dataset.labelClose : toggle.dataset.labelOpen;
+      if (label) toggle.setAttribute('aria-label', label);
+      html.classList.toggle('nav-open', next);
+      window.clearTimeout(hideTimer);
+
+      if (next) {
+        drawer.hidden = false;
+        // Next frame, so the opacity transition actually runs from 0.
+        requestAnimationFrame(() => drawer.classList.add('is-open'));
+        drawer.querySelector<HTMLElement>('[data-drawer-link]')?.focus();
+      } else {
+        drawer.classList.remove('is-open');
+        hideTimer = window.setTimeout(() => {
+          drawer.hidden = true;
+        }, 450);
+        toggle.focus();
+      }
+    };
+
+    toggle.addEventListener('click', () => setOpen(!open));
+    drawer.addEventListener('click', (e) => {
+      // Any link tap closes; same-page anchors then scroll normally.
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && open) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-nav {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 50;
+    color: var(--color-paper);
+    background: color-mix(in srgb, var(--color-ink) 94%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-paper) 10%, transparent);
+  }
+
+  /* Overlay variant (landing): transparent at the top on the motion path —
+     nav.ts flips `.is-scrolled` once the hero is behind. The static path has
+     no flip, so it stays solid from first paint (readable over every band). */
+  :global(.motion-ok) .site-nav[data-variant='overlay'] {
+    background: transparent;
+    border-bottom-color: transparent;
+    transition:
+      background-color 0.35s var(--ease-vp),
+      border-color 0.35s var(--ease-vp);
+  }
+  :global(.motion-ok) .site-nav[data-variant='overlay'].is-scrolled {
+    background: color-mix(in srgb, var(--color-ink) 94%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--color-paper) 10%, transparent);
+  }
+
+  .nav-desktop {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .nav-desktop {
+      display: block;
+    }
+    .nav-toggle {
+      display: none;
+    }
+  }
+
+  /* Hamburger — two lines that fold into an X (state class lives on <html>). */
+  .nav-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    height: 2.5rem;
+    width: 2.5rem;
+    align-items: center;
+    cursor: pointer;
+  }
+  @media (min-width: 768px) {
+    .nav-toggle {
+      display: none;
+    }
+  }
+  .nav-toggle-line {
+    display: block;
+    height: 2px;
+    width: 1.4rem;
+    background: currentColor;
+    transition: transform 0.3s var(--ease-vp-in-out);
+  }
+  :global(html.nav-open) .nav-toggle-line:first-child {
+    transform: translateY(4.5px) rotate(45deg);
+  }
+  :global(html.nav-open) .nav-toggle-line:last-child {
+    transform: translateY(-4.5px) rotate(-45deg);
+  }
+
+  /* ---- Drawer -------------------------------------------------------------
+     Sits *under* the bar (z-40 < z-50) so brand, language switch and the
+     toggle stay usable while it is open. */
+  .nav-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: calc(var(--nav-h) + 2.5rem) 1.5rem 2.5rem;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-vp);
+  }
+  .nav-drawer.is-open {
+    opacity: 1;
+  }
+
+  .drawer-item {
+    overflow: hidden;
+  }
+  .drawer-link {
+    display: block;
+    padding-block: 0.3em;
+    font-size: clamp(2.1rem, 9vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+  }
+  .drawer-link:hover,
+  .drawer-link:focus-visible {
+    color: var(--color-ouro);
+  }
+  .drawer-ig {
+    color: color-mix(in srgb, var(--color-paper) 75%, transparent);
+  }
+
+  /* Per-link rise, pure CSS: staggered by --i, only for motion-tolerant users. */
+  @media (prefers-reduced-motion: no-preference) {
+    .drawer-item .drawer-link {
+      translate: 0 110%;
+      transition: translate 0.5s var(--ease-vp-out);
+    }
+    .nav-drawer.is-open .drawer-item .drawer-link {
+      translate: 0 0;
+      transition-delay: calc(var(--i) * 55ms + 60ms);
+    }
+  }
+</style>

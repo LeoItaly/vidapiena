@@ -4,24 +4,53 @@ import '@fontsource-variable/instrument-sans';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
-import JsonLd from '../components/JsonLd.astro';
+import Nav from '../components/Nav.astro';
 import { t, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
+  /** Locale-neutral page tail ('' = home) — threaded to BaseHead and LangSwitch. */
+  path?: string;
+  title?: string;
+  description?: string;
+  ogImage?: ImageMetadata;
+  ogImageAlt?: string;
+  /** Landing only: preload the hero posters (they are its LCP). */
+  preloadHeroPosters?: boolean;
+  /** Nav treatment: 'overlay' (landing hero) or 'solid' (default, subpages). */
+  nav?: 'overlay' | 'solid';
 }
-const { locale } = Astro.props;
+const {
+  locale,
+  path = '',
+  title,
+  description,
+  ogImage,
+  ogImageAlt,
+  preloadHeroPosters = false,
+  nav = 'solid',
+} = Astro.props;
 const dict = t(locale);
 ---
 
 <html lang={locale}>
   <head>
-    <BaseHead locale={locale} />
-    <JsonLd locale={locale} />
+    <BaseHead
+      locale={locale}
+      path={path}
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      ogImageAlt={ogImageAlt}
+      preloadHeroPosters={preloadHeroPosters}
+    />
+    <slot name="head" />
   </head>
   <body class="bg-ink font-sans text-paper antialiased">
     <a href="#main" class="skip-link">{dict.a11y.skipToContent}</a>
+    <Nav locale={locale} path={path} variant={nav} />
     <slot />
     <!-- Analytics slot — decision deferred (VISION.md): GA4 vs privacy-light. Keep empty. -->
     <script src="../scripts/main.ts"></script>

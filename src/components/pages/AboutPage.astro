@@ -1,0 +1,116 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import Footer from '../Footer.astro';
+import JsonLdScript from '../JsonLdScript.astro';
+import { getPhoto } from '../../lib/photos';
+import { SITE } from '../../data/site';
+import { t, pagePath, localeHref, absoluteUrl, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const path = 'la-guida/';
+const photo = getPhoto('guide-francesco');
+const operatorId = `${absoluteUrl(localeHref('it'))}#operator`;
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'AboutPage',
+      name: dict.about.metaTitle,
+      description: dict.about.metaDescription,
+      url: absoluteUrl(pagePath(locale, path)),
+      inLanguage: locale,
+    },
+    {
+      '@type': 'Person',
+      name: SITE.guide.name,
+      description: dict.about.metaDescription,
+      knowsLanguage: ['it', 'en', 'pt'],
+      workLocation: { '@type': 'City', name: 'Rio de Janeiro' },
+      sameAs: [SITE.instagram],
+      worksFor: {
+        '@type': ['TourOperator', 'LocalBusiness'],
+        '@id': operatorId,
+        name: SITE.name,
+        url: absoluteUrl(localeHref('it')),
+      },
+    },
+  ],
+};
+---
+
+<Base
+  locale={locale}
+  path={path}
+  title={dict.about.metaTitle}
+  description={dict.about.metaDescription}
+>
+  <JsonLdScript slot="head" graph={graph} />
+  <PageHero kicker={dict.about.kicker} heading={dict.about.heading} />
+
+  <main id="main">
+    <section class="bg-paper text-ink">
+      <div
+        class="mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1.15fr_1fr] md:gap-16 md:px-10 md:py-24"
+      >
+        <div>
+          {
+            dict.about.story.map((p) => (
+              <p class="mt-5 max-w-prose text-lg leading-relaxed text-ink-soft first:mt-0">{p}</p>
+            ))
+          }
+
+          <dl class="mt-10 border-t border-ink/15">
+            {
+              dict.guide.stats.map((s) => (
+                <div class="grid grid-cols-[9rem_1fr] items-baseline gap-4 border-b border-ink/15 py-3.5 md:grid-cols-[11rem_1fr]">
+                  <dt class="eyebrow text-ink/55">{s.k}</dt>
+                  <dd class="font-display text-lg font-semibold md:text-xl">{s.v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="mt-10 flex flex-wrap items-center gap-3">
+            <a href={localeHref(locale, '#tour')} class="btn btn-primary">{dict.about.ctaTours}</a>
+            <a href={pagePath(locale, 'contatti/')} class="btn btn-ghost-ink">
+              {dict.about.ctaContact}
+            </a>
+          </div>
+        </div>
+
+        <div class="order-first overflow-hidden rounded-lg md:order-none">
+          {
+            photo ? (
+              <Picture
+                src={photo}
+                formats={['avif', 'webp']}
+                widths={[480, 800, 1200]}
+                sizes="(min-width: 768px) 26rem, 100vw"
+                alt={dict.guide.photoAlt}
+                class="aspect-[4/5] w-full rounded-lg object-cover"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+              />
+            ) : (
+              <div
+                class="aspect-[4/5] w-full rounded-lg"
+                style="background: linear-gradient(160deg, var(--color-verde) 0%, var(--color-notturno) 90%)"
+                role="presentation"
+              />
+            )
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer locale={locale} path={path} />
+</Base>

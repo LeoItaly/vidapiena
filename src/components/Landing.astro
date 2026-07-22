@@ -1,13 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
+import JsonLd from './JsonLd.astro';
+import IntroLoader from './IntroLoader.astro';
 import Hero from './Hero.astro';
-import Descent from './descent/Descent.astro';
+import Community from './Community.astro';
 import Guide from './Guide.astro';
-import ToursDeck from './ToursDeck.astro';
-import Tagline from './Tagline.astro';
+import ToursGrid from './ToursGrid.astro';
+import InstagramBand from './InstagramBand.astro';
 import FinalCta from './FinalCta.astro';
 import TrustBadges from './TrustBadges.astro';
 import Footer from './Footer.astro';
+import HudCorners from './HudCorners.astro';
 import type { Locale } from '../i18n';
 
 interface Props {
@@ -16,17 +19,22 @@ interface Props {
 const { locale } = Astro.props;
 ---
 
-<Base locale={locale}>
+<Base locale={locale} preloadHeroPosters nav="overlay">
+  <JsonLd slot="head" locale={locale} />
+  {/* First in the page flow: its inline gate has to run before the hero paints. */}
+  <IntroLoader locale={locale} />
   <Hero locale={locale} />
   <main id="main">
-    {/* Catalogue before atmosphere: a first-time visitor sees what is on sale
-        one scroll in, then the descent explains what it feels like. */}
-    <ToursDeck locale={locale} />
-    <Descent locale={locale} />
+    {/* Catalogue first: a first-time visitor sees what is on sale one scroll
+        in — all four tours at once, each linking to its own page. */}
+    <ToursGrid locale={locale} />
+    {/* The community band sets the scene, then the guide introduces himself. */}
+    <Community locale={locale} />
     <Guide locale={locale} />
-    <Tagline locale={locale} />
+    <InstagramBand locale={locale} />
     <FinalCta locale={locale} />
     <TrustBadges locale={locale} />
   </main>
   <Footer locale={locale} />
+  <HudCorners />
 </Base>

@@ -1,9 +1,9 @@
 ---
 import { Picture } from 'astro:assets';
 import { getPhoto } from '../lib/photos';
-import { whatsappLink } from '../data/site';
+import { PLATFORMS } from '../lib/platforms';
 import type { Tour } from '../data/tours';
-import { t, type Locale } from '../i18n';
+import { t, pagePath, type Locale } from '../i18n';
 
 interface Props {
   tour: Tour;
@@ -14,30 +14,38 @@ const dict = t(locale);
 const copy = dict.tours.items[tour.id];
 const photo = getPhoto(tour.image);
 const price = `R$ ${tour.priceBRL}`;
-const wa = whatsappLink(`${dict.cta.whatsappPrefill} — ${copy.name}`);
+const detailHref = pagePath(locale, `tour/${tour.slug}/`);
+// Platform icons appear per-card only once that platform's listing is live.
+const livePlatforms = PLATFORMS.filter((p) => tour.otaLinks[p.key]);
 ---
 
-<article class="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-white/60">
-  {
-    photo ? (
-      <Picture
-        src={photo}
-        formats={['avif', 'webp']}
-        widths={[480, 800, 1200]}
-        sizes="(min-width: 768px) 34rem, 100vw"
-        alt={copy.name}
-        class="aspect-[3/2] w-full object-cover"
-        loading="lazy"
-        decoding="async"
-      />
-    ) : (
-      <div
-        class="aspect-[3/2] w-full"
-        style="background: linear-gradient(145deg, var(--color-giorno) 0%, var(--color-crepuscolo) 100%)"
-        role="presentation"
-      />
-    )
-  }
+{/* `text-ink` is load-bearing: the card declares its own light background, so it
+    must declare its own foreground too. Inside the grid it sits in a `text-paper`
+    section, and without this the title and price inherit ivory onto ivory. */}
+<article class="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-white/60 text-ink">
+  {/* Duplicate of the CTA below purely as hit area — out of the tab order. */}
+  <a href={detailHref} tabindex="-1" aria-hidden="true">
+    {
+      photo ? (
+        <Picture
+          src={photo}
+          formats={['avif', 'webp']}
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 768px) 34rem, 100vw"
+          alt={copy.name}
+          class="aspect-[3/2] w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div
+          class="aspect-[3/2] w-full"
+          style="background: linear-gradient(145deg, var(--color-azzurro) 0%, var(--color-notturno) 100%)"
+          role="presentation"
+        />
+      )
+    }
+  </a>
 
   <div class="flex grow flex-col p-6 md:p-7">
     <h3 class="font-display text-2xl font-bold">{copy.name}</h3>
@@ -53,11 +61,44 @@ const wa = whatsappLink(`${dict.cta.whatsappPrefill} — ${copy.name}`);
     </p>
     {copy.note && <p class="mt-1 font-mono text-xs text-ink/55">{copy.note}</p>}
 
-    <div class="mt-5">
-      <a href={wa} class="btn btn-primary text-sm" rel="noopener" target="_blank">
-        {dict.tours.bookWhatsapp}
-      </a>
-      {/* TODO(Leo): add OTA deep-link buttons when live listing URLs are confirmed (tours.ts). */}
+    <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+      <a href={detailHref} class="btn btn-primary text-sm">{dict.tours.ctaDetail}</a>
+      {
+        livePlatforms.length > 0 && (
+          <ul class="flex items-center gap-1.5">
+            {livePlatforms.map((p) => (
+              <li>
+                <a
+                  href={tour.otaLinks[p.key]}
+                  class="flex items-center rounded-full border border-ink/15 bg-white px-2.5 py-1.5 transition-colors hover:border-ink/40"
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  aria-label={`${copy.name} — ${p.name}`}
+                >
+                  <img
+                    src={p.logo.src}
+                    alt={p.name}
+                    class="h-3 w-auto"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
     </div>
   </div>
 </article>
+
+<style>
+  /* A slow push-in on hover. Deliberately no grayscale-at-rest here: unlike the
+     community strip, these photos are the product and must sell at a glance. */
+  :global(.motion-ok) article img {
+    transition: transform 0.8s var(--ease-vp-out);
+  }
+  :global(.motion-ok) article:hover img {
+    transform: scale(1.04);
+  }
+</style>

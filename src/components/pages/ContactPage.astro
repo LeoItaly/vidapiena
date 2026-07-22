@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import Footer from '../Footer.astro';
+import JsonLdScript from '../JsonLdScript.astro';
+import PlatformBadges from '../PlatformBadges.astro';
+import { SITE } from '../../data/site';
+import { TOURS } from '../../data/tours';
+import { t, pagePath, localeHref, absoluteUrl, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const path = 'contatti/';
+const operatorId = `${absoluteUrl(localeHref('it'))}#operator`;
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ContactPage',
+      name: dict.contact.metaTitle,
+      description: dict.contact.metaDescription,
+      url: absoluteUrl(pagePath(locale, path)),
+      inLanguage: locale,
+      about: {
+        '@type': ['TourOperator', 'LocalBusiness'],
+        '@id': operatorId,
+        name: SITE.name,
+        url: absoluteUrl(localeHref('it')),
+        sameAs: [SITE.instagram],
+      },
+    },
+  ],
+};
+---
+
+<Base
+  locale={locale}
+  path={path}
+  title={dict.contact.metaTitle}
+  description={dict.contact.metaDescription}
+>
+  <JsonLdScript slot="head" graph={graph} />
+  <PageHero kicker={dict.contact.kicker} heading={dict.contact.heading} />
+
+  <main id="main">
+    <section class="bg-paper text-ink">
+      <div class="mx-auto max-w-6xl px-5 py-16 md:px-10 md:py-24">
+        <div class="max-w-prose">
+          <p class="text-lg leading-relaxed text-ink-soft">{dict.contact.instagramLead}</p>
+          <a href={SITE.instagram} class="btn btn-primary mt-6" rel="noopener" target="_blank">
+            {dict.contact.instagramCta} · {SITE.instagramHandle}
+          </a>
+        </div>
+
+        <div class="mt-14 border-t border-ink/15 pt-10 md:mt-16">
+          <h2 class="font-display text-2xl font-bold md:text-3xl">{dict.contact.bookingHeading}</h2>
+          <p class="mt-3 max-w-prose text-ink-soft">{dict.contact.bookingLead}</p>
+          {/* Trust row only — per-tour deep links live on each tour's page. */}
+          <PlatformBadges class="mt-6" />
+          <ul class="mt-8 max-w-xl divide-y divide-ink/15 border-y border-ink/15">
+            {
+              TOURS.map((tour) => (
+                <li>
+                  <a
+                    href={pagePath(locale, `tour/${tour.slug}/`)}
+                    class="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4"
+                  >
+                    <span class="font-display text-lg font-bold transition-colors group-hover:text-verde">
+                      {dict.tours.items[tour.id].name}
+                    </span>
+                    <span class="eyebrow text-verde">{dict.tours.ctaDetail} →</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="mt-14 border-t border-ink/15 pt-10 md:mt-16">
+          <h2 class="font-display text-2xl font-bold md:text-3xl">
+            {dict.contact.logisticsHeading}
+          </h2>
+          <ul class="mt-5 max-w-prose space-y-3">
+            {
+              dict.contact.logisticsItems.map((item) => (
+                <li class="flex gap-3 leading-relaxed text-ink-soft">
+                  <span class="mt-[0.55em] block h-1.5 w-1.5 flex-none rounded-full bg-verde" aria-hidden="true" />
+                  {item}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer locale={locale} path={path} />
+</Base>

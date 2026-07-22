@@ -1,0 +1,70 @@
+---
+/**
+ * The catalogue, second thing on the page — all four tours on stage at once.
+ * The old one-at-a-time depth corridor is gone; depth is now an entrance
+ * (cards rise from translateZ with a stagger, see tours-grid.ts) plus a light
+ * pointer tilt. The static path renders this exact grid untouched.
+ */
+import SprayStroke from './SprayStroke.astro';
+import TourCard from './TourCard.astro';
+import { TOURS } from '../data/tours';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<section id="tour" class="bg-ink text-paper" data-tours-grid>
+  <div class="mx-auto w-full max-w-6xl px-5 py-16 md:px-10 md:py-24">
+    <h2
+      class="font-display text-3xl font-bold md:text-4xl"
+      style="--stroke: var(--color-azzurro)"
+      data-reveal-heading
+    >
+      {dict.tours.heading}
+      <SprayStroke />
+    </h2>
+    <p class="eyebrow mt-3 text-paper/60" data-scramble>{dict.tours.sub}</p>
+
+    <ul class="tours-grid mt-10 md:mt-12">
+      {
+        TOURS.map((tour) => (
+          <li class="tours-grid-card" data-grid-card>
+            <TourCard tour={tour} locale={locale} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .tours-grid {
+    display: grid;
+    gap: 1.5rem;
+    /* One shared camera for the entrance + hover tilt — perspective lives on
+       the grid, not the cards. Harmless on the static path. */
+    perspective: 1000px;
+  }
+  @media (min-width: 768px) {
+    .tours-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+  }
+  .tours-grid-card {
+    transform-style: preserve-3d;
+  }
+  /* TourCard declares `bg-white/60` for light panels; on ink it needs an
+     opaque surface (same override the deck used). */
+  .tours-grid-card :global(article) {
+    height: 100%;
+    background: var(--color-paper);
+  }
+  :global(.motion-ok) .tours-grid-card {
+    will-change: transform, opacity;
+  }
+</style>

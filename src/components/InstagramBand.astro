@@ -1,0 +1,73 @@
+---
+/**
+ * The Instagram band — a static curated strip, not an embed. No third-party
+ * script survives the CWV budget (and GitHub Pages has no proxy to hide one
+ * behind), so the tiles are the site's own curated photos and the single CTA
+ * carries the action. Tiles are decorative for assistive tech: one link, not
+ * seven identical ones.
+ */
+import { Picture } from 'astro:assets';
+import { getPhoto } from '../lib/photos';
+import { SITE } from '../data/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+
+/* Real photos only — the AI-generated zone-5 render is deliberately excluded:
+   presented as feed content it would misrepresent. */
+const TILE_KEYS = [
+  'zone-1-mirante',
+  'marquee-2',
+  'zone-3-becos',
+  'marquee-4',
+  'zone-4-ladeira',
+  'marquee-7',
+];
+const tiles = TILE_KEYS.map((key) => getPhoto(key)).filter((p) => p !== null);
+---
+
+<section class="bg-ink text-paper" data-instagram>
+  <div class="mx-auto w-full max-w-6xl px-5 py-16 md:px-10 md:py-24">
+    <p class="eyebrow text-ouro" data-scramble>{dict.instagram.kicker}</p>
+    <h2 class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl" data-reveal-heading>
+      {dict.instagram.heading}
+    </h2>
+    <p class="mt-4 max-w-xl leading-relaxed text-paper/80">{dict.instagram.sub}</p>
+
+    <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4" data-stagger>
+      {
+        tiles.map((photo) => (
+          <div class="ig-tile overflow-hidden rounded-md">
+            <Picture
+              src={photo}
+              formats={['avif', 'webp']}
+              widths={[240, 480]}
+              sizes="(min-width: 768px) 11rem, 45vw"
+              alt=""
+              class="ig-img aspect-square w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    <a href={SITE.instagram} class="btn btn-primary mt-9" rel="noopener" target="_blank">
+      {dict.instagram.cta} · {SITE.instagramHandle}
+    </a>
+  </div>
+</section>
+
+<style>
+  :global(.motion-ok) .ig-img {
+    transition: transform 0.8s var(--ease-vp-out);
+  }
+  :global(.motion-ok) .ig-tile:hover .ig-img {
+    transform: scale(1.06);
+  }
+</style>

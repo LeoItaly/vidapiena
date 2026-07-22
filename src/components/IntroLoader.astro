@@ -1,0 +1,243 @@
+---
+/**
+ * The opening. Three seconds of instrument panel over the spray-paint reveal,
+ * then the whole thing lifts to expose the hero poster underneath — which is
+ * the video's own final frame, so the handoff has no seam.
+ *
+ * Deliberately outside the `.motion-ok` gate: this has to be on screen before
+ * the idle boot, so it carries its own gate (the inline script below) and runs
+ * on rAF + CSS transitions with no GSAP.
+ */
+import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
+import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
+import { t, type Locale } from '../i18n';
+
+/* The altimeter's starting height — the mirante's 304 m. Survives the descent
+   section's removal because the intro keeps counting down from it (intro.ts
+   holds its own copy of the same number). */
+const ALTITUDE_TOP = 304;
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+
+/* Rendered server-side so the rail is complete on the first frame. Every 20th
+   tick is major, every 10th medium; phones drop the odd ones down to 110. */
+const TICKS = 220;
+const ticks = Array.from({ length: TICKS }, (_, i) =>
+  i % 20 === 0 ? 'is-major' : i % 10 === 0 ? 'is-medium' : ''
+);
+---
+
+<div id="intro" class="intro" role="presentation" aria-label={dict.a11y.introLabel} hidden>
+  <video
+    class="intro-video"
+    muted
+    playsinline
+    preload="auto"
+    aria-hidden="true"
+    data-intro-video
+    data-src-landscape={video16Url}
+    data-src-portrait={video9Url}></video>
+  <div class="intro-vignette" aria-hidden="true"></div>
+
+  <div class="intro-hud">
+    <p class="intro-brand"><span class="intro-dot"></span>Vidapiena — Rio ⇄ Roma</p>
+
+    <p class="intro-clocks tabular-nums">
+      <span>[ RIO · <span data-intro-clock="America/Sao_Paulo">--:--:--</span> ]</span>
+      <span>[ ROMA · <span data-intro-clock="Europe/Rome">--:--:--</span> ]</span>
+    </p>
+
+    <p class="intro-count tabular-nums">
+      <span data-intro-count>{ALTITUDE_TOP}</span><span class="intro-unit">m</span>
+    </p>
+
+    <button type="button" class="intro-skip" data-intro-skip>[ {dict.intro.skip} ]</button>
+  </div>
+
+  <div class="intro-ruler" aria-hidden="true">
+    {ticks.map((cls) => <span class={`intro-tick ${cls}`} />)}
+    <span class="intro-playhead" data-intro-playhead></span>
+  </div>
+</div>
+
+{/*
+  Runs while the body is still parsing, so the overlay is up before the hero
+  gets a chance to paint. Same refusals as main.ts's motion gate, plus: once
+  per session only, and never twice in one visit.
+*/}
+<script is:inline>
+  (function () {
+    try {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var c = navigator.connection;
+      if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return;
+      if (sessionStorage.getItem('vp-intro')) return;
+      sessionStorage.setItem('vp-intro', '1');
+      // Claimed here, not at the end: the idle boot may fire mid-intro, and the
+      // hero must know the reveal is already being handled.
+      window.__vpIntroRan = true;
+      document.getElementById('intro').hidden = false;
+      document.documentElement.classList.add('intro-pending');
+    } catch (e) {}
+  })();
+</script>
+
+<script>
+  import { initIntro } from '../scripts/intro';
+  initIntro();
+</script>
+
+<style>
+  .intro {
+    position: fixed;
+    inset: 0;
+    /* Above the skip link (z-100) — nothing outranks the opening. */
+    z-index: 110;
+    background: var(--color-ink);
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+  }
+  .intro-video {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    /* Matches the hero's own object-fit so the last frame lands exactly where
+       the poster already is. */
+    object-fit: cover;
+  }
+  .intro-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 35%,
+      color-mix(in srgb, var(--color-ink) 78%, transparent) 100%
+    );
+  }
+
+  .intro-hud {
+    position: absolute;
+    inset: 0;
+    font-family: var(--font-mono);
+    color: var(--color-paper);
+  }
+  .intro-brand,
+  .intro-clocks,
+  .intro-skip {
+    position: absolute;
+    font-size: 0.62rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .intro-brand {
+    top: 1.5rem;
+    left: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .intro-dot {
+    display: block;
+    height: 6px;
+    width: 6px;
+    border-radius: 999px;
+    background: var(--color-rosso);
+  }
+  .intro-clocks {
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .intro-skip {
+    right: 1.5rem;
+    bottom: 3.4rem;
+    cursor: pointer;
+    transition: opacity 0.2s var(--ease-vp);
+  }
+  .intro-skip:hover {
+    opacity: 1;
+  }
+
+  .intro-count {
+    position: absolute;
+    bottom: 2.9rem;
+    left: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 4.4vw, 4.2rem);
+    font-weight: 300;
+    line-height: 1;
+  }
+  .intro-unit {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .intro-ruler {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 2rem;
+    padding-inline: 1.5rem;
+  }
+  .intro-tick {
+    width: 1px;
+    height: 4px;
+    background: color-mix(in srgb, var(--color-paper) 28%, transparent);
+  }
+  .intro-tick.is-medium {
+    height: 8px;
+  }
+  .intro-tick.is-major {
+    height: 14px;
+    background: color-mix(in srgb, var(--color-paper) 55%, transparent);
+  }
+  .intro-playhead {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    height: 22px;
+    background: var(--color-rosso);
+  }
+
+  /* The lift: the overlay collapses toward the top edge, uncovering the hero
+     from the bottom up. */
+  .intro {
+    transition: clip-path 0.7s var(--ease-vp-in-out);
+  }
+  .intro.is-done {
+    clip-path: inset(0 0 100% 0);
+  }
+  .intro.is-skipped {
+    transition-duration: 0.45s;
+  }
+
+  @media (max-width: 767px) {
+    .intro-tick:nth-child(even) {
+      display: none;
+    }
+    .intro-clocks {
+      gap: 0.6rem;
+      font-size: 0.54rem;
+      letter-spacing: 0.16em;
+    }
+    .intro-brand {
+      font-size: 0.54rem;
+      letter-spacing: 0.16em;
+    }
+  }
+</style>

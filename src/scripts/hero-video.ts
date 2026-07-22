@@ -4,6 +4,11 @@
  * is seamless; every failure path simply leaves the poster visible.
  */
 export function initHeroVideo(): void {
+  // The opening overlay plays this exact clip fullscreen and lifts onto the
+  // poster, which is its final frame. Replaying it here would rewind the
+  // reveal the visitor just watched.
+  if ((window as { __vpIntroRan?: boolean }).__vpIntroRan) return;
+
   const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
   if (!video) return;
 

@@ -1,0 +1,88 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import Footer from '../Footer.astro';
+import JsonLdScript from '../JsonLdScript.astro';
+import { SITE } from '../../data/site';
+import { t, pagePath, absoluteUrl, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const path = 'blog/';
+
+const posts = (
+  await getCollection('blog', ({ data }) => data.locale === locale && !data.draft)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const slugOf = (id: string) => id.replace(/^(it|en)\//, '');
+const dateFmt = new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: dict.blog.metaTitle,
+  description: dict.blog.metaDescription,
+  url: absoluteUrl(pagePath(locale, path)),
+  inLanguage: locale,
+};
+---
+
+<Base locale={locale} path={path} title={dict.blog.metaTitle} description={dict.blog.metaDescription}>
+  <JsonLdScript slot="head" graph={graph} />
+  <PageHero kicker={dict.blog.kicker} heading={dict.blog.heading} />
+
+  <main id="main">
+    <section class="bg-paper text-ink">
+      <div class="mx-auto min-h-[38svh] max-w-6xl px-5 py-16 md:px-10 md:py-24">
+        {
+          posts.length === 0 ? (
+            <div class="max-w-prose">
+              <p class="font-display text-2xl font-bold md:text-3xl">{dict.blog.empty}</p>
+              <p class="mt-4 text-lg leading-relaxed text-ink-soft">{dict.blog.emptySub}</p>
+              <a href={SITE.instagram} class="btn btn-ghost-ink mt-8" rel="noopener" target="_blank">
+                Instagram · {SITE.instagramHandle}
+              </a>
+            </div>
+          ) : (
+            <ul class="divide-y divide-ink/15 border-y border-ink/15">
+              {posts.map((post) => (
+                <li>
+                  <a
+                    href={pagePath(locale, `blog/${slugOf(post.id)}/`)}
+                    class="group grid gap-2 py-7 md:grid-cols-[11rem_1fr] md:gap-8"
+                  >
+                    <time
+                      class="eyebrow text-ink/55"
+                      datetime={post.data.date.toISOString().slice(0, 10)}
+                    >
+                      {dateFmt.format(post.data.date)}
+                    </time>
+                    <span>
+                      <span class="font-display block text-2xl font-bold transition-colors group-hover:text-verde md:text-3xl">
+                        {post.data.title}
+                      </span>
+                      <span class="mt-2 block max-w-prose leading-relaxed text-ink-soft">
+                        {post.data.description}
+                      </span>
+                      <span class="eyebrow mt-3 inline-block text-verde">{dict.blog.readMore} →</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </section>
+  </main>
+
+  <Footer locale={locale} path={path} />
+</Base>

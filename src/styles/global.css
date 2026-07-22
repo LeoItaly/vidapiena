@@ -1,29 +1,45 @@
 @import "tailwindcss";
 
 /*
- * Vidapiena design tokens — descent palette (dawn → daylight → golden hour → dusk)
- * Zone names in Italian, matching the brand voice. Refined during the M2 visual pass.
+ * Vidapiena design tokens — the Brazil–Italy palette. Full rationale, usage
+ * rules and the contrast matrix live in docs/DESIGN.md.
+ *
+ * Both flags share GREEN — that is the bridge, and the brand hue. Brazil adds
+ * gold and blue; Italy adds red and the warm ivory. The flags are never drawn
+ * literally anywhere except inside the logo artwork itself.
  */
 @theme {
-  /* Descent palette stops */
-  --color-alba: #e8a33d; /* dawn gold — zone 1, O Mirante */
-  --color-giorno: #2f9ec7; /* tropical daylight — zones 2-3 */
-  --color-oro: #d96f32; /* golden hour — zone 4, A Ladeira */
-  --color-crepuscolo: #3b2d5e; /* dusk violet — zone 5, O Asfalto */
+  /* The bridge — the color both flags have in common */
+  --color-verde: #0e7d3f; /* between IT #008C45 and BR #009739 — 4.71:1 on paper */
+  --color-verde-scuro: #0a5230; /* small text / borders on light — 8.37:1 */
 
-  /* Single warm accent */
-  --color-ambra: #ffb03a;
+  /* Brazil */
+  --color-ouro: #f3c53d; /* the working accent: buttons, focus, active ticks */
+  --color-azzurro: #2a66a4; /* flag blue, Italian name — 5.36:1 on paper */
 
-  /* Neutrals (warm) */
-  --color-ink: #1b1410;
-  --color-ink-soft: #35281f;
-  --color-paper: #faf5ec;
-  --color-paper-dim: #efe6d6;
+  /* Italy */
+  --color-rosso: #bb2431; /* rationed signal accent — it points, it never fills */
+
+  /* Guanabara dusk — the deep-blue closing accent (final CTA gradient) */
+  --color-notturno: #14304a;
+
+  /* Neutrals (green-leaning ink, Italian ivory) */
+  --color-ink: #10150f;
+  --color-ink-soft: #2e3a2b;
+  --color-paper: #f7f3e8;
+  --color-paper-dim: #ece6d3;
 
   /* Type */
   --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
   --font-sans: "Instrument Sans Variable", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Motion — the same four curves GSAP registers in scripts/motion-tokens.ts.
+     Kept in sync by hand so CSS transitions and tweens move identically. */
+  --ease-vp: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-vp-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-vp-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-vp-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 /* `overflow-x: clip` (never `hidden`) — hidden silently kills position: sticky */
@@ -32,11 +48,55 @@ body {
   overflow-x: clip;
 }
 
+/* Scroll lock while the opening overlay is up. Only the y axis is touched, so
+   the `clip` above (and every sticky descendant with it) survives. */
+html.intro-pending {
+  overflow-y: hidden;
+}
+
+/* Same lock while the mobile drawer is open. */
+html.nav-open {
+  overflow-y: hidden;
+}
+
+/* The nav stays out of sight under the intro overlay; nav.ts rides it in on
+   `vp:intro-done` (motion path — the static path never has intro-pending). */
+html.intro-pending [data-nav] {
+  opacity: 0;
+}
+
 html {
   background-color: var(--color-ink);
   color: var(--color-paper);
   font-family: var(--font-sans);
   scroll-behavior: smooth;
+  /* The page is dark; let the browser draw dark UI too — without this, Windows
+     paints a white scrollbar strip down the right edge of the ink page. */
+  color-scheme: dark;
+  scrollbar-color: color-mix(in srgb, var(--color-paper) 26%, var(--color-ink)) var(--color-ink);
+  /* Fixed-header height — nav layout and anchor offsets read the same number. */
+  --nav-h: 4rem;
+}
+
+/* Safari with classic scrollbars. Chromium/Firefox take the standard
+   `scrollbar-color` above and ignore these. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-paper) 26%, var(--color-ink));
+  border-radius: 999px;
+  border: 2px solid var(--color-ink);
+}
+
+/* In-page anchors stop under the fixed nav instead of behind it. */
+#tour,
+#guida {
+  scroll-margin-top: calc(var(--nav-h) + 0.75rem);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -46,12 +106,12 @@ html {
 }
 
 ::selection {
-  background-color: var(--color-ambra);
+  background-color: var(--color-ouro);
   color: var(--color-ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-ambra);
+  outline: 2px solid var(--color-ouro);
   outline-offset: 2px;
 }
 
@@ -76,7 +136,7 @@ html {
       border-color 0.2s ease;
   }
   .btn-primary {
-    background-color: var(--color-ambra);
+    background-color: var(--color-ouro);
     color: var(--color-ink);
   }
   .btn-primary:hover {
@@ -89,6 +149,41 @@ html {
   .btn-ghost:hover {
     border-color: var(--color-paper);
   }
+  /* Ghost variant for light (paper) surfaces. */
+  .btn-ghost-ink {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 35%, transparent);
+    color: var(--color-ink);
+  }
+  .btn-ghost-ink:hover {
+    border-color: var(--color-ink);
+  }
+
+  /* Directional underline sweep: in from the left, out to the right, so the
+     line always travels with the cursor rather than collapsing in place. */
+  .link-sweep {
+    position: relative;
+  }
+  .link-sweep::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.25em;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.35s var(--ease-vp);
+  }
+  .link-sweep:hover::after,
+  .link-sweep:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link-sweep::after {
+      transition: none;
+    }
+  }
 
   .skip-link {
     position: fixed;
@@ -96,7 +191,7 @@ html {
     left: 0.75rem;
     z-index: 100;
     translate: 0 -300%;
-    background: var(--color-ambra);
+    background: var(--color-ouro);
     color: var(--color-ink);
     padding: 0.55rem 1.1rem;
     border-radius: 999px;
@@ -107,21 +202,6 @@ html {
     translate: 0 0;
   }
 }
-
-/* ---- Descent visual states ------------------------------------------------
-   Default (no JS / reduced motion / Save-Data): backdrop shows zone 1 only,
-   inline zone figures visible, HUD hidden. descent.ts adds `.motion-ok` to
-   <html> once the motion layer is initialized, flipping the three atomically. */
-.backdrop-layer {
-  opacity: 0;
-}
-.backdrop-layer:first-child {
-  opacity: 1;
-}
-.motion-ok .zone-figure {
-  display: none;
-}
-/* (HUD visibility lives in Hud.astro's scoped styles — specificity vs the scoped default.) */
 
 [data-hero-video].is-playing {
   opacity: 1;
