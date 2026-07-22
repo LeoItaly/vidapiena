@@ -5,10 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "check": "astro check",
+    "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "photos": "node scripts/prepare-photos.mjs"
+    "photos": "node scripts/prepare-photos.mjs",
+    "instagram": "node scripts/fetch-instagram.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -22,6 +24,8 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "ffmpeg-static": "^5.3.0"
+    "@astrojs/check": "^0.9.9",
+    "ffmpeg-static": "^5.3.0",
+    "typescript": "^7.0.2"
   }
 }

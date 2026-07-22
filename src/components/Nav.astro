@@ -36,7 +36,11 @@ const links = [
 ---
 
 <header class="site-nav" data-nav data-variant={variant}>
-  <div class="flex h-(--nav-h) w-full items-center justify-between px-5 md:px-10">
+  {/* The bar is a floating "island" now — a frosted-ink pill detached from
+      every edge, so the header reads as an object hovering over the page
+      rather than a slab welded to the top. `.site-nav` is just the fixed,
+      click-through frame; only `.nav-island` catches pointer events. */}
+  <div class="nav-island">
     <a
       href={pagePath(locale)}
       class="font-display relative z-10 flex items-center gap-2.5 text-sm font-bold tracking-[0.28em] uppercase"
@@ -153,29 +157,74 @@ const links = [
 </script>
 
 <style>
+  /* The fixed frame: full width, click-through. The float gap from the top
+     edge lives here as padding; the island itself is centred inside it. The
+     `--nav-h` (4rem) contract still holds — 0.75rem gap + 3.25rem island =
+     4rem to the island's bottom edge, so anchor offsets and drawer padding
+     stay correct. */
   .site-nav {
     position: fixed;
     inset-inline: 0;
     top: 0;
     z-index: 50;
+    padding-top: 0.75rem;
     color: var(--color-paper);
-    background: color-mix(in srgb, var(--color-ink) 94%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--color-paper) 10%, transparent);
+    pointer-events: none;
   }
 
-  /* Overlay variant (landing): transparent at the top on the motion path —
-     nav.ts flips `.is-scrolled` once the hero is behind. The static path has
-     no flip, so it stays solid from first paint (readable over every band). */
-  :global(.motion-ok) .site-nav[data-variant='overlay'] {
-    background: transparent;
-    border-bottom-color: transparent;
+  .nav-island {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 3.25rem;
+    margin-inline: auto;
+    /* Aligns to the px-10 content gutters at laptop widths, then floats free
+       with wide margins on larger screens. */
+    max-width: min(75rem, 100% - 2.5rem);
+    padding-inline: 1.1rem;
+    border-radius: 999px;
+    /* Frosted ink glass + hairline + a soft elevation shadow (depth, not glow)
+       and one inset top highlight so the pill reads as a lit, floating object.
+       This is the solid state: subpages, and the landing's static path. */
+    background: color-mix(in srgb, var(--color-ink) 68%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-paper) 12%, transparent);
+    box-shadow:
+      0 12px 30px -14px color-mix(in srgb, #000 72%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--color-paper) 8%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    backdrop-filter: blur(16px) saturate(1.15);
     transition:
       background-color 0.35s var(--ease-vp),
-      border-color 0.35s var(--ease-vp);
+      border-color 0.35s var(--ease-vp),
+      box-shadow 0.35s var(--ease-vp);
   }
-  :global(.motion-ok) .site-nav[data-variant='overlay'].is-scrolled {
-    background: color-mix(in srgb, var(--color-ink) 94%, transparent);
-    border-bottom-color: color-mix(in srgb, var(--color-paper) 10%, transparent);
+
+  /* Overlay variant (landing): the island floats lighter over the hero photo
+     on the motion path — nav.ts flips `.is-scrolled` once the hero is behind,
+     condensing it back to the solid glass above. The static path has no flip,
+     so it keeps the solid island from first paint (readable over every band). */
+  :global(.motion-ok) .site-nav[data-variant='overlay'] .nav-island {
+    background: color-mix(in srgb, var(--color-ink) 32%, transparent);
+    border-color: color-mix(in srgb, var(--color-paper) 16%, transparent);
+    box-shadow: 0 10px 26px -18px color-mix(in srgb, #000 60%, transparent);
+  }
+  :global(.motion-ok) .site-nav[data-variant='overlay'].is-scrolled .nav-island {
+    background: color-mix(in srgb, var(--color-ink) 68%, transparent);
+    border-color: color-mix(in srgb, var(--color-paper) 12%, transparent);
+    box-shadow:
+      0 12px 30px -14px color-mix(in srgb, #000 72%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--color-paper) 8%, transparent);
+  }
+
+  /* Backdrop-blur unsupported (older engines): fall back to a near-opaque
+     island so the frost never leaves text on a bare photo. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .nav-island,
+    :global(.motion-ok) .site-nav[data-variant='overlay'] .nav-island {
+      background: color-mix(in srgb, var(--color-ink) 92%, transparent);
+    }
   }
 
   .nav-desktop {

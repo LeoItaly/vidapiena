@@ -95,7 +95,7 @@ export const en: typeof it = {
       },
       giorno: {
         name: 'Un Giorno a Rio',
-        hook: 'Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf in a single day: private car with driver, hotel pick-up, buffet lunch included.',
+        hook: 'Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf in a single day: private car or van with driver, hotel pick-up, buffet lunch included.',
         note: 'Full day · tiered pricing by group size',
       },
     },
@@ -113,6 +113,7 @@ export const en: typeof it = {
     languagesValue: 'EN · IT · PT',
     highlightsHeading: 'What we see',
     galleryHeading: 'From the tour',
+    galleryCount: (n: number) => (n === 1 ? '1 photograph' : `${n} photographs`),
     practicalHeading: 'Practical info',
     includesHeading: 'Included in the price',
     priceHeading: 'Prices',
@@ -198,17 +199,17 @@ export const en: typeof it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — full-day city tour with an Italian guide | Vidapiena',
         metaDescription:
-          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. From R$780 per person.',
+          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. From R$780 per person.',
         kicker: 'City tour · full day',
         longDesc: [
-          'The best of Rio in a single day, with nothing to organize: I pick you up at your hotel with a private car and driver, and off we go — Christ the Redeemer by the Corcovado cog train, the bohemian streets of Santa Teresa, the Selarón Steps, and Sugarloaf by cable car.',
+          'The best of Rio in a single day, with nothing to organize: I pick you up at your hotel with a private car or van with driver, and off we go — Christ the Redeemer by the Corcovado cog train, the bohemian streets of Santa Teresa, the Selarón Steps, and Sugarloaf by cable car.',
           'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. The per-person price drops as the group grows.',
         ],
         highlights: [
           'Christ the Redeemer by the Corcovado cog train',
           'Santa Teresa and the Selarón Steps',
           'Sugarloaf by cable car',
-          'Private car with driver and hotel pick-up',
+          'Private car or van with driver and hotel pick-up',
           'Buffet lunch included (drinks excluded)',
         ],
         includes: [
@@ -275,7 +276,7 @@ export const en: typeof it = {
     kicker: '@vidapiena',
     heading: 'Rio, every day, on Instagram.',
     sub: 'Stories from the communities, behind the scenes of the tours, and everyday carioca life.',
-    cta: 'Follow me on Instagram',
+    cta: 'Follow me on', // brand word rendered as the Instagram glyph in InstagramBand's CTA
   },
 
   finalCta: {

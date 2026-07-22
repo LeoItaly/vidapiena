@@ -16,5 +16,38 @@
   { "src": "media/favela-tour-vidigal/image00009.jpeg", "out": "marquee-4.jpg", "maxW": 1200 },
   { "src": "media/un-giorno-a-rio-vidapiena/image00008.jpeg", "out": "marquee-5.jpg", "maxW": 1200 },
   { "src": "media/favela-tour-vidigal/image00013.jpeg", "out": "marquee-6.jpg", "maxW": 1200 },
-  { "src": "media/favela-tour-vidigal/image00002.jpeg", "out": "marquee-7.jpg", "maxW": 850 }
+  { "src": "media/favela-tour-vidigal/image00002.jpeg", "out": "marquee-7.jpg", "maxW": 850 },
+
+  { "src": "media/favela-tour-rocinha-vidapiena/image00001.jpeg", "out": "rocinha-01.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00002.jpeg", "out": "rocinha-02.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00003.jpeg", "out": "rocinha-03.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00004.jpeg", "out": "rocinha-04.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00005.jpeg", "out": "rocinha-05.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00006.jpeg", "out": "rocinha-06.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00007.jpeg", "out": "rocinha-07.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00008.jpeg", "out": "rocinha-08.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00010.jpeg", "out": "rocinha-10.jpg", "maxW": 2000 },
+  { "src": "media/favela-tour-rocinha-vidapiena/image00012.jpeg", "out": "rocinha-12.jpg", "maxW": 2000 },
+
+  { "src": "media/favela-tour-vidigal/image00001.jpeg", "out": "vidigal-01.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-vidigal/image00003.jpeg", "out": "vidigal-03.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-vidigal/image00004.jpeg", "out": "vidigal-04.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-vidigal/image00010.jpeg", "out": "vidigal-10.jpg", "maxW": 2000 },
+  { "src": "media/favela-tour-vidigal/image00011.jpeg", "out": "vidigal-11.jpg", "maxW": 2000 },
+  { "src": "media/favela-tour-vidigal/image00014.jpeg", "out": "vidigal-14.jpg", "maxW": 2000 },
+  { "src": "media/favela-tour-vidigal/image00015.jpeg", "out": "vidigal-15.jpg", "maxW": 2000 },
+
+  { "src": "media/favela-tour-tavares-bastos/image00001.jpeg", "out": "tavares-01.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-tavares-bastos/image00002.jpeg", "out": "tavares-02.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-tavares-bastos/image00003.jpeg", "out": "tavares-03.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-tavares-bastos/image00004.jpeg", "out": "tavares-04.jpg", "maxW": 1600 },
+  { "src": "media/favela-tour-tavares-bastos/image00005.jpeg", "out": "tavares-05.jpg", "maxW": 1600 },
+
+  { "src": "media/un-giorno-a-rio-vidapiena/image00001.jpeg", "out": "giorno-01.jpg", "maxW": 1600 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00002.jpeg", "out": "giorno-02.jpg", "maxW": 1600 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00003.jpeg", "out": "giorno-03.jpg", "maxW": 1600 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00004.jpeg", "out": "giorno-04.jpg", "maxW": 1600 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00005.jpeg", "out": "giorno-05.jpg", "maxW": 2000 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00006.jpeg", "out": "giorno-06.jpg", "maxW": 2000 },
+  { "src": "media/un-giorno-a-rio-vidapiena/image00009.jpeg", "out": "giorno-09.jpg", "maxW": 2000 }
 ]

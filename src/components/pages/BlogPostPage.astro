@@ -1,9 +1,11 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
+import { Picture, getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import PageHero from './PageHero.astro';
 import Footer from '../Footer.astro';
 import JsonLdScript from '../JsonLdScript.astro';
+import { getPhoto } from '../../lib/photos';
 import { SITE } from '../../data/site';
 import { t, pagePath, absoluteUrl, type Locale } from '../../i18n';
 
@@ -17,11 +19,20 @@ const slug = post.id.replace(/^(it|en)\//, '');
 const path = `blog/${slug}/`;
 const { Content } = await render(post);
 
+// The cover is a photo key (same pipeline as every photo on the site);
+// a missing/unknown key renders nothing, never a hole.
+const coverPhoto = post.data.cover ? getPhoto(post.data.cover) : null;
+
 const dateFmt = new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-GB', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
 });
+
+// Same transform BaseHead runs for og:image — the asset pipeline dedupes it.
+const jsonImage = coverPhoto
+  ? await getImage({ src: coverPhoto, format: 'jpeg', width: 1200 })
+  : null;
 
 const graph = {
   '@context': 'https://schema.org',
@@ -31,6 +42,7 @@ const graph = {
   datePublished: post.data.date.toISOString().slice(0, 10),
   inLanguage: locale,
   url: absoluteUrl(pagePath(locale, path)),
+  ...(jsonImage && { image: absoluteUrl(jsonImage.src) }),
   author: {
     '@type': 'Person',
     name: SITE.guide.name,
@@ -39,13 +51,37 @@ const graph = {
 };
 ---
 
-<Base locale={locale} path={path} title={post.data.title} description={post.data.description}>
+<Base
+  locale={locale}
+  path={path}
+  title={post.data.title}
+  description={post.data.description}
+  ogImage={coverPhoto ?? undefined}
+  ogImageAlt={post.data.title}
+>
   <JsonLdScript slot="head" graph={graph} />
   <PageHero kicker={dateFmt.format(post.data.date)} heading={post.data.title} />
 
   <main id="main">
     <section class="bg-paper text-ink">
       <div class="mx-auto max-w-6xl px-5 py-16 md:px-10 md:py-24">
+        {
+          coverPhoto && (
+            <div class="mb-10 max-w-3xl overflow-hidden rounded-lg md:mb-12">
+              <Picture
+                src={coverPhoto}
+                formats={['avif', 'webp']}
+                widths={[768, 1200, 1920]}
+                sizes="(min-width: 48rem) 48rem, 100vw"
+                alt={post.data.title}
+                class="aspect-[16/9] w-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
+          )
+        }
         <article class="article-body max-w-prose">
           <Content />
         </article>

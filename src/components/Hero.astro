@@ -63,8 +63,12 @@ const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
   <!-- Headline block — says what this is (guide, city, language) before anything moves -->
   <div class="absolute inset-x-0 bottom-0 z-10 px-5 pb-20 md:px-10 md:pb-24">
     <p class="eyebrow text-ouro" data-scramble>{dict.hero.kicker}</p>
+    {/* Sized + widened so each span holds on ONE line — a clean two-line
+        headline that fits the viewport under the floating nav (the old
+        clamp(...5.5rem) + max-w-[16ch] wrapped line 1 into 3–4 lines and
+        pushed the block up under the bar). */}
     <h1
-      class="font-display mt-3 max-w-[16ch] text-[clamp(2.1rem,7vw,5.5rem)] leading-[1.02] font-bold text-balance"
+      class="font-display mt-3 max-w-[60rem] text-[clamp(1.85rem,4.5vw,3.4rem)] leading-[1.04] font-bold"
     >
       <span class="block">{dict.hero.h1[0]}</span>
       {/* The Italy moment: rosso points (the sprayed stroke), never fills —

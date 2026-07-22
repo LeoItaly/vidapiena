@@ -1,14 +1,18 @@
 ---
 /**
- * The Instagram band — a static curated strip, not an embed. No third-party
+ * The Instagram band — first-party tiles, never a runtime embed. No third-party
  * script survives the CWV budget (and GitHub Pages has no proxy to hide one
- * behind), so the tiles are the site's own curated photos and the single CTA
- * carries the action. Tiles are decorative for assistive tech: one link, not
- * seven identical ones.
+ * behind). When a Behold feed is configured, scripts/fetch-instagram.mjs bakes
+ * Francesco's latest posts into the asset pipeline at build time and this renders
+ * them as optimized AVIF/WebP; with no feed (or a down one) it falls back to the
+ * curated strip below. Either way: static images + one CTA. Tiles carry the
+ * post's own alt text when available; the single CTA is the one link, not seven.
  */
+import type { ImageMetadata } from 'astro';
 import { Picture } from 'astro:assets';
 import RouteMark from './RouteMark.astro';
 import { getPhoto } from '../lib/photos';
+import { getInstagramTiles, type InstagramTile } from '../lib/instagram';
 import { SITE } from '../data/site';
 import { t, type Locale } from '../i18n';
 
@@ -18,9 +22,10 @@ interface Props {
 const { locale } = Astro.props;
 const dict = t(locale);
 
-/* Real photos only — the AI-generated zone-5 render is deliberately excluded:
-   presented as feed content it would misrepresent. */
-const TILE_KEYS = [
+/* Fallback strip — real photos only; the AI-generated zone-5 render is deliberately
+   excluded: presented as feed content it would misrepresent. A 1–2 tile feed reads as
+   broken in a 6-col grid, so anything under 3 live posts falls back to these. */
+const FALLBACK_KEYS = [
   'zone-1-mirante',
   'marquee-2',
   'zone-3-becos',
@@ -28,7 +33,14 @@ const TILE_KEYS = [
   'zone-4-ladeira',
   'marquee-7',
 ];
-const tiles = TILE_KEYS.map((key) => getPhoto(key)).filter((p) => p !== null);
+
+const feed = getInstagramTiles();
+const tiles: InstagramTile[] =
+  feed.length >= 3
+    ? feed
+    : FALLBACK_KEYS.map((key) => getPhoto(key))
+        .filter((p): p is ImageMetadata => p !== null)
+        .map((image) => ({ image, alt: '', permalink: '' }));
 ---
 
 <section class="band-tint-ouro relative bg-ink text-paper" data-instagram>
@@ -42,14 +54,14 @@ const tiles = TILE_KEYS.map((key) => getPhoto(key)).filter((p) => p !== null);
 
     <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4" data-stagger>
       {
-        tiles.map((photo) => (
+        tiles.map((tile) => (
           <div class="ig-tile overflow-hidden rounded-md">
             <Picture
-              src={photo}
+              src={tile.image}
               formats={['avif', 'webp']}
               widths={[240, 480]}
               sizes="(min-width: 768px) 11rem, 45vw"
-              alt=""
+              alt={tile.alt}
               class="ig-img aspect-square w-full object-cover"
               loading="lazy"
               decoding="async"
@@ -60,12 +72,26 @@ const tiles = TILE_KEYS.map((key) => getPhoto(key)).filter((p) => p !== null);
     </div>
 
     <a href={SITE.instagram} class="btn btn-primary mt-9" rel="noopener" target="_blank">
-      {dict.instagram.cta} · {SITE.instagramHandle}
+      <span>{dict.instagram.cta}</span>
+      <svg class="ig-glyph" viewBox="0 0 24 24" role="img" aria-label="Instagram" focusable="false">
+        <path
+          d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
+        />
+      </svg>
+      <span>· {SITE.instagramHandle}</span>
     </a>
   </div>
 </section>
 
 <style>
+  /* Instagram glyph replaces the brand word in the CTA; inherits the button's ink
+     via currentColor and scales with the button's font-size. */
+  .ig-glyph {
+    width: 1.15em;
+    height: 1.15em;
+    flex: none;
+    fill: currentColor;
+  }
   :global(.motion-ok) .ig-img {
     transition: transform 0.8s var(--ease-vp-out);
   }

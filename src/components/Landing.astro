@@ -71,17 +71,31 @@ const dict = t(locale);
     height: 0;
     pointer-events: none;
   }
+  /* Below md the bottom-anchored headline block fills the lower two-thirds of
+     the hero, leaving no clear corner for the seal — so the decorative badge
+     stands down on phones (the brand is still carried by the nav and footer).
+     It returns from 768px up, where the composition has room on the right. */
+  @media (max-width: 767px) {
+    .vp-sticker-anchor {
+      display: none;
+    }
+  }
+  /* Lifted clear of the seam so the whole badge sits inside the hero's
+     lower-right as an official seal — the old top:-3rem straddle left it
+     bisected by the viewport fold at first paint (the hero is a full 100svh,
+     so its bottom edge IS the fold). The orbit ring's -24% overscan is
+     included in the gap so it, too, clears the edge. */
   .vp-sticker {
     position: absolute;
     right: clamp(1.25rem, 7vw, 5rem);
-    top: -3rem;
+    top: -8.25rem;
     display: grid;
     place-items: center;
     filter: drop-shadow(0 10px 28px rgb(0 0 0 / 0.45));
   }
   @media (min-width: 768px) {
     .vp-sticker {
-      top: -4.5rem;
+      top: -11.75rem;
     }
   }
   .vp-orbit {

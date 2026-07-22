@@ -237,8 +237,8 @@ down — the reveal is never played twice in one view.
   `BrandBadge.astro` (circle crop, 4% overscan so the ring is the edge; the
   JPEG's black corners must never show). Never recolored, never rotated — the
   hero's orbit ring spins around it, not with it. Placements: nav (34px, every
-  page), footer (56px), the hero sticker, the site icons
-  (`scripts/make-icons.mjs`), JSON-LD `logo`.
+  page), footer (56px), the hero **seal** (lower-right, ≥768px — see §12), the
+  site icons (`scripts/make-icons.mjs`), JSON-LD `logo`.
 
 ---
 
@@ -319,10 +319,20 @@ la-guida, contatti ×2, 404). Rules added by that redesign:
 
 ### Nav
 
-- One fixed header (`Nav.astro`) on every page, `--nav-h` (4rem) tall. Landing
-  uses the `overlay` variant — transparent over the hero, solid past 60% of it
-  (JS flip; **the static path forces solid from first paint**). Subpages are
-  always solid ink.
+- One fixed header (`Nav.astro`) on every page — a **floating glass island**
+  (22 Jul 2026, later): a frosted-ink pill (`radius 999px`, `backdrop-filter:
+  blur(16px)`, hairline + a soft elevation shadow, no glow) detached from every
+  edge, centred and capped at `75rem` so it aligns to the `px-10` content
+  gutters at laptop widths and floats free on larger screens. `.site-nav` is
+  the click-through frame (a `0.75rem` top float gap, `pointer-events: none`);
+  only `.nav-island` catches events. The `--nav-h` (4rem) contract still holds —
+  `0.75rem` gap + `3.25rem` island = `4rem` to the island's bottom edge, so
+  anchor offsets and drawer padding are unchanged. Landing uses the `overlay`
+  variant — the island floats light (`ink/0.32`) over the hero and condenses to
+  solid (`ink/0.68`) past 60% of it (JS flip; **the static path forces solid
+  from first paint**). Subpages are always solid. A `@supports not
+  (backdrop-filter)` fallback makes it near-opaque so the frost never leaves
+  text on a bare photo.
 - The drawer is a full-screen ink panel *under* the bar (bar stays usable), its
   a11y state machine ships **outside** the motion gate, and its stagger is pure
   CSS (`--i` delays) behind `prefers-reduced-motion`. The footer duplicates the
@@ -382,8 +392,13 @@ structural devices.
   verde · 120 verde-scuro · 60 ouro · 0 rosso "livello del mare").
   `spatial.ts` scrubs each segment's scaleY as its section crosses; the
   static path shows the full line (pre-hide in JS only).
-- **Straddles.** Objects may cross seams — the hero badge sticker, the guide
-  portrait (`md:-mt-24`). One straddle per seam; never text.
+- **Straddles.** Objects may cross seams — the guide portrait (`md:-mt-24`).
+  One straddle per seam; never text. (22 Jul 2026, later: the hero badge is **no
+  longer** a straddle. At a full `100svh` hero its seam IS the viewport fold, so
+  a straddling badge is always bisected at first paint — and the intro→poster
+  contract (§5) forbids shrinking the hero to reveal the seam. It is now a
+  fully-visible **seal** in the hero's lower-right, ≥768px; on phones the
+  bottom-anchored headline fills the lower two-thirds, so the seal stands down.)
 - **Light bands float.** Full-bleed paper is retired as a rhythm device on
   the landing: light surfaces are floating paper panels on the ink canvas
   (TrustBadges). `#guida` remains the one full-bleed paper band, bounded by

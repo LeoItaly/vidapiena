@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *' # daily 06:00 UTC — refreshes the Instagram tiles after Behold's once-daily sync
 
 permissions:
   contents: read
@@ -20,6 +22,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # Prebuild: bake the latest Instagram posts into src/assets/ before Astro builds.
+      # Needs its own node+install because withastro/action installs separately.
+      # The script never fails the build — a down/absent feed falls back to the curated strip.
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install deps (prebuild)
+        run: npm ci
+      - name: Fetch Instagram feed
+        run: node scripts/fetch-instagram.mjs
+        env:
+          BEHOLD_FEED_ID: ${{ secrets.BEHOLD_FEED_ID }}
       - name: Build with Astro
         uses: withastro/action@v3
         with:

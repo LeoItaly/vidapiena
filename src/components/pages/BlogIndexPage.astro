@@ -1,9 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import PageHero from './PageHero.astro';
 import Footer from '../Footer.astro';
 import JsonLdScript from '../JsonLdScript.astro';
+import { getPhoto } from '../../lib/photos';
 import { SITE } from '../../data/site';
 import { t, pagePath, absoluteUrl, type Locale } from '../../i18n';
 
@@ -53,30 +55,49 @@ const graph = {
             </div>
           ) : (
             <ul class="divide-y divide-ink/15 border-y border-ink/15">
-              {posts.map((post) => (
-                <li>
-                  <a
-                    href={pagePath(locale, `blog/${slugOf(post.id)}/`)}
-                    class="group grid gap-2 py-7 md:grid-cols-[11rem_1fr] md:gap-8"
-                  >
-                    <time
-                      class="eyebrow text-ink/55"
-                      datetime={post.data.date.toISOString().slice(0, 10)}
+              {posts.map((post) => {
+                const cover = post.data.cover ? getPhoto(post.data.cover) : null;
+                return (
+                  <li>
+                    <a
+                      href={pagePath(locale, `blog/${slugOf(post.id)}/`)}
+                      class="group grid gap-2 py-7 md:grid-cols-[11rem_1fr_10rem] md:items-center md:gap-8"
                     >
-                      {dateFmt.format(post.data.date)}
-                    </time>
-                    <span>
-                      <span class="font-display block text-2xl font-bold transition-colors group-hover:text-verde md:text-3xl">
-                        {post.data.title}
+                      <time
+                        class="eyebrow text-ink/55"
+                        datetime={post.data.date.toISOString().slice(0, 10)}
+                      >
+                        {dateFmt.format(post.data.date)}
+                      </time>
+                      <span>
+                        <span class="font-display block text-2xl font-bold transition-colors group-hover:text-verde md:text-3xl">
+                          {post.data.title}
+                        </span>
+                        <span class="mt-2 block max-w-prose leading-relaxed text-ink-soft">
+                          {post.data.description}
+                        </span>
+                        <span class="eyebrow mt-3 inline-block text-verde">
+                          {dict.blog.readMore} →
+                        </span>
                       </span>
-                      <span class="mt-2 block max-w-prose leading-relaxed text-ink-soft">
-                        {post.data.description}
-                      </span>
-                      <span class="eyebrow mt-3 inline-block text-verde">{dict.blog.readMore} →</span>
-                    </span>
-                  </a>
-                </li>
-              ))}
+                      {cover && (
+                        <span class="hidden overflow-hidden rounded-lg md:block">
+                          <Picture
+                            src={cover}
+                            formats={['avif', 'webp']}
+                            widths={[320, 640]}
+                            sizes="10rem"
+                            alt=""
+                            class="aspect-[4/3] w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           )
         }

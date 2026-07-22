@@ -97,7 +97,7 @@ export const it = {
       },
       giorno: {
         name: 'Un Giorno a Rio',
-        hook: 'Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero in una sola giornata: auto privata con autista, pick-up in hotel, pranzo a buffet incluso.',
+        hook: 'Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero in una sola giornata: auto o van privato con autista, pick-up in hotel, pranzo a buffet incluso.',
         note: 'Giornata intera · prezzo a scaglioni per gruppo',
       },
     },
@@ -115,6 +115,7 @@ export const it = {
     languagesValue: 'IT · EN · PT',
     highlightsHeading: 'Cosa vediamo',
     galleryHeading: 'Dal tour',
+    galleryCount: (n: number) => (n === 1 ? '1 fotografia' : `${n} fotografie`),
     practicalHeading: 'Informazioni pratiche',
     includesHeading: 'Incluso nel prezzo',
     priceHeading: 'Prezzi',
@@ -200,17 +201,17 @@ export const it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — city tour con guida italiana | Vidapiena',
         metaDescription:
-          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto privata con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. Da R$780 a persona.',
+          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. Da R$780 a persona.',
         kicker: 'City tour · giornata intera',
         longDesc: [
-          'Il meglio di Rio in una sola giornata, senza pensieri: ti vengo a prendere in hotel con auto privata e autista, e da lì si parte — il Cristo Redentore con il trenino del Corcovado, il quartiere bohémien di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia.',
+          'Il meglio di Rio in una sola giornata, senza pensieri: ti vengo a prendere in hotel con auto o van privato con autista, e da lì si parte — il Cristo Redentore con il trenino del Corcovado, il quartiere bohémien di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia.',
           'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. Il prezzo a persona scende all’aumentare del gruppo.',
         ],
         highlights: [
           'Il Cristo Redentore con il trenino del Corcovado',
           'Santa Teresa e la Scalinata Selarón',
           'Il Pan di Zucchero in funivia',
-          'Auto privata con autista e pick-up in hotel',
+          'Auto o van privato con autista e pick-up in hotel',
           'Pranzo a buffet incluso (bevande escluse)',
         ],
         includes: [
@@ -277,7 +278,7 @@ export const it = {
     kicker: '@vidapiena',
     heading: 'Rio, ogni giorno, su Instagram.',
     sub: 'Storie dalle comunità, dietro le quinte dei tour e la vita carioca di tutti i giorni.',
-    cta: 'Seguimi su Instagram',
+    cta: 'Seguimi su', // brand word rendered as the Instagram glyph in InstagramBand's CTA
   },
 
   finalCta: {

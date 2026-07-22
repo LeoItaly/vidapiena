@@ -18,6 +18,11 @@ build/
 .claude/
 *.local
 
+# Build-time Instagram import — ephemeral, regenerated every build (scripts/fetch-instagram.mjs).
+# Behold is the source of truth; committing these would only add daily binary churn.
+src/assets/instagram/*.jpg
+src/data/instagram-feed.json
+
 # OS junk
 Thumbs.db
 desktop.ini

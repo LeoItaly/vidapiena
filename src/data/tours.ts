@@ -27,9 +27,10 @@ export interface Tour {
   /** Photo key into src/assets/photos/ (filled by the M1 manifest) */
   image: string;
   /**
-   * Curated gallery keys (src/assets/photos), same provenance rules as every
-   * photo on the site. [0] doubles as the detail page's hero image.
-   * TODO(Leo): expand via `npm run photos` from the 54 originals (privacy rule).
+   * Gallery keys (src/assets/photos), same provenance rules as every photo on
+   * the site. [0] doubles as the detail page's hero image; the rest are the
+   * tour deck, in deck order. Every original from the tour's media/ folder
+   * appears exactly once (hero or deck).
    */
   galleryKeys: string[];
   /**
@@ -60,7 +61,20 @@ export const TOURS: Tour[] = [
     childPriceBRL: 180,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
     image: 'tour-rocinha',
-    galleryKeys: ['tour-rocinha', 'zone-3-becos'],
+    galleryKeys: [
+      'tour-rocinha',
+      'zone-3-becos',
+      'rocinha-01',
+      'rocinha-02',
+      'rocinha-03',
+      'rocinha-04',
+      'rocinha-05',
+      'rocinha-06',
+      'rocinha-07',
+      'rocinha-08',
+      'rocinha-10',
+      'rocinha-12',
+    ],
     otaLinks: {
       viator:
         'https://www.viator.com/tours/Rio-de-Janeiro/Favela-Tour-Rocinha-a-Rio-de-jainero/d712-5667099P3',
@@ -79,7 +93,24 @@ export const TOURS: Tour[] = [
     priceIsFrom: false,
     meetingPoint: 'Praça do Vidigal',
     image: 'tour-vidigal',
-    galleryKeys: ['tour-vidigal', 'zone-1-mirante', 'zone-4-ladeira', 'marquee-4'],
+    galleryKeys: [
+      'tour-vidigal',
+      'zone-1-mirante',
+      'marquee-2',
+      'zone-2-lajes',
+      'vidigal-01',
+      'marquee-1',
+      'vidigal-03',
+      'vidigal-04',
+      'marquee-4',
+      'vidigal-10',
+      'vidigal-11',
+      'marquee-6',
+      'vidigal-14',
+      'vidigal-15',
+      'marquee-7',
+      'zone-4-ladeira',
+    ],
     otaLinks: {
       viator:
         'https://www.viator.com/tours/Rio-de-Janeiro/Favela-Tour-Vidigal-a-Rio-de-Janeiro/d712-5667099P1',
@@ -100,7 +131,15 @@ export const TOURS: Tour[] = [
     priceIsFrom: false,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
     image: 'tour-tavares',
-    galleryKeys: ['tour-tavares', 'marquee-3'],
+    galleryKeys: [
+      'tour-tavares',
+      'marquee-3',
+      'tavares-01',
+      'tavares-02',
+      'tavares-03',
+      'tavares-04',
+      'tavares-05',
+    ],
     otaLinks: {
       viator:
         'https://www.viator.com/tours/Rio-de-Janeiro/Favela-Tour-Tavares-Bastos/d712-5667099P4',
@@ -126,7 +165,17 @@ export const TOURS: Tour[] = [
     ],
     meetingPoint: 'Hotel pick-up',
     image: 'tour-giorno',
-    galleryKeys: ['tour-giorno', 'marquee-5'],
+    galleryKeys: [
+      'tour-giorno',
+      'marquee-5',
+      'giorno-01',
+      'giorno-02',
+      'giorno-03',
+      'giorno-04',
+      'giorno-05',
+      'giorno-06',
+      'giorno-09',
+    ],
     otaLinks: {
       viator:
         'https://www.viator.com/tours/Rio-de-Janeiro/Il-Meglio-di-Rio-Cristo-Pan-di-Zucchero-e-Selaron-All-Inclusive/d712-5667099P5',

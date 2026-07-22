@@ -22,9 +22,10 @@ function boot(): void {
     import('./text-reveals'),
     import('./marquees'),
     import('./spatial'),
+    import('./deck'),
     import('./nav'),
   ])
-    .then(([hero, grid, texts, marquees, spatial, nav]) => {
+    .then(([hero, grid, texts, marquees, spatial, deck, nav]) => {
       // Flip first so every gated presentation switches atomically, then init
       // after the layout settles, then re-measure triggers.
       document.documentElement.classList.add('motion-ok');
@@ -39,6 +40,7 @@ function boot(): void {
           ['text-reveals', texts.initTextReveals],
           ['marquees', marquees.initMarquees],
           ['spatial', spatial.initSpatial],
+          ['deck', deck.initDeck],
           ['nav', nav.initNav],
         ];
         for (const [name, init] of inits) {

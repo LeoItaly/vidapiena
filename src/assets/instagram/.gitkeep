@@ -1,0 +1,3 @@
+# Keeps src/assets/instagram/ present in a fresh checkout so import.meta.glob
+# resolves to {} (not an error) when no feed has been fetched. The ig-*.jpg
+# tiles here are ephemeral, git-ignored, and written by scripts/fetch-instagram.mjs.
