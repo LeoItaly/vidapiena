@@ -50,6 +50,17 @@ function buildRow(root: HTMLElement): void {
   const mobile = window.matchMedia('(max-width: 767px)').matches;
   const base = Number(root.dataset.speed ?? 60) * (mobile ? 0.5 : 1);
 
+  // Adopt the CSS base drift (global.css `mq-drift`), then take over: read the
+  // animated position, pin it as the inline transform, and only then switch
+  // the keyframe loop off — no blank frame between the two owners. This must
+  // happen before fill(): extra clones would break the -50% loop's geometry.
+  const setX = gsap.quickSetter(track, 'x', 'px') as (value: number) => void;
+  const cssTransform = getComputedStyle(track).transform;
+  const adopted =
+    cssTransform && cssTransform !== 'none' ? new DOMMatrixReadOnly(cssTransform).m41 : 0;
+  setX(adopted);
+  root.classList.add('is-js');
+
   // Enough copies to cover the viewport twice over, so no seam is ever on
   // screen. Clones are decorative — the first sequence carries the alt text.
   const fill = () => {
@@ -68,11 +79,10 @@ function buildRow(root: HTMLElement): void {
     return span;
   };
 
-  const setX = gsap.quickSetter(track, 'x', 'px') as (value: number) => void;
   const row: Row = {
     dir,
     base,
-    pos: 0,
+    pos: adopted,
     span: fill(),
     active: false,
     setX,

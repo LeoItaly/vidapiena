@@ -48,48 +48,71 @@ const WORDS = ['Comunidade', 'Vida Piena'];
     </h2>
   </div>
 
-  {/* Row 1 — the giant words, travelling right. */}
-  <div class="mq-row mq-words" data-marquee-row data-dir="1" data-speed="76" aria-hidden="true">
+  {/* Row 1 — the giant words, travelling right. Two server-rendered copies of
+      the sequence: the CSS -50% base loop (global.css `mq-drift`) is exact
+      with an even count, and the duplicate stays display:none on the static
+      path so the wrapped word wall is unchanged. */}
+  <div
+    class="mq-row mq-words"
+    data-marquee-row
+    data-dir="1"
+    data-speed="76"
+    style="--mq-dur: 70s"
+    aria-hidden="true"
+  >
     <div class="mq-track" data-marquee-track>
-      <div class="mq-seq" data-marquee-seq>
-        {
-          WORDS.map((w) => (
-            <>
-              <span class="mq-word">{w}</span>
-              <span class="mq-chip" />
-            </>
-          ))
-        }
-      </div>
+      {
+        [0, 1].map((copy) => (
+          <div
+            class:list={['mq-seq', copy > 0 && 'mq-dupe']}
+            data-marquee-seq={copy === 0 ? true : undefined}
+            aria-hidden={copy > 0 ? 'true' : undefined}
+          >
+            {WORDS.map((w) => (
+              <>
+                <span class="mq-word">{w}</span>
+                <span class="mq-chip" />
+              </>
+            ))}
+          </div>
+        ))
+      }
     </div>
   </div>
 
-  {/* Row 2 — the pictures, counter-flowing left. */}
-  <div class="mq-row mq-photos" data-marquee-row data-dir="-1" data-speed="96">
+  {/* Row 2 — the pictures, counter-flowing left. Same two-copy structure; the
+      first sequence alone carries the alt text into the static strip. */}
+  <div class="mq-row mq-photos" data-marquee-row data-dir="-1" data-speed="96" style="--mq-dur: 48s">
     <div class="mq-track" data-marquee-track>
-      <div class="mq-seq" data-marquee-seq>
-        {
-          PHOTOS.map((p) => (
-            <figure class="mq-figure" style={`--w: ${p.w}px`}>
-              {p.photo ? (
-                <Picture
-                  src={p.photo}
-                  formats={['avif', 'webp']}
-                  widths={[360, 640, 960]}
-                  sizes="(min-width: 768px) 600px, 60vw"
-                  alt={p.alt}
-                  class="mq-img"
-                  loading="lazy"
-                  decoding="async"
-                  draggable="false"
-                />
-              ) : (
-                <div class="mq-img mq-fallback" role="presentation" />
-              )}
-            </figure>
-          ))
-        }
-      </div>
+      {
+        [0, 1].map((copy) => (
+          <div
+            class:list={['mq-seq', copy > 0 && 'mq-dupe']}
+            data-marquee-seq={copy === 0 ? true : undefined}
+            aria-hidden={copy > 0 ? 'true' : undefined}
+          >
+            {PHOTOS.map((p) => (
+              <figure class="mq-figure" style={`--w: ${p.w}px`}>
+                {p.photo ? (
+                  <Picture
+                    src={p.photo}
+                    formats={['avif', 'webp']}
+                    widths={[360, 640, 960]}
+                    sizes="(min-width: 768px) 600px, 60vw"
+                    alt={copy === 0 ? p.alt : ''}
+                    class="mq-img"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                ) : (
+                  <div class="mq-img mq-fallback" role="presentation" />
+                )}
+              </figure>
+            ))}
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>

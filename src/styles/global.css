@@ -225,3 +225,40 @@ html {
     animation: none;
   }
 }
+
+/* ---- Marquee base drift ---------------------------------------------------
+   The carousel's floor: under .motion-ok every marquee row drifts on a pure
+   CSS loop, so it visibly scrolls even if every JS init fails. marquees.ts
+   adds `.is-js` per row and takes over from the same position with the
+   scroll-velocity boost. The loop is exact because each track server-renders
+   an even number of identical sequences: -50% always lands on identical
+   content. Reduced-motion visitors never receive .motion-ok, so the static
+   presentations are untouched. */
+@keyframes mq-drift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.motion-ok [data-marquee-track] {
+  animation: mq-drift var(--mq-dur, 48s) linear infinite;
+}
+.motion-ok [data-marquee-row][data-dir="1"] [data-marquee-track] {
+  animation-direction: reverse;
+}
+.motion-ok [data-marquee-row].is-js [data-marquee-track] {
+  animation: none;
+}
+@media (max-width: 767px) {
+  .motion-ok [data-marquee-track] {
+    animation-duration: calc(var(--mq-dur, 48s) * 1.7);
+  }
+}
+/* The duplicate sequences exist only for the loop; the static presentations
+   (wrapped words, swipeable strip, centred badge row) must not show doubled
+   content. */
+[data-marquee-track] .mq-dupe {
+  display: none;
+}
+.motion-ok [data-marquee-track] .mq-dupe {
+  display: flex;
+}

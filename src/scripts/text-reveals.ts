@@ -110,10 +110,21 @@ export function refreshTriggers(): void {
 
 export function initTextReveals(): void {
   const run = () => {
-    revealHeadings();
-    scrambleLabels();
-    scrambleOnHover();
-    drawSprayStrokes();
+    // Isolated per device: one bad heading must not cancel the others, and
+    // above all must not skip the shared refresh below.
+    const steps: Array<[string, () => void]> = [
+      ['headings', revealHeadings],
+      ['scramble', scrambleLabels],
+      ['scramble-hover', scrambleOnHover],
+      ['spray', drawSprayStrokes],
+    ];
+    for (const [name, step] of steps) {
+      try {
+        step();
+      } catch (err) {
+        console.error(`[vp] text-reveals ${name} failed`, err);
+      }
+    }
     // Splitting rewrites the heading boxes — every other trigger on the page
     // measured against the pre-split layout.
     ScrollTrigger.refresh();

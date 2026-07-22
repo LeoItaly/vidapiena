@@ -29,13 +29,25 @@ function boot(): void {
       // after the layout settles, then re-measure triggers.
       document.documentElement.classList.add('motion-ok');
       requestAnimationFrame(() => {
-        grid.initToursGrid();
-        hero.initHeroVideo();
-        // Waits on document.fonts internally — splitting early mis-measures.
-        texts.initTextReveals();
-        marquees.initMarquees();
-        spatial.initSpatial();
-        nav.initNav();
+        // Isolated per module: one failed init must not strand the ones after
+        // it in a half-applied motion layout (a stranded marquee — .motion-ok
+        // styles with no engine — reads exactly like a deleted carousel).
+        const inits: Array<[string, () => void]> = [
+          ['tours-grid', grid.initToursGrid],
+          ['hero-video', hero.initHeroVideo],
+          // Waits on document.fonts internally — splitting early mis-measures.
+          ['text-reveals', texts.initTextReveals],
+          ['marquees', marquees.initMarquees],
+          ['spatial', spatial.initSpatial],
+          ['nav', nav.initNav],
+        ];
+        for (const [name, init] of inits) {
+          try {
+            init();
+          } catch (err) {
+            console.error(`[vp] ${name} init failed`, err);
+          }
+        }
       });
 
       // The boot can land mid-intro, with the scroll still locked. Re-measure
@@ -48,6 +60,18 @@ function boot(): void {
       // Import failed (offline, blocked) — restore the static path.
       document.documentElement.classList.remove('motion-ok');
     });
+}
+
+/* Verification hook, opt-in via ?vpdebug=1: exposes the bundled GSAP so a test
+   harness can drive the clock by hand (gsap.updateRoot). Costs nothing without
+   the query param, and works on the static path too. */
+if (new URLSearchParams(window.location.search).has('vpdebug')) {
+  Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([g, st]) => {
+    (window as unknown as { __vp?: object }).__vp = {
+      gsap: g.default,
+      ScrollTrigger: st.ScrollTrigger,
+    };
+  });
 }
 
 if (motionAllowed()) {

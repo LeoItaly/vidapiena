@@ -31,18 +31,27 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
     <p class="eyebrow text-center text-ink/55" data-scramble>{dict.badges.heading}</p>
 
     {/* Default: the centred row it has always been. With motion: the same list
-        becomes a slow, endless drift that quickens as you scroll past. */}
-    <div class="badge-row mt-8" data-marquee-row data-dir="-1" data-speed="38">
+        becomes a slow, endless drift that quickens as you scroll past. Four
+        server-rendered copies (the row is short) keep the CSS -50% base loop
+        seamless before the JS engine adopts it; duplicates are display:none on
+        the static path. */}
+    <div class="badge-row mt-8" data-marquee-row data-dir="-1" data-speed="38" style="--mq-dur: 90s">
       <div class="badge-track" data-marquee-track>
-        <ul class="badge-seq" data-marquee-seq>
-          {
-            badges.map((b) => (
-              <li class="flex items-center">
-                <OtaLogo platform={b.key} name={b.name} class={b.h} />
-              </li>
-            ))
-          }
-        </ul>
+        {
+          [0, 1, 2, 3].map((copy) => (
+            <ul
+              class:list={['badge-seq', copy > 0 && 'mq-dupe']}
+              data-marquee-seq={copy === 0 ? true : undefined}
+              aria-hidden={copy > 0 ? 'true' : undefined}
+            >
+              {badges.map((b) => (
+                <li class="flex items-center">
+                  <OtaLogo platform={b.key} name={b.name} class={b.h} />
+                </li>
+              ))}
+            </ul>
+          ))
+        }
       </div>
     </div>
   </div>
