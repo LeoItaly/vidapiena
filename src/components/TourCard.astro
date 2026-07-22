@@ -1,5 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
+import OtaLogo from './OtaLogo.astro';
 import { getPhoto } from '../lib/photos';
 import { PLATFORMS } from '../lib/platforms';
 import type { Tour } from '../data/tours';
@@ -75,13 +76,7 @@ const livePlatforms = PLATFORMS.filter((p) => tour.otaLinks[p.key]);
                   rel="noopener noreferrer sponsored"
                   aria-label={`${copy.name} — ${p.name}`}
                 >
-                  <img
-                    src={p.logo.src}
-                    alt={p.name}
-                    class="h-3 w-auto"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <OtaLogo platform={p.key} name={p.name} class="h-3" />
                 </a>
               </li>
             ))}

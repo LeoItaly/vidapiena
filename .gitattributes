@@ -1,0 +1,17 @@
+# Line endings are part of the asset hash: Vite content-hashes raw bytes, so a
+# CRLF checkout on Windows and an LF checkout on the Linux CI runner would emit
+# the same file under two different hashed names. Pin everything.
+* text=auto eol=lf
+*.svg text eol=lf
+
+# Binary — never normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.mp4 binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

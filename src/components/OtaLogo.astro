@@ -1,0 +1,90 @@
+---
+/**
+ * One OTA partner mark. The three vector marks are inlined at build time —
+ * inline SVG cannot 404, which is what broke Viator/Airbnb on 22/07 when
+ * cached HTML pointed at hashed asset URLs from a different build. Viator's
+ * master is raster-only, so it stays an <img> with intrinsic size.
+ * Trademark rules unchanged (visual-references/platform-logos/README.md):
+ * official artwork only, never recolored, never filtered.
+ */
+import viatorLogo from '../assets/logos/viator.png';
+import airbnbRaw from '../assets/logos/airbnb.svg?raw';
+import gygRaw from '../assets/logos/getyourguide.svg?raw';
+import civitatisRaw from '../assets/logos/civitatis.svg?raw';
+import type { PlatformKey } from '../lib/platforms';
+
+interface Props {
+  platform: PlatformKey;
+  name: string;
+  class?: string;
+  /** Above-the-fold call sites (hero chips) pass 'eager'. */
+  loading?: 'lazy' | 'eager';
+}
+
+const { platform, name, class: className = '', loading = 'lazy' } = Astro.props;
+
+/* Illustrator exports open with an XML prolog, a DOCTYPE and a generator
+   comment — none of which may appear mid-document — and carry a layer id
+   that would duplicate across repeated badges. Reduce to the bare <svg>. */
+const sanitize = (raw: string): string =>
+  raw
+    .replace(/<\?xml[\s\S]*?\?>/, '')
+    .replace(/<!DOCTYPE[\s\S]*?>/, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\sid="[^"]*"/, '')
+    .trim();
+
+/* Width/height ratio from the viewBox, so the wrapper reserves its footprint
+   before paint — the hero row sits above the fold, and a late reflow there
+   would shift the whole bottom-anchored headline block. */
+const ratio = (svg: string): string => {
+  const vb = svg
+    .match(/viewBox="([^"]+)"/)?.[1]
+    .trim()
+    .split(/\s+/)
+    .map(Number);
+  return vb?.length === 4 && vb.every((n) => Number.isFinite(n)) ? `${vb[2]} / ${vb[3]}` : 'auto';
+};
+
+const SVGS: Partial<Record<PlatformKey, string>> = {
+  airbnb: sanitize(airbnbRaw),
+  getyourguide: sanitize(gygRaw),
+  civitatis: sanitize(civitatisRaw),
+};
+const svg = SVGS[platform];
+---
+
+{
+  svg ? (
+    <span
+      role="img"
+      aria-label={name}
+      class:list={['ota-logo', className]}
+      style={`aspect-ratio: ${ratio(svg)}`}
+      set:html={svg}
+    />
+  ) : (
+    <img
+      src={viatorLogo.src}
+      alt={name}
+      width={viatorLogo.width}
+      height={viatorLogo.height}
+      class:list={['w-auto', className]}
+      loading={loading}
+      fetchpriority="low"
+      decoding="async"
+    />
+  )
+}
+
+<style>
+  .ota-logo {
+    display: block;
+    flex: none;
+  }
+  .ota-logo :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -1,9 +1,4 @@
-import viatorLogo from '../assets/logos/viator.png';
-import airbnbLogo from '../assets/logos/airbnb.svg';
-import gygLogo from '../assets/logos/getyourguide.svg';
-import civitatisLogo from '../assets/logos/civitatis.svg';
 import type { Tour } from '../data/tours';
-import type { ImageMetadata } from 'astro';
 
 /**
  * The four OTA platforms, one place — booking buttons, badge rows and the
@@ -11,18 +6,19 @@ import type { ImageMetadata } from 'astro';
  * (visual-references/platform-logos/README.md): official variants only, no
  * recoloring, light neutral background. Per-tour deep links live in
  * tours.ts `otaLinks`; global rows stay unlinked (OTA-LINKS.md rule).
+ * The marks themselves render through components/OtaLogo.astro, which owns
+ * the logo assets (three inlined SVGs + the Viator PNG).
  */
 export type PlatformKey = keyof Tour['otaLinks'];
 
 export interface Platform {
   key: PlatformKey;
   name: string;
-  logo: ImageMetadata;
 }
 
 export const PLATFORMS: Platform[] = [
-  { key: 'viator', name: 'Viator', logo: viatorLogo },
-  { key: 'getyourguide', name: 'GetYourGuide', logo: gygLogo },
-  { key: 'airbnb', name: 'Airbnb', logo: airbnbLogo },
-  { key: 'civitatis', name: 'Civitatis', logo: civitatisLogo },
+  { key: 'viator', name: 'Viator' },
+  { key: 'getyourguide', name: 'GetYourGuide' },
+  { key: 'airbnb', name: 'Airbnb' },
+  { key: 'civitatis', name: 'Civitatis' },
 ];

@@ -8,6 +8,7 @@
  *   (a global badge deep-linking one arbitrary tour would mislead).
  * `sponsored` is the correct rel for commercial OTA outbound links.
  */
+import OtaLogo from './OtaLogo.astro';
 import { PLATFORMS, type PlatformKey } from '../lib/platforms';
 
 interface Props {
@@ -35,11 +36,11 @@ const rows = links
             rel="noopener noreferrer sponsored"
             aria-label={`${linkLabel} ${p.name}`.trim()}
           >
-            <img src={p.logo.src} alt={p.name} class="badge-logo" loading="lazy" decoding="async" />
+            <OtaLogo platform={p.key} name={p.name} class="h-[1.15rem]" />
           </a>
         ) : (
           <span class="badge-chip">
-            <img src={p.logo.src} alt={p.name} class="badge-logo" loading="lazy" decoding="async" />
+            <OtaLogo platform={p.key} name={p.name} class="h-[1.15rem]" />
           </span>
         )}
       </li>
@@ -65,9 +66,5 @@ const rows = links
   a.badge-chip:hover {
     border-color: color-mix(in srgb, var(--color-ink) 40%, transparent);
     transform: translateY(-2px);
-  }
-  .badge-logo {
-    height: 1.15rem;
-    width: auto;
   }
 </style>

@@ -1,10 +1,8 @@
 ---
 import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
 import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
-import viatorLogo from '../assets/logos/viator.png';
-import airbnbLogo from '../assets/logos/airbnb.svg';
-import gygLogo from '../assets/logos/getyourguide.svg';
-import civitatisLogo from '../assets/logos/civitatis.svg';
+import OtaLogo from './OtaLogo.astro';
+import { PLATFORMS } from '../lib/platforms';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import { t, pagePath, type Locale } from '../i18n';
 
@@ -18,17 +16,18 @@ const dict = t(locale);
 const posters = await getHeroPosters();
 
 /*
- * Mini trust row — same assets and trademark rules as TrustBadges (official
+ * Mini trust row — same marks and trademark rules as TrustBadges (official
  * variants, no recoloring, light background), scaled down and set on light
- * chips so they stay legible over the dark hero. Lazy + low priority: nothing
- * here may compete with the poster for the LCP.
+ * chips so they stay legible over the dark hero. Low priority: nothing here
+ * may compete with the poster for the LCP.
  */
-const badges = [
-  { name: 'Viator', logo: viatorLogo, h: 'h-3' },
-  { name: 'GetYourGuide', logo: gygLogo, h: 'h-3.5' },
-  { name: 'Airbnb', logo: airbnbLogo, h: 'h-3.5' },
-  { name: 'Civitatis', logo: civitatisLogo, h: 'h-2.5' },
-];
+const CHIP_SIZES: Record<string, string> = {
+  viator: 'h-3',
+  getyourguide: 'h-3.5',
+  airbnb: 'h-3.5',
+  civitatis: 'h-2.5',
+};
+const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
 ---
 
 {/* `data-hero` (not <header>) — the site header is the fixed Nav now; the
@@ -88,18 +87,10 @@ const badges = [
         {
           badges.map((b) => (
             <li class="flex items-center rounded-full bg-paper/90 px-2.5 py-1">
-              {/* Intrinsic size given so the row reserves its width before the
-                  logos arrive — these sit above the fold, and a reflow here
-                  would shift the whole bottom-anchored headline block. */}
-              <img
-                src={b.logo.src}
-                alt={b.name}
-                width={b.logo.width}
-                height={b.logo.height}
-                class={`w-auto ${b.h}`}
-                fetchpriority="low"
-                decoding="async"
-              />
+              {/* Inline SVG / intrinsic-size PNG — either way the chip reserves
+                  its width before paint; these sit above the fold, and a reflow
+                  here would shift the whole bottom-anchored headline block. */}
+              <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
             </li>
           ))
         }

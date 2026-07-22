@@ -1,4 +1,5 @@
 ---
+import OtaLogo from './OtaLogo.astro';
 import { PLATFORMS } from '../lib/platforms';
 import { t, type Locale } from '../i18n';
 
@@ -22,7 +23,7 @@ const SIZES: Record<string, string> = {
   airbnb: 'h-7 md:h-8',
   civitatis: 'h-5 md:h-6',
 };
-const badges = PLATFORMS.map((p) => ({ name: p.name, logo: p.logo, h: SIZES[p.key] }));
+const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key] }));
 ---
 
 <section class="bg-paper text-ink">
@@ -37,13 +38,7 @@ const badges = PLATFORMS.map((p) => ({ name: p.name, logo: p.logo, h: SIZES[p.ke
           {
             badges.map((b) => (
               <li class="flex items-center">
-                <img
-                  src={b.logo.src}
-                  alt={b.name}
-                  class={`w-auto ${b.h}`}
-                  loading="lazy"
-                  decoding="async"
-                />
+                <OtaLogo platform={b.key} name={b.name} class={b.h} />
               </li>
             ))
           }
