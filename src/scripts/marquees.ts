@@ -7,7 +7,8 @@
  * its idle drift rather than stopping dead.
  *
  * One ticker drives everything: velocity is sampled once per frame and shared,
- * and rows off screen are skipped entirely.
+ * and rows off screen are skipped via a live viewport read (never a cached
+ * scroll position, so a late font swap or lazy image can't strand a row).
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -23,15 +24,18 @@ const BOOST_MAX = 6;
 const BOOST_SHARE = 0.6;
 /** Frame-time clamp: a backgrounded tab must not teleport the rows. */
 const MAX_FRAME_MS = 50;
+/** Off-screen slack (px): start drifting just before a row scrolls in. */
+const SCREEN_MARGIN = 200;
 
 const toBoost = gsap.utils.mapRange(0, VELOCITY_CEILING, 0, BOOST_MAX);
 
 interface Row {
+  root: HTMLElement;
   dir: number;
   base: number;
   pos: number;
   span: number;
-  active: boolean;
+  onScreen: boolean;
   setX: (value: number) => void;
   measure: () => void;
 }
@@ -80,11 +84,12 @@ function buildRow(root: HTMLElement): void {
   };
 
   const row: Row = {
+    root,
     dir,
     base,
     pos: adopted,
     span: fill(),
-    active: false,
+    onScreen: false,
     setX,
     measure: () => {
       row.span = seq.offsetWidth || row.span;
@@ -92,15 +97,6 @@ function buildRow(root: HTMLElement): void {
     },
   };
   rows.push(row);
-
-  ScrollTrigger.create({
-    trigger: root,
-    start: 'top bottom+=200',
-    end: 'bottom top-=200',
-    onToggle: (self) => {
-      row.active = self.isActive;
-    },
-  });
 }
 
 function tick(_time: number, deltaMs: number): void {
@@ -114,8 +110,20 @@ function tick(_time: number, deltaMs: number): void {
   smoothed += (velocity - smoothed) * 0.12;
   const boost = toBoost(smoothed); // deliberately unclamped — flings overshoot
 
+  // Phase 1 — read each row's live on-screen state in one batch. A live rect
+  // can't go stale the way a cached ScrollTrigger start/end can once the display
+  // font swaps or the lazy images land and shift the band down the page — that
+  // drift is what used to leave the row marked inactive right where you're
+  // looking at it (CSS drift already off via `.is-js`, so it reads as dead).
+  const vh = window.innerHeight;
   for (const row of rows) {
-    if (!row.active || !row.span) continue;
+    const rect = row.root.getBoundingClientRect();
+    row.onScreen = rect.bottom > -SCREEN_MARGIN && rect.top < vh + SCREEN_MARGIN;
+  }
+  // Phase 2 — write. Transforms don't affect layout, but keeping the writes out
+  // of the read loop keeps it obviously reflow-free.
+  for (const row of rows) {
+    if (!row.onScreen || !row.span) continue;
     row.pos += row.dir * row.base * (1 + boost * BOOST_SHARE) * dt;
     row.setX(gsap.utils.wrap(-row.span, 0, row.pos));
   }
