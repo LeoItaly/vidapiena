@@ -11,12 +11,14 @@ import FinalCta from './FinalCta.astro';
 import TrustBadges from './TrustBadges.astro';
 import Footer from './Footer.astro';
 import HudCorners from './HudCorners.astro';
-import type { Locale } from '../i18n';
+import BrandBadge from './BrandBadge.astro';
+import { t, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
+const dict = t(locale);
 ---
 
 <Base locale={locale} preloadHeroPosters nav="overlay">
@@ -24,6 +26,24 @@ const { locale } = Astro.props;
   {/* First in the page flow: its inline gate has to run before the hero paints. */}
   <IntroLoader locale={locale} />
   <Hero locale={locale} />
+  {/* The official badge as a sticker straddling the hero's bottom edge — the
+      first continuum device: one object that belongs to two bands at once. It
+      lives outside Hero because the hero clips (overflow-hidden). Decorative:
+      the nav names the brand; this is the stamp. The orbit ring spins under
+      .motion-ok only; the photo itself never rotates. */}
+  <div class="vp-sticker-anchor" aria-hidden="true">
+    <div class="vp-sticker">
+      <svg class="vp-orbit" viewBox="0 0 100 100">
+        <defs>
+          <path id="vp-orbit-path" d="M 50 50 m -44 0 a 44 44 0 1 1 88 0 a 44 44 0 1 1 -88 0" />
+        </defs>
+        <text class="vp-orbit-text">
+          <textPath href="#vp-orbit-path">{dict.hero.orbit}</textPath>
+        </text>
+      </svg>
+      <BrandBadge size={140} class="size-[92px] md:size-[140px]" />
+    </div>
+  </div>
   <main id="main">
     {/* Catalogue first: a first-time visitor sees what is on sale one scroll
         in — all four tours at once, each linking to its own page. */}
@@ -38,3 +58,49 @@ const { locale } = Astro.props;
   <Footer locale={locale} />
   <HudCorners />
 </Base>
+
+<style>
+  .vp-sticker-anchor {
+    position: relative;
+    z-index: 20;
+    height: 0;
+    pointer-events: none;
+  }
+  .vp-sticker {
+    position: absolute;
+    right: clamp(1.25rem, 7vw, 5rem);
+    top: -3rem;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 10px 28px rgb(0 0 0 / 0.45));
+  }
+  @media (min-width: 768px) {
+    .vp-sticker {
+      top: -4.5rem;
+    }
+  }
+  .vp-orbit {
+    position: absolute;
+    inset: -24%;
+    width: 148%;
+    height: 148%;
+    overflow: visible;
+  }
+  /* 35 monospace characters around a 2π·44 ring: 44·2π ≈ 276 units, natural
+     advance 35·(7·0.6) = 147, so 129 spread over 35 gaps ≈ 3.7 units of
+     tracking closes the loop with the seam on a separator. */
+  .vp-orbit-text {
+    font-family: var(--font-mono);
+    font-size: 7px;
+    letter-spacing: 3.7px;
+    fill: color-mix(in srgb, var(--color-paper) 82%, transparent);
+  }
+  @keyframes vp-orbit-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  :global(.motion-ok) .vp-orbit {
+    animation: vp-orbit-spin 48s linear infinite;
+  }
+</style>

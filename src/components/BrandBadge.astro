@@ -1,0 +1,45 @@
+---
+/**
+ * The official circular badge — Francesco + the graffiti wordmark inside the
+ * yellow ring (master: visual-references/new-logo.jpeg; this copy lives in the
+ * asset pipeline). The JPEG is a perfect circle on a black square, so a circle
+ * mask plus a 4% overscan crops it clean: the yellow ring becomes the edge and
+ * the black corners never show. Never recolored; never rotated (the hero's
+ * orbit ring spins around it, not with it).
+ *
+ * Size the box at the call site (e.g. `size-[34px]`); `size` here only sets
+ * the rendered image resolution.
+ */
+import { Image } from 'astro:assets';
+import badge from '../assets/logos/vidapiena-badge.jpg';
+
+interface Props {
+  /** Largest rendered box size in px — drives the generated image widths. */
+  size: number;
+  /** Real alt text; all current call sites sit next to the wordmark → ''. */
+  alt?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+}
+const { size, alt = '', class: className = '', loading = 'lazy' } = Astro.props;
+---
+
+<span class:list={['vp-badge', className]}>
+  <Image src={badge} alt={alt} width={size} densities={[1, 2]} loading={loading} decoding="async" />
+</span>
+
+<style>
+  .vp-badge {
+    display: inline-block;
+    flex: none;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+  .vp-badge :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transform: scale(1.04);
+  }
+</style>

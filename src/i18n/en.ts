@@ -49,6 +49,9 @@ export const en: typeof it = {
     ctaTours: 'See the tours',
     otaLabel: 'Also on',
     scrollCue: 'Scroll to explore',
+    /* Sticker orbit ring (decorative, aria-hidden). Exactly 35 characters —
+       the ring's tracking is calibrated to this length. */
+    orbit: 'ITALIAN GUIDE IN RIO · VIDAPIENA · ',
   },
 
   guide: {

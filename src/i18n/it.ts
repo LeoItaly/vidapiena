@@ -51,6 +51,9 @@ export const it = {
     ctaTours: 'Scopri i tour',
     otaLabel: 'Mi trovi anche su',
     scrollCue: 'Scorri per esplorare',
+    /* Anello orbitante dello sticker (decorativo, aria-hidden). Esattamente
+       35 caratteri: il tracking del ring è calibrato su questa lunghezza. */
+    orbit: 'GUIDA ITALIANA A RIO · VIDAPIENA · ',
   },
 
   guide: {

@@ -13,6 +13,7 @@
  * motion-path extras: the scrolled-state trigger and the entrance after the
  * intro lifts.
  */
+import BrandBadge from './BrandBadge.astro';
 import LangSwitch from './LangSwitch.astro';
 import { SITE } from '../data/site';
 import { t, pagePath, localeHref, type Locale } from '../i18n';
@@ -38,8 +39,10 @@ const links = [
   <div class="flex h-(--nav-h) w-full items-center justify-between px-5 md:px-10">
     <a
       href={pagePath(locale)}
-      class="font-display relative z-10 text-sm font-bold tracking-[0.28em] uppercase"
+      class="font-display relative z-10 flex items-center gap-2.5 text-sm font-bold tracking-[0.28em] uppercase"
     >
+      {/* Badge is decorative here — the link text carries the name. */}
+      <BrandBadge size={34} class="size-[34px]" loading="eager" />
       Vidapiena
     </a>
 
