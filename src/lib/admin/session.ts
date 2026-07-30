@@ -76,7 +76,13 @@ export async function authenticate(
   const user = users.find((u) => u.email.toLowerCase() === normalised);
 
   if (!user) {
-    const decoy = users[0]?.hash ?? 'pbkdf2$100000$AAAAAAAAAAAAAAAAAAAAAA==$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+    // Prefer a real stored hash so the decoy costs exactly what a real check costs.
+    // The literal fallback must keep the same iteration count as everything else:
+    // a higher one would both blow the 10 ms CPU budget and make "unknown email"
+    // measurably slower than "wrong password" — the very leak this guards against.
+    const decoy =
+      users[0]?.hash ??
+      'pbkdf2$20000$AAAAAAAAAAAAAAAAAAAAAA==$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
     await verifyPassword(password, decoy);
     return null;
   }

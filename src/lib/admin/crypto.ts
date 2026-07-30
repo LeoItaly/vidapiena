@@ -4,15 +4,28 @@
  * Web Crypto only — no Node built-ins. This runs on Cloudflare's workerd, where
  * native modules (bcrypt, argon2) do not exist and `node:crypto` is partial.
  *
- * On the KDF choice: workerd caps PBKDF2 at 100,000 iterations, which is below
- * the current OWASP recommendation for a *user-chosen* password. The strength
- * here therefore comes from entropy, not hash cost — `scripts/admin-credentials.mjs`
- * generates a high-entropy passphrase and Francesco never invents his own. Login
- * is also rare (the session lasts a year), so the free plan's 10 ms CPU budget
- * per invocation is not under pressure.
+ * On the iteration count — this is a hard platform constraint, not a preference.
+ * The Workers *free* plan allows **10 ms of active CPU per invocation**, and
+ * crypto.subtle work counts against it (only network I/O is excluded). Measured
+ * cost of one PBKDF2-SHA-256 derive: 100,000 iterations ≈ 19 ms, 50,000 ≈ 9 ms,
+ * 20,000 ≈ 3.7 ms. So the obvious "use workerd's 100,000 cap" would exceed the
+ * whole request budget and fail the login with error 1102.
+ *
+ * 20,000 is safe and, more importantly, sufficient — because the strength here
+ * comes from entropy, not hash cost. scripts/admin-credentials.mjs generates a
+ * ~62-bit passphrase and Francesco never invents his own, so even a cheap KDF
+ * leaves an offline attacker ~2^62 guesses. 62 bits at 20k iterations is far
+ * stronger than 100k iterations protecting a password someone chose themselves.
  */
 
-const PBKDF2_ITERATIONS = 100_000; // workerd's hard ceiling — asking for more throws
+/** Used when generating a new hash. Kept well inside the 10 ms free-plan budget. */
+const PBKDF2_ITERATIONS = 20_000;
+/**
+ * Verification accepts any count up to workerd's hard ceiling, so a hash minted
+ * with a different (e.g. older, higher) count still authenticates instead of
+ * silently reading as a wrong password. Anything above this throws in workerd.
+ */
+const PBKDF2_MAX_VERIFY_ITERATIONS = 100_000;
 const KEY_BYTES = 32;
 const SALT_BYTES = 16;
 
@@ -74,7 +87,13 @@ export async function verifyPassword(password: string, stored: PasswordHash): Pr
   if (parts.length !== 4 || parts[0] !== 'pbkdf2') return false;
 
   const iterations = Number.parseInt(parts[1]!, 10);
-  if (!Number.isInteger(iterations) || iterations < 1 || iterations > PBKDF2_ITERATIONS) return false;
+  if (
+    !Number.isInteger(iterations) ||
+    iterations < 1 ||
+    iterations > PBKDF2_MAX_VERIFY_ITERATIONS
+  ) {
+    return false;
+  }
 
   try {
     const salt = fromBase64(parts[2]!);

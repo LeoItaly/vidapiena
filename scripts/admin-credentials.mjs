@@ -75,7 +75,13 @@ const DIGIT_COUNT = 4;
  * while 31 bits would fall in an afternoon.
  */
 const MIN_ENTROPY_BITS = 60;
-const PBKDF2_ITERATIONS = 100_000; // must match src/lib/admin/crypto.ts
+/**
+ * Must match src/lib/admin/crypto.ts. Bounded by the Workers *free* plan's 10 ms
+ * active-CPU budget per request, which crypto.subtle work counts against: one
+ * derive costs ~19 ms at 100,000 iterations (workerd's cap) and ~3.7 ms at 20,000.
+ * The entropy floor above is what actually protects the credential.
+ */
+const PBKDF2_ITERATIONS = 20_000;
 
 const UNIQUE_WORDS = [...new Set(WORDS)];
 if (UNIQUE_WORDS.length !== WORDS.length) {

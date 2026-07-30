@@ -53,11 +53,16 @@ npx wrangler secret put ADMIN_USERS
 npx wrangler secret put SESSION_SECRET
 ```
 
-Francesco does not choose his own password, deliberately. `workerd` caps PBKDF2 at
-100,000 iterations, which is below what a human-chosen password would need to survive an
-offline attack if `ADMIN_USERS` ever leaked — so the strength comes from generated
-entropy instead. Send it over a channel he already trusts and tell him to let the phone
-save it.
+Francesco does not choose his own password, deliberately. The hash has to be cheap enough
+to fit the free plan's 10 ms CPU budget (see **Cost** above), so it cannot carry the
+security on its own — the generated ~62 bits of entropy does. A password someone invents
+would be both weaker and, at a survivable iteration count, genuinely crackable if
+`ADMIN_USERS` ever leaked.
+
+Send it over a channel he already trusts, and **tell him to open the link in Safari, not
+inside WhatsApp** — WhatsApp's in-app browser has its own cookie jar and cannot save to
+the keychain, so he would log in there and appear logged out in Safari forever. The login
+page detects this and says so, but the warning is easier to avoid than to read.
 
 **There is no password reset.** His Outlook mailbox is full, so an emailed magic link is
 the one recovery mechanism guaranteed to fail him. If he loses the passphrase, rotate
@@ -105,10 +110,14 @@ shaped around them:
 
 - **KV: 1,000 writes/day.** This is why sessions use a self-contained signed cookie
   rather than a per-request KV record, and why draft autosave is debounced.
-- **Workers: 10 ms CPU per invocation** on the free plan. This is why password hashing
-  uses PBKDF2 at workerd's 100,000-iteration cap rather than a heavier KDF — and why the
-  admin password is *generated* with high entropy instead of chosen, since the strength
-  has to come from the password, not the hash cost.
+- **Workers: 10 ms active CPU per invocation** on the free plan, and `crypto.subtle`
+  work counts against it (only network I/O is excluded). This is the tightest constraint
+  in the whole back office. Measured cost of one PBKDF2-SHA-256 derive: **100,000
+  iterations ≈ 19 ms, 50,000 ≈ 9 ms, 20,000 ≈ 3.7 ms** — so using workerd's 100,000
+  cap would exceed the entire request budget and fail the login with error 1102. We use
+  **20,000**, and the strength comes from *entropy* instead: the generated passphrase is
+  ~62 bits, which leaves an offline attacker ~2^62 guesses. 62 bits at 20k iterations is
+  far stronger than 100k iterations protecting a password a human chose.
 
 ## Commands
 
