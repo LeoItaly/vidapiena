@@ -11,7 +11,7 @@ Cinematic, SEO-first personal website for **Vidapiena** — Francesco, Italian t
 | **Public frontend** | Award-grade visuals: 3D scroll storytelling, GSAP animations, logo intro animation. Obsessively optimized for **SEO** (Google) and **GEO** (AI search: ChatGPT, Perplexity, Gemini). Desktop **and** mobile. | 1–2 |
 | **Back office** | Simple authenticated portal where Francesco edits site content and publishes blog articles (image + text) via a **headless CMS** — no technical skills required. | 3 (later) |
 
-**Stack: deliberately not chosen yet.** Phase 0 is documentation and environment only. The stack decision must satisfy the constraints in [docs/VISION.md](docs/VISION.md).
+**Stack: Astro 7 + Tailwind 4 + GSAP**, prerendered static output, hosted on **Cloudflare Workers** (see [docs/HOSTING.md](docs/HOSTING.md)). Chosen against the constraints in [docs/VISION.md](docs/VISION.md).
 
 ## Repo scope 🔒
 
@@ -26,9 +26,15 @@ Cinematic, SEO-first personal website for **Vidapiena** — Francesco, Italian t
 | [docs/ASSETS-MAP.md](docs/ASSETS-MAP.md) | Where every asset and source note lives (logos, photos, tour data, client context) |
 | [docs/LOGO-ANIMATION-BRIEF.md](docs/LOGO-ANIMATION-BRIEF.md) | First visual task: animated Vidapiena logo via Higgsfield MCP |
 | [docs/PROMPT-3D-SCROLL.md](docs/PROMPT-3D-SCROLL.md) | The cinematic "3D scroll descent" website prompt (Vidapiena edition) |
+| [docs/HOSTING.md](docs/HOSTING.md) | Cloudflare Workers setup, commands, the vidapiena.com cutover |
 | [docs/UPDATES.md](docs/UPDATES.md) | Work log, newest first |
 
 ## Status
 
-**Phase 0 — environment & documentation: ✅ done (20 Jul 2026).**
-Next up: logo animation (see [the brief](docs/LOGO-ANIMATION-BRIEF.md)), then visual direction + hero prototype.
+**Phases 1–2 — the public site: ✅ done.** 27 prerendered pages, IT + EN, four tour pages,
+five blog articles, the cinematic scroll descent.
+
+**Phase 3 — back office: 🚧 in progress (30 Jul 2026).** Hosting has moved to Cloudflare
+Workers so `/admin` can have a login; the editor itself is next. See
+[docs/HOSTING.md](docs/HOSTING.md) for the one-time Cloudflare setup — **nothing deploys
+until those two repo secrets exist.**
