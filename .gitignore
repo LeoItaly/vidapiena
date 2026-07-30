@@ -13,6 +13,10 @@ build/
 .env
 .env.*
 !.env.example
+# Wrangler local state, and the local secret file it reads in `wrangler dev`.
+# .dev.vars holds the admin password hash and the GitHub token during local work.
+.wrangler/
+.dev.vars
 
 # Local tooling
 .claude/

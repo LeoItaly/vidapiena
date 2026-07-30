@@ -1,0 +1,39 @@
+/**
+ * Cloudflare Workers deployment config.
+ *
+ * The site moved here from GitHub Pages because the back office at /admin needs
+ * a server runtime (login, sessions, uploads, commits) and Pages has none. Every
+ * public page is still prerendered — `output: 'static'` in astro.config.mjs — and
+ * only /admin/* opts out with `export const prerender = false`.
+ *
+ * `main` is the adapter's unified entrypoint (Astro 6+): it serves the prerendered
+ * assets and runs the on-demand routes, in `wrangler dev` and in production alike.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vidapiena",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  // Must not exceed the date the installed workerd binary supports, or both the
+  // build (the adapter prerenders inside the Workers runtime) and `wrangler dev`
+  // fail to start. Bump this only together with wrangler.
+  "compatibility_date": "2026-07-29",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    // The site has a real 404 page (src/pages/404.astro); serve it instead of
+    // Cloudflare's default for unmatched static paths.
+    "not_found_handling": "404-page"
+  },
+
+  // Session + draft storage. Wrangler provisions this namespace on first deploy;
+  // Astro's Sessions API picks it up automatically via the adapter.
+  // Note the free plan allows only 1,000 KV writes/day — draft autosave must stay
+  // debounced, and sessions must not write on every request.
+  "kv_namespaces": [{ "binding": "SESSION" }],
+
+  "observability": {
+    "enabled": true
+  }
+}

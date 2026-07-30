@@ -9,8 +9,13 @@
 
 export const SITE = {
   name: 'Vidapiena',
-  /** Production origin + base — must match astro.config.mjs */
-  origin: 'https://leoitaly.github.io',
+  /**
+   * Production origin. Read from the `site` value in astro.config.mjs rather
+   * than repeated here, so the custom-domain cutover is a one-place change and
+   * the two can never drift apart. The fallback only ever applies if `site` is
+   * unset, which the config does not allow.
+   */
+  origin: import.meta.env.SITE || 'https://vidapiena.workers.dev',
   instagram: 'https://www.instagram.com/vidapiena/',
   instagramHandle: '@vidapiena',
   guide: {

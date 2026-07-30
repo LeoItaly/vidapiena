@@ -1,5 +1,10 @@
-name: Deploy to GitHub Pages
+name: Deploy to Cloudflare Workers
 
+# The site moved off GitHub Pages because the back office at /admin needs a
+# server runtime. Every public page is still prerendered; only /admin/* runs
+# on demand. The triggers are unchanged from the Pages workflow: every push to
+# main publishes, and the daily cron rebuilds so the Instagram tiles refresh
+# after Behold's once-daily sync.
 on:
   push:
     branches: [main]
@@ -9,45 +14,53 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# One deploy at a time. Unlike the Pages workflow this does NOT
+# cancel-in-progress: a run started by the back office is publishing a real
+# article, and cancelling it half-way would leave Francesco watching a publish
+# that never lands.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: deploy-worker
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # Prebuild: bake the latest Instagram posts into src/assets/ before Astro builds.
-      # Needs its own node+install because withastro/action installs separately.
-      # The script never fails the build — a down/absent feed falls back to the curated strip.
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Install deps (prebuild)
+
+      - name: Install deps
         run: npm ci
+
+      # Bakes the latest Instagram posts into src/assets/ before Astro builds.
+      # The script never fails the build — a down/absent feed falls back to the
+      # curated strip.
       - name: Fetch Instagram feed
         run: node scripts/fetch-instagram.mjs
         env:
           BEHOLD_FEED_ID: ${{ secrets.BEHOLD_FEED_ID }}
-      - name: Build with Astro
-        uses: withastro/action@v3
-        with:
-          node-version: 22
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # `npm run build` is `astro check && astro build`, so a type error or a
+      # missing i18n key still fails the deploy. That gate is deliberate: it is
+      # what stops a malformed article from reaching the live site.
+      # SITE_ORIGIN is a repo *variable* (not a secret — it is a public URL). It
+      # sets `site` in astro.config.mjs, which drives canonical, hreflang, og:image
+      # and the sitemap. Leave it unset and the config default applies. This is the
+      # one value to change at the vidapiena.com cutover.
+      - name: Build
+        run: npm run build
+        env:
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm

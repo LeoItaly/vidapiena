@@ -1,7 +1,10 @@
 User-agent: *
 Allow: /
 
-# NOTE: on the GitHub Pages project subpath this file is technically inert
-# (crawlers read the origin root). It becomes authoritative the moment the
-# custom domain lands. Sitemap is also submitted manually in Search Console.
-Sitemap: https://leoitaly.github.io/vidapiena/sitemap-index.xml
+# The back office is a login, not content. Keep it out of every index.
+Disallow: /admin
+
+# Now served from the origin root (Cloudflare Workers), so this file is
+# authoritative. Update the Sitemap host when the custom domain lands —
+# same edit as public/llms.txt and SITE_ORIGIN in astro.config.mjs.
+Sitemap: https://vidapiena.workers.dev/sitemap-index.xml

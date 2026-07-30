@@ -1,0 +1,42 @@
+---
+/**
+ * Back office shell — the first on-demand route on the site.
+ *
+ * `prerender = false` is what makes this run on the Worker at request time
+ * instead of being baked at build time. It is also what makes the adapter emit
+ * a server entrypoint at all: with every route prerendered, `dist/server` comes
+ * out empty and there is nothing for Cloudflare to run.
+ *
+ * This is a placeholder. The real login lands in stage 2 — nothing here is
+ * protected yet, so it must not say anything a stranger should not read.
+ */
+export const prerender = false;
+
+import '../../styles/global.css';
+
+// Rendered per request: proof, in the page itself, that this is not static HTML.
+const renderedAt = new Date().toISOString();
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- A login form has no business in a search index. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Back office — Vidapiena</title>
+  </head>
+  <body class="bg-ink text-paper">
+    <main class="mx-auto flex min-h-dvh max-w-4xl flex-col justify-center px-5 py-20 md:px-10">
+      <p class="eyebrow text-ouro">Back office</p>
+      <h1 class="mt-4 font-display text-4xl font-bold md:text-5xl">Vidapiena</h1>
+      <p class="mt-6 max-w-prose text-paper/70">
+        Area riservata in costruzione. Qui Francesco scriverà e pubblicherà gli articoli del blog.
+      </p>
+      <p class="eyebrow mt-10 text-paper/40">
+        Server time <span class="tabular-nums">{renderedAt}</span>
+      </p>
+    </main>
+  </body>
+</html>
