@@ -17,7 +17,16 @@ The personal website of an Italian guide in Rio: a cinematic scroll experience t
 
 - Simple **authentication portal** (email + password is enough) — Francesco only.
 - Powered by a **headless CMS**: Francesco edits the lead/landing copy and publishes **blog articles (image + text)** in a simple editor. Zero markdown, zero git.
-- Candidates to evaluate when we get there (criteria: free/cheap tier, image handling, editor UX simple enough for a non-technical user, webhook to trigger site rebuild): Sanity, Payload, Strapi, Directus, Decap. **No decision yet.**
+- **Decided 30 Jul 2026: a custom back office, not a headless CMS.** Every git-based
+  candidate (Decap, Sveltia, Keystatic, Pages CMS, Tina) authenticates against a git
+  provider — Francesco has no GitHub account, and none of them resize a 12 MB vertical
+  HEIC, create the mandatory EN twin, or present an Italian UI. Sanity/Payload/Strapi/
+  Directus were ruled out on recurring cost and on being a second content store next to
+  the content collection the site already renders.
+- Shipped instead: `/admin` inside this Astro app, on **Cloudflare Workers** (GitHub Pages
+  has no server runtime, which is why the host moved), email + password with a one-year
+  session, a Gutenberg-style block editor, and the EN twin machine-translated at publish.
+  0 €/month. See [HOSTING.md](HOSTING.md) and the top entry of [UPDATES.md](UPDATES.md).
 
 ## Stack constraints (decision deferred — but bounded)
 
@@ -74,7 +83,7 @@ The cinematic layer (logo video, scroll-scrubbed clips, WebGL) is **progressive 
 | **1** | Logo animation (Higgsfield) · visual direction · hero prototype | ✅ 21 Jul 2026 — went further: **full cinematic one-pager LIVE** (IT+EN) at leoitaly.github.io/vidapiena · stack decided: **Astro 7 + GSAP + Tailwind 4** · photo descent with `BackdropRenderer` seam for the clip scrub (see UPDATES 21/07) |
 | **1b** | 5-clip Seedance shoot post Plus renewal (~23 Jul) → `FrameSequenceBackdrop` canvas scrub | |
 | **2** | Full frontend: 4 tour pages, story, contact, SEO/GEO hardening (robots, sitemap, JSON-LD, llms.txt, hreflang — **one-pager already carries all of these**) | |
-| **3** | Headless CMS + back office (auth, article editor) | |
+| **3** | Custom back office (auth, article editor) | 🚧 30 Jul 2026 — hosting on Cloudflare Workers + `/admin` login done & verified; photo pipeline, block editor and publish loop remain |
 | **4** | Launch: domain, Search Console, analytics, redirects from link-in-bio | |
 
 ## Open questions
