@@ -4,6 +4,8 @@ dist/
 build/
 .next/
 .astro/
+# Astro's cacheDir, relocated out of node_modules so CI can cache it (see astro.config.mjs)
+.astro-cache/
 .svelte-kit/
 .output/
 .vercel/

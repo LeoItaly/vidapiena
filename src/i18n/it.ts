@@ -272,6 +272,7 @@ export const it = {
       'Sto scrivendo i primi articoli: storie dalle comunità, consigli pratici e vita carioca. Nel frattempo mi trovi su Instagram.',
     readMore: 'Leggi',
     backToBlog: '← Tutti gli articoli',
+    updatedOn: 'Aggiornato il',
   },
 
   instagram: {

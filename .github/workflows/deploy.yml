@@ -38,6 +38,19 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      # Astro's image cache. Without this every run re-encodes all 545 AVIF/WebP/JPEG
+      # derivatives from scratch — most of the build time Francesco waits through
+      # after tapping Pubblica. Keyed on the photo pool plus the sharp version, since
+      # either changing invalidates the encodings; falls back to the newest partial
+      # cache so adding one photo reuses the other 545.
+      - name: Restore Astro asset cache
+        uses: actions/cache@v4
+        with:
+          path: .astro-cache
+          key: astro-assets-${{ hashFiles('src/assets/**', 'package-lock.json') }}
+          restore-keys: |
+            astro-assets-
+
       # Bakes the latest Instagram posts into src/assets/ before Astro builds.
       # The script never fails the build — a down/absent feed falls back to the
       # curated strip.

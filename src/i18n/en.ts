@@ -270,6 +270,7 @@ export const en: typeof it = {
       'I’m writing the first articles: stories from the communities, practical tips and carioca life. In the meantime, find me on Instagram.',
     readMore: 'Read',
     backToBlog: '← All articles',
+    updatedOn: 'Updated on',
   },
 
   instagram: {

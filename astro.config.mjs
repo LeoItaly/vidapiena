@@ -25,6 +25,11 @@ export default defineConfig({
   base: '/',
   output: 'static',
   trailingSlash: 'ignore',
+  // Moved out of the default './node_modules/.astro' so CI can cache it: `npm ci`
+  // wipes node_modules, so with the default every one of the 545 image derivatives
+  // was recomputed on every run. That is most of the 6–7 minute build, and the
+  // build is what Francesco waits on after tapping Pubblica.
+  cacheDir: './.astro-cache',
   adapter: cloudflare({
     // Do NOT drop this. The adapter's default is 'cloudflare-binding', which
     // moves image transformation to runtime Cloudflare Images — a billable

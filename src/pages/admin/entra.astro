@@ -28,7 +28,16 @@ const MESSAGES = {
 type MessageKey = keyof typeof MESSAGES;
 
 let error: MessageKey | null = null;
-let email = '';
+
+/**
+ * Prefilled from `?email=` so the link Leo sends already carries it.
+ *
+ * On a single-user portal, making him type an email address exactly right on a
+ * phone keyboard is pure friction — and a typo is deliberately indistinguishable
+ * from a wrong password, so he would have no idea which half he got wrong.
+ * The address is not a secret; the password is.
+ */
+let email = Astro.url.searchParams.get('email')?.trim() ?? '';
 
 // Already signed in? Skip the form.
 if (SESSION_SECRET && (await readSession(Astro.cookies, SESSION_SECRET))) {
@@ -83,6 +92,24 @@ if (Astro.request.method === 'POST') {
     <h1 class="mt-3 font-display text-3xl font-bold">Il tuo pannello</h1>
     <p class="mt-3 text-paper/60">Entra per scrivere e pubblicare gli articoli del blog.</p>
 
+    {/*
+      If he opens the link from inside WhatsApp, iOS renders it in WhatsApp's own
+      WebView, which keeps a separate cookie jar and cannot save a password to the
+      keychain. He would log in successfully and then appear logged out forever in
+      Safari — the exact opposite of "stay signed in". We cannot leave that
+      WebView programmatically, so tell him plainly. Hidden by default and shown
+      only on detection, so the common case sees nothing.
+    */}
+    <p
+      id="avviso-browser"
+      hidden
+      class="mt-6 rounded-lg border border-ouro/40 bg-ouro/10 px-4 py-3 text-sm text-paper"
+    >
+      Stai aprendo la pagina dentro un’altra app. Tocca i tre puntini in alto e scegli
+      <strong>«Apri in Safari»</strong>: così resti collegato e il telefono può salvare la
+      password.
+    </p>
+
     {
       error && (
         <p
@@ -131,10 +158,36 @@ if (Astro.request.method === 'POST') {
       <button type="submit" class="btn btn-primary mt-2 w-full justify-center">Entra</button>
     </form>
 
+    {/*
+      A real link, not prose. This is the one dead end in the whole design — there
+      is no self-service reset because his mailbox is full — so the escape hatch has
+      to be one tap, with the subject already written.
+    */}
     <p class="mt-8 text-sm text-paper/40">
-      Password dimenticata? Scrivi a Leo: per sicurezza non si può recuperare da qui.
+      Password dimenticata?{' '}
+      <a
+        href="mailto:leonardo.rodo@outlook.it?subject=Vidapiena%20—%20non%20riesco%20a%20entrare%20nel%20pannello"
+        class="link-sweep text-ouro"
+      >
+        Scrivi a Leo
+      </a>{' '}
+      — per sicurezza non si può recuperare da qui.
     </p>
   </div>
+
+  <script is:inline>
+    // UA sniffing is the only signal available for this: an in-app WebView is not
+    // otherwise distinguishable from Safari, and getting it wrong only means an
+    // advisory banner is or isn't shown.
+    (function () {
+      var ua = navigator.userAgent || '';
+      var inApp = /\b(WhatsApp|Instagram|FBAN|FBAV|FB_IAB|Line|Twitter)\b/i.test(ua);
+      if (inApp) {
+        var el = document.getElementById('avviso-browser');
+        if (el) el.hidden = false;
+      }
+    })();
+  </script>
 
   {
     turnstileSiteKey && (

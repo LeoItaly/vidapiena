@@ -40,6 +40,9 @@ const graph = {
   headline: post.data.title,
   description: post.data.description,
   datePublished: post.data.date.toISOString().slice(0, 10),
+  // Only emitted once an article has actually been revised, so an untouched post
+  // does not claim a modification that never happened.
+  ...(post.data.updated && { dateModified: post.data.updated.toISOString().slice(0, 10) }),
   inLanguage: locale,
   url: absoluteUrl(pagePath(locale, path)),
   ...(jsonImage && { image: absoluteUrl(jsonImage.src) }),
@@ -85,6 +88,13 @@ const graph = {
         <article class="article-body max-w-prose">
           <Content />
         </article>
+        {
+          post.data.updated && (
+            <p class="eyebrow mt-10 text-ink-soft/60">
+              {dict.blog.updatedOn} <span class="tabular-nums">{dateFmt.format(post.data.updated)}</span>
+            </p>
+          )
+        }
         <p class="mt-12">
           <a href={pagePath(locale, 'blog/')} class="eyebrow link-sweep text-verde">
             {dict.blog.backToBlog}

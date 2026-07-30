@@ -19,11 +19,17 @@
   "compatibility_date": "2026-07-29",
   "compatibility_flags": ["nodejs_compat"],
 
+  // NOTE: the adapter rewrites `main` and `assets.directory` into a generated
+  // config at dist/server/wrangler.json (wrangler logs "Using redirected Wrangler
+  // configuration") — there they become "entry.mjs" and "../client". Everything
+  // else here is carried over verbatim, so don't "fix" the two values below to
+  // match dist/: they are inputs, not the effective paths.
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist",
     // The site has a real 404 page (src/pages/404.astro); serve it instead of
-    // Cloudflare's default for unmatched static paths.
+    // Cloudflare's default for unmatched static paths. Verified not to shadow
+    // /admin: there is no dist/client/admin, so /admin reaches the Worker.
     "not_found_handling": "404-page"
   },
 
