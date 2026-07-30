@@ -2,6 +2,13 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-22 (later 4) — Type-check gate: the i18n contract is now enforced ✅
+
+- **Why**: `en.ts` is typed against `it.ts` (`export const en: typeof it`), but `build` was plain `astro build` and neither `typescript` nor `@astrojs/check` was installed — a missing translation key only surfaced at prerender **if** that key happened to be called; a missing plain string shipped silently as `undefined`.
+- **Fix**: installed `typescript@^6.0.3` + `@astrojs/check@^0.9.9` (dev). ⚠️ **`typescript` must stay on 6.x** — bare `npm i -D typescript` resolves to **7.0.2** (native compiler), which doesn't expose the programmatic API `astro check` needs (hard error at startup). Added `"check": "astro check"` and made `"build": "astro check && astro build"` — since `withastro/action@v3` in `deploy.yml` runs the package `build` script, CI is gated with no workflow change.
+- **Also**: fixed the 8 `astro check` hints — `z` re-exported from `astro:content` is deprecated in Astro 7 → `content.config.ts` now imports `z` from `astro/zod` (Astro's own recommended replacement).
+- **Verified**: `npm run check` → 0 errors / 0 warnings / 0 hints (72 files). Negative test: deleting `meta.ogAlt` from `en.ts` → exit 1, `ts(2741) Property 'ogAlt' is missing` (then restored). Full `npm run build` green end-to-end (check + 27 pages + sitemap). **NOT pushed.**
+
 ## 2026-07-22 (later 3) — Tour photo decks (every original on-page) + first 5 blog posts ✅
 
 - **Why**: Leo asked for (a) **every** image from each tour's `media/` folder on its tour page as a stacked "deck of cards" — one card riding over the previous as you scroll — and (b) **5 short sample blog posts** in Francesco's voice with real photos, template-conforming so they migrate 1:1 to the phase-3 CMS back office.
