@@ -2,6 +2,98 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 — DEPLOYED 🚀 + the review that caught a showstopper
+
+**The site is live on Cloudflare Workers at <https://vidapiena.leonardo-rodo.workers.dev>** and
+the back office works end-to-end: Leo logged in on a real phone and stayed logged in.
+
+### 🔴 The back office was unreachable from every browser — and the test that hid it
+
+`assets.not_found_handling: "404-page"` let Cloudflare's asset router answer *navigation*
+requests itself. A request carrying `Sec-Fetch-Mode: navigate` that matched no static asset
+got `dist/client/404.html` instead of falling through to the Worker — and there is no
+`dist/client/admin`, so `/admin` and `/admin/entra` both returned the public 404. The Worker
+never ran. **Nobody could ever have logged in.**
+
+It passed verification last session because plain `curl` sends no navigation headers, and
+without them the request *does* fall through and the login works perfectly. Any future check
+of an on-demand route must use
+`curl -H 'Sec-Fetch-Mode: navigate' -H 'Accept: text/html'`. Fixed with
+`not_found_handling: "none"` — the Worker still renders the branded 404 with a real 404
+status, so nothing is lost. ⚠️ **`run_worker_first: ["/admin/*"]` is NOT the fix**: once set,
+anything not matching is handled by the asset router and never reaches the Worker, which
+breaks the adapter's own prerender server (it POSTs to collect static paths; assets answer
+POST with 405) and fails the **build**. Tried it, it failed, reverted.
+
+### Other findings from the adversarial review (13 agents; 5 verifiers + the critic died on a usage limit, so ~50 raw claims remain UNVERIFIED and were not acted on)
+
+- **Turnstile could not be activated as documented, and doing so locked the only user out.**
+  The site key is `import.meta.env.PUBLIC_TURNSTILE_SITE_KEY`, inlined at *build* time, and
+  `deploy.yml` never forwarded it (proved: `dist/server/chunks/entra_*.mjs` contained
+  `const turnstileSiteKey = void 0;`). The secret is *runtime*, so setting it alone made every
+  login fail `robot` against a form with no widget. Workflow now passes the variable;
+  `missing-token`/`unreachable` get their own Italian message and no longer count toward the
+  15-minute lockout, so a flaky Rio connection can't lock him out.
+- **No session revocation.** `renewSession` rebuilt identity from the expiring token
+  (`hash: ''` was the tell), so a session re-signed itself every ~65 days forever and rotating
+  a password — the documented remedy — revoked nothing. The token now carries a truncated
+  SHA-256 of the password hash and the guard re-checks membership against live `ADMIN_USERS`.
+  **Verified**: rotating only the hash (same `SESSION_SECRET`, so the signature still
+  verifies) kills the old cookie while the new passphrase logs in.
+- **`SITE_ORIGIN`'s fallback is a hostname nobody owns** — Workers serve at
+  `<worker>.<subdomain>.workers.dev`. CI now fails rather than ship it.
+- **`robots.txt` + `llms.txt` shipped 9 dead absolute URLs**, live, from the first deploy —
+  leftovers of the Pages era. `llms.txt` is the GEO/AI-citation surface, so this was silent
+  and expensive. Both are now **generated from `SITE_ORIGIN`** (`src/pages/*.txt.ts`,
+  prerendered), which also deletes them from the vidapiena.com cutover checklist.
+- Lower severity, all fixed: `SESSION_SECRET` had no length floor (`importKey` accepts a
+  1-byte HMAC key — a truncated paste was a silent downgrade) · the 100k PBKDF2 verify ceiling
+  could only produce a 1102, never a login → 25k · `parseUsers` accepted a malformed hash, so a
+  corrupt secret read as "wrong password" forever with **zero** log output · non-canonical
+  base64url cookies verified identically (`token=`, `token%20`) → strict parsing, so future
+  revocation can key on the cookie · `?errore=valueOf` rendered a function · a non-form POST
+  500'd · **unauthenticated `/admin/api/*` returned a 302 to HTML that `fetch()` follows
+  transparently — the stage 4/5 editor would have reported a successful save of an article
+  that was never saved** → now 401 JSON.
+- Checked and NOT a problem: Astro 7.1.3 defaults `security.checkOrigin: true`, so the CSRF
+  origin check is live; `dist/server/.dev.vars` exists but `assets.directory` resolves to
+  `../client`, so it is not in the published tree.
+
+### Setup gotchas worth remembering
+
+- The `workers.dev` subdomain is **not** offered until the first Worker exists — it was
+  auto-assigned as `leonardo-rodo`. So `SITE_ORIGIN` cannot be set until after deploy #1,
+  which means deploy #1 always bakes the placeholder. Deploy, then set it, then rebuild.
+- **`wrangler secret put` must be run with the NAME only**, then the value pasted at the
+  `Enter a secret value:` prompt. Passing the value positionally stores it as the *name* —
+  which happened, putting `SESSION_SECRET`'s value where names are visible. Credentials were
+  rotated. Deleting those malformed secrets is far easier in the dashboard than fighting
+  PowerShell quoting over a JSON array.
+- The Worker must exist before `wrangler secret put` (HOSTING.md had the order backwards).
+- `admin-credentials.mjs` now takes **any number of `<email> <name>` pairs** and emits one
+  `ADMIN_USERS` array and one `SESSION_SECRET`. Two runs produced two secrets and two arrays
+  needing a hand-merge — the most breakable step in the setup, failing silently as "wrong
+  password".
+
+### Decisions taken with Leo
+
+Analytics = **Cloudflare Web Analytics** + a "letto da N persone" figure inside `/admin` ·
+Francesco-facing help = **in-app Italian help** inside the panel · photo captions = **build the
+optional field now** (cheap during the block editor, expensive after) · **pt-BR still deferred**.
+The first three override the approved plan's "explicitly out" list.
+
+### Verified live
+
+27 pages, IT+EN, tours, blog, article, 404 (real 404 status), sitemap (26 URLs, correct host,
+`/admin` excluded), all 12 `llms.txt` URLs resolve 200. `/admin` 302s with
+`X-Robots-Tag: noindex, nofollow` while public pages carry none. A wrong password gets the
+Italian error and **no cookie**; an unknown email is byte-identical to a wrong password (no
+enumeration); **no 1102**, so PBKDF2 at 20k fits the 10 ms free-plan CPU budget in production.
+
+**Not done**: stages 3–5 (photo pipeline, block editor, publish loop). Turnstile deliberately
+still OFF until Francesco has logged in once. Branch `cloudflare-migration`, **not pushed, not
+merged** — `main` still points at GitHub Pages, and CI has never run this workflow.
+
 ## 2026-07-30 — Phase 3 begins: hosting moved to Cloudflare Workers ✅
 
 - **Why**: the back office (`/admin`) that VISION §2 promised needs a server runtime — login, sessions, photo uploads, commits. GitHub Pages has none, so `output: 'static'` on Pages was a hard ceiling. Astro 7 is now maintained by Cloudflare (they acquired the team in Jan 2026) and `@astrojs/cloudflare` v14 targets Workers with KV-backed sessions on the free plan, so the host moved. Every public page is **still prerendered** — `output` stays `'static'`; only `/admin/*` sets `prerender = false`.
