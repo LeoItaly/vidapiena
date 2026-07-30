@@ -1,0 +1,145 @@
+---
+/**
+ * Stage 3 surface: pick photos, watch them shrink, keep them for an article.
+ *
+ * Deliberately standalone. The block editor (stage 4) absorbs this component, but
+ * shipping it alone means the photo pipeline is verifiable on a real iPhone —
+ * with a real HEIC — before any editor code exists to confuse a failure with.
+ */
+export const prerender = false;
+
+import AdminBase from '../../layouts/AdminBase.astro';
+import { TARGET_BYTES } from '../../lib/admin/photo-process';
+
+const admin = Astro.locals.admin;
+
+/**
+ * One draft id per visit for now; stage 4 hands over the real one. Generated
+ * server-side because it namespaces KV keys — see photo-store.ts.
+ */
+const draftId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+const maxKb = Math.round(TARGET_BYTES / 1024);
+---
+
+<AdminBase title="Foto" user={admin}>
+  <p class="eyebrow text-ouro">Foto</p>
+  <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">Aggiungi le foto</h1>
+  <p class="mt-3 max-w-prose text-paper/60">
+    Scegli le foto dal telefono. Le preparo io per il sito: le rimpicciolisco, le raddrizzo e
+    tolgo i dati di posizione. Tu non devi fare niente.
+  </p>
+
+  {/*
+    DESIGN.md forbids identifiable guests, and the review was right that a
+    checkbox someone taps through is not a control. There is no reliable face
+    detector on iOS Safari, so this is stated plainly and kept on screen while he
+    chooses — an honest reminder rather than a control that pretends to enforce.
+  */}
+  <p class="mt-6 rounded-lg border border-ouro/40 bg-ouro/10 px-4 py-3 text-sm text-paper">
+    <strong>Una regola sola:</strong> niente foto in cui si riconoscono i visitatori in volto.
+    Panorami, strade, murales e tu: sì. Gruppi in posa: no.
+  </p>
+
+  <label
+    class="mt-8 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-paper/25 bg-paper/5 px-6 py-10 text-center"
+  >
+    <span class="font-display text-lg font-bold">Scegli le foto</span>
+    <span class="text-sm text-paper/50">Puoi sceglierne più di una</span>
+    {/*
+      `image/*` and NOT an explicit heic/heif in the list: iOS transcodes HEIC to
+      JPEG on pick unless the page says it accepts HEIC, so staying vague is what
+      gets us a JPEG on most iPhones. When it does hand over a real HEIC, the
+      browser pipeline decodes it with the system codec.
+    */}
+    <input
+      id="scegli"
+      type="file"
+      accept="image/*"
+      multiple
+      class="sr-only"
+      data-draft={draftId}
+    />
+  </label>
+
+  <p id="stato" role="status" aria-live="polite" class="mt-6 text-sm text-paper/60"></p>
+
+  <ul id="elenco" class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3"></ul>
+
+  <p class="mt-10 text-sm text-paper/40">
+    Ogni foto viene ridotta sotto i {maxKb} KB prima di partire dal telefono, così il
+    caricamento è veloce anche con poca linea.
+  </p>
+
+  <script>
+    import { processPhoto, PhotoError, TARGET_BYTES } from '../../lib/admin/photo-process';
+
+    const input = document.getElementById('scegli') as HTMLInputElement | null;
+    const stato = document.getElementById('stato') as HTMLElement | null;
+    const elenco = document.getElementById('elenco') as HTMLElement | null;
+    // The draft id rides on the input's dataset: this is a module script, so
+    // `document.currentScript` is null and `define:vars` is not available.
+    const draftId = input?.dataset.draft ?? '';
+
+    /** Exposed for verification only — same `?vpdebug=1` convention as the public site. */
+    if (new URLSearchParams(location.search).has('vpdebug')) {
+      (window as unknown as Record<string, unknown>).__vpFoto = { processPhoto, TARGET_BYTES };
+    }
+
+    function kb(n: number): string {
+      return `${Math.round(n / 1024)} KB`;
+    }
+
+    async function handle(file: File, bozza: string): Promise<void> {
+      const li = document.createElement('li');
+      li.className = 'rounded-lg border border-paper/10 bg-paper/5 p-3 text-xs text-paper/60';
+      li.textContent = `${file.name} — preparo…`;
+      elenco?.appendChild(li);
+
+      try {
+        const out = await processPhoto(file);
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(out.blob);
+        img.alt = '';
+        img.className = 'mb-2 aspect-[4/3] w-full rounded object-cover';
+        img.onload = () => URL.revokeObjectURL(img.src);
+
+        const body = new FormData();
+        body.append('foto', out.blob, 'foto.jpg');
+        body.append('bozza', bozza);
+        body.append('larghezza', String(out.width));
+        body.append('altezza', String(out.height));
+
+        const res = await fetch('/admin/api/foto', { method: 'POST', body });
+        // 401 arrives as JSON, not as a redirect to HTML — see src/middleware.ts.
+        const data = (await res.json().catch(() => ({}))) as { errore?: string };
+
+        li.textContent = '';
+        li.appendChild(img);
+        const p = document.createElement('p');
+        p.textContent = res.ok
+          ? `Pronta · ${kb(file.size)} → ${kb(out.bytes)} · ${out.width}×${out.height}`
+          : (data.errore ?? 'Non riesco a salvare questa foto.');
+        li.appendChild(p);
+        if (!res.ok) li.classList.add('border-rosso/40');
+      } catch (err) {
+        li.classList.add('border-rosso/40');
+        li.textContent =
+          err instanceof PhotoError
+            ? err.italiano
+            : 'Non riesco ad aprire questa foto. Provane un’altra.';
+      }
+    }
+
+    input?.addEventListener('change', async () => {
+      const files = [...(input.files ?? [])];
+      if (!files.length) return;
+      if (stato) stato.textContent = `Preparo ${files.length} foto…`;
+      // Sequential: two 24 MP decodes at once is how a phone runs out of memory
+      // mid-upload, and the failure looks like the app crashing.
+      for (const f of files) await handle(f, draftId);
+      if (stato) stato.textContent = 'Fatto.';
+      input.value = '';
+    });
+  </script>
+</AdminBase>
