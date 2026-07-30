@@ -66,10 +66,20 @@ jobs:
       # sets `site` in astro.config.mjs, which drives canonical, hreflang, og:image
       # and the sitemap. Leave it unset and the config default applies. This is the
       # one value to change at the vidapiena.com cutover.
+      # PUBLIC_TURNSTILE_SITE_KEY must be here, not just in the Cloudflare
+      # dashboard. It is read as `import.meta.env.PUBLIC_TURNSTILE_SITE_KEY`,
+      # which Vite inlines at BUILD time — a repo variable that never reaches
+      # this step compiles to `undefined`, the widget block is folded away, and
+      # the form ships with no Turnstile field. Meanwhile TURNSTILE_SECRET_KEY is
+      # a runtime Worker secret that takes effect immediately, so setting the
+      # secret alone makes every login fail 'robot' with nothing to click.
+      # See docs/HOSTING.md for the activation order (variable first, then deploy,
+      # then the secret).
       - name: Build
         run: npm run build
         env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3

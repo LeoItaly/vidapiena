@@ -19,6 +19,9 @@ build/
 # .dev.vars holds the admin password hash and the GitHub token during local work.
 .wrangler/
 .dev.vars
+# wrangler's per-environment form (.dev.vars.production etc). Same contents, same
+# risk, and the bare pattern above does not cover it.
+.dev.vars.*
 
 # Local tooling
 .claude/

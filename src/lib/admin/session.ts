@@ -9,7 +9,7 @@
  */
 
 import type { AstroCookies } from 'astro';
-import { signToken, verifyToken, verifyPassword } from './crypto';
+import { signToken, verifyToken, verifyPassword, credentialFingerprint } from './crypto';
 
 export const SESSION_COOKIE = 'vp_admin';
 
@@ -31,7 +31,25 @@ export interface SessionPayload {
   name: string;
   iat: number;
   exp: number;
+  /**
+   * Fingerprint of the password hash this session was issued against. Absent on
+   * tokens minted before credential binding existed, which are treated as stale
+   * and rejected — a one-off re-login, not a failure mode.
+   */
+  v?: string;
 }
+
+/**
+ * A well-formed stored hash: `pbkdf2$<iterations>$<salt b64>$<key b64>`.
+ *
+ * Checked here rather than only at verification time because the two failures are
+ * indistinguishable downstream: verifyPassword returns plain `false` for a corrupt
+ * hash, exactly as it does for a wrong password. Francesco would be told his
+ * password is wrong, forever, for a problem in a secret he cannot see. Rejecting
+ * the record here instead drops the user count to zero, which routes to the
+ * already-written Italian "non ancora configurato — scrivi a Leo" message.
+ */
+const HASH_SHAPE = /^pbkdf2\$\d{1,7}\$[A-Za-z0-9+/]{16,}={0,2}\$[A-Za-z0-9+/]{40,}={0,2}$/;
 
 /**
  * The ADMIN_USERS secret is JSON: `[{"email","name","hash"}]`.
@@ -44,18 +62,26 @@ export function parseUsers(raw: string | undefined): AdminUser[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((u): u is AdminUser => {
+    return parsed.filter((u, i): u is AdminUser => {
       if (typeof u !== 'object' || u === null) return false;
       const c = u as Record<string, unknown>;
-      return (
+      const ok =
         typeof c.email === 'string' &&
         typeof c.name === 'string' &&
         typeof c.hash === 'string' &&
         c.email.length > 0 &&
-        c.hash.startsWith('pbkdf2$')
-      );
+        HASH_SHAPE.test(c.hash);
+      if (!ok) {
+        // The only diagnostic in the whole back office. Observability is enabled
+        // in wrangler.jsonc, so this is the difference between Leo reading one
+        // log line and debugging a "wrong password" report from Rio by guesswork.
+        // Index and reason only — never the hash, never the email.
+        console.warn(`[admin] ADMIN_USERS entry ${i} rejected: malformed record or hash`);
+      }
+      return ok;
     });
   } catch {
+    console.warn('[admin] ADMIN_USERS is not valid JSON — nobody can log in');
     return [];
   }
 }
@@ -98,7 +124,13 @@ export async function issueSession(
 ): Promise<void> {
   const now = Math.floor(Date.now() / 1000);
   const token = await signToken(
-    { sub: user.email, name: user.name, iat: now, exp: now + YEAR_SECONDS } satisfies SessionPayload,
+    {
+      sub: user.email,
+      name: user.name,
+      iat: now,
+      exp: now + YEAR_SECONDS,
+      v: await credentialFingerprint(user.hash),
+    } satisfies SessionPayload,
     secret,
   );
 
@@ -139,16 +171,50 @@ export function needsRenewal(payload: SessionPayload): boolean {
   return payload.exp - Math.floor(Date.now() / 1000) < RENEW_BELOW_SECONDS;
 }
 
+/**
+ * Renews against the *current* user record, not against the old token.
+ *
+ * The previous version rebuilt an AdminUser out of the expiring token
+ * (`{ email: payload.sub, name: payload.name, hash: '' }`) — the empty hash being
+ * the tell that the credential store was never consulted. That made the session
+ * self-perpetuating: it re-signed itself every ~65 days from its own contents,
+ * for a year at a time, forever, and no change to ADMIN_USERS could interrupt it.
+ */
 export async function renewSession(
   cookies: AstroCookies,
-  payload: SessionPayload,
+  user: AdminUser,
   secret: string,
   isSecure: boolean,
 ): Promise<void> {
-  await issueSession(
-    cookies,
-    { email: payload.sub, name: payload.name, hash: '' },
-    secret,
-    isSecure,
-  );
+  await issueSession(cookies, user, secret, isSecure);
+}
+
+/**
+ * The single way to answer "who is making this request", used by both the
+ * middleware and the login page.
+ *
+ * Deliberately one function: when the guard and the login screen disagree about
+ * whether a cookie is valid, the result is a redirect loop between them — the
+ * guard bounces you to the login, the login decides you are already signed in and
+ * bounces you back. Sharing this makes that structurally impossible.
+ *
+ * A session is valid only if the signature holds, it has not expired, the subject
+ * is *still* in ADMIN_USERS, and the credential fingerprint still matches. The
+ * last two are what turn "rotate his password" and "delete the user" into real
+ * revocation instead of paperwork.
+ */
+export async function resolveSession(
+  cookies: AstroCookies,
+  secret: string,
+  users: AdminUser[],
+): Promise<{ payload: SessionPayload; user: AdminUser } | null> {
+  const payload = await readSession(cookies, secret);
+  if (!payload) return null;
+
+  const user = users.find((u) => u.email.toLowerCase() === payload.sub.toLowerCase());
+  if (!user) return null;
+
+  if (payload.v !== (await credentialFingerprint(user.hash))) return null;
+
+  return { payload, user };
 }

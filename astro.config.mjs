@@ -18,7 +18,27 @@ import tailwindcss from '@tailwindcss/vite';
 // component reads the origin through SITE.origin and import.meta.env.BASE_URL.
 // `||` not `??`: an unset GitHub Actions variable arrives as an empty string,
 // which is not nullish — `??` would let `site: ''` through and break the build.
+//
+// ⚠️ The fallback is a PLACEHOLDER and is not a reachable hostname. A Worker is
+// served at `<worker>.<account-subdomain>.workers.dev`, so `vidapiena.workers.dev`
+// belongs to nobody. `site` drives every canonical, hreflang, og:url and sitemap
+// entry across all 27 prerendered pages, so shipping the fallback would point the
+// entire SEO/GEO surface at a hostname we do not own — silently, since every page
+// still renders. Hence the CI guard below: a deploy must state its origin.
 const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://vidapiena.workers.dev';
+
+// Fail the build rather than deploy wrong canonical URLs. Local builds keep the
+// placeholder (nothing is published from them); CI must be told the real origin
+// via the SITE_ORIGIN repo variable — the account subdomain after the first
+// deploy, then https://vidapiena.com at the cutover.
+if (process.env.CI && !process.env.SITE_ORIGIN) {
+  throw new Error(
+    'SITE_ORIGIN is not set. Add it as a GitHub repo *variable* (Settings → Secrets and ' +
+      'variables → Actions → Variables), e.g. https://vidapiena.<subdomain>.workers.dev. ' +
+      'Without it every canonical URL, hreflang tag and sitemap entry would point at a ' +
+      'hostname nobody owns.',
+  );
+}
 
 export default defineConfig({
   site: SITE_ORIGIN,

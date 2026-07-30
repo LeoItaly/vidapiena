@@ -52,10 +52,21 @@ export async function checkRateLimit(kv: KVLike | null, ip: string): Promise<Rat
   }
 }
 
-export async function recordFailure(kv: KVLike | null, ip: string): Promise<void> {
+/**
+ * `known` is the count the caller already read via checkRateLimit on this same
+ * request. Passing it avoids a second KV read per failed login — the read costs
+ * nothing against the write quota, but it is a round trip inside a 10 ms CPU
+ * budget for a number we already have.
+ */
+export async function recordFailure(
+  kv: KVLike | null,
+  ip: string,
+  known?: number,
+): Promise<void> {
   if (!kv) return;
   try {
-    const attempts = Number.parseInt((await kv.get(key(ip))) ?? '0', 10) || 0;
+    const attempts =
+      known ?? (Number.parseInt((await kv.get(key(ip))) ?? '0', 10) || 0);
     // Re-setting expirationTtl on every failure makes this a sliding window: the
     // block only lifts after 15 quiet minutes, not 15 minutes after the first try.
     await kv.put(key(ip), String(attempts + 1), { expirationTtl: WINDOW_SECONDS });

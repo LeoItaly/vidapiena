@@ -3,7 +3,8 @@ export const prerender = false;
 
 import { ADMIN_USERS, SESSION_SECRET, TURNSTILE_SECRET_KEY } from 'astro:env/server';
 import AdminBase from '../../layouts/AdminBase.astro';
-import { parseUsers, authenticate, issueSession, readSession } from '../../lib/admin/session';
+import { parseUsers, authenticate, issueSession, resolveSession } from '../../lib/admin/session';
+import { isUsableSecret } from '../../lib/admin/crypto';
 import { checkRateLimit, recordFailure, clearFailures } from '../../lib/admin/rate-limit';
 import { verifyTurnstile } from '../../lib/admin/turnstile';
 import { getKV, getClientIp, isSecureRequest } from '../../lib/admin/runtime';
@@ -11,6 +12,8 @@ import { getKV, getClientIp, isSecureRequest } from '../../lib/admin/runtime';
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const kv = getKV();
 const ip = getClientIp(Astro);
+const users = parseUsers(ADMIN_USERS);
+const configured = isUsableSecret(SESSION_SECRET) && users.length > 0;
 
 /**
  * Italian, and deliberately vague about *why* a login failed: telling a stranger
@@ -20,7 +23,15 @@ const ip = getClientIp(Astro);
 const MESSAGES = {
   credenziali: 'Email o password non corretti. Riprova.',
   bloccato: 'Troppi tentativi. Aspetta un quarto d’ora e riprova.',
+  /** Turnstile said no. Reloading genuinely can help here. */
   robot: 'Verifica di sicurezza non superata. Ricarica la pagina e riprova.',
+  /**
+   * Turnstile could not be reached, or its widget never rendered. Telling him to
+   * reload would be a lie — no number of retries fixes either cause, and every
+   * attempt counts toward the 15-minute lockout. Point him at Leo instead.
+   */
+  verifica:
+    'Non riesco a completare il controllo di sicurezza. Se hai una connessione debole riprova fra poco; se continua, scrivi a Leo.',
   configurazione:
     'Il pannello non è ancora configurato. Scrivi a Leo — non è un problema del tuo accesso.',
 } as const;
@@ -40,27 +51,45 @@ let error: MessageKey | null = null;
 let email = Astro.url.searchParams.get('email')?.trim() ?? '';
 
 // Already signed in? Skip the form.
-if (SESSION_SECRET && (await readSession(Astro.cookies, SESSION_SECRET))) {
+//
+// Uses the same resolver as the guard, on purpose: if this page accepted a
+// session the middleware rejects (a deleted user, a rotated password), the two
+// would bounce the browser between /admin and /admin/entra forever.
+if (configured && (await resolveSession(Astro.cookies, SESSION_SECRET!, users))) {
   return Astro.redirect('/admin');
 }
 
 const queryError = Astro.url.searchParams.get('errore');
-if (queryError && queryError in MESSAGES) error = queryError as MessageKey;
+// `hasOwnProperty`, not `in`: every object literal inherits `constructor`,
+// `valueOf`, `toString` and friends, so `?errore=valueOf` would pass an `in`
+// check and then render a function into the error box.
+if (queryError && Object.prototype.hasOwnProperty.call(MESSAGES, queryError)) {
+  error = queryError as MessageKey;
+}
 
 if (Astro.request.method === 'POST') {
-  const users = parseUsers(ADMIN_USERS);
-
-  if (!SESSION_SECRET || users.length === 0) {
+  if (!configured) {
     error = 'configurazione';
   } else {
-    const form = await Astro.request.formData();
-    email = String(form.get('email') ?? '');
-    const password = String(form.get('password') ?? '');
-    const turnstileToken = form.get('cf-turnstile-response');
+    // A non-form Content-Type makes formData() throw. Unauthenticated callers
+    // choose that header, so an uncaught throw here is a zero-byte 500 anyone
+    // can trigger on the login page.
+    let form: FormData | null = null;
+    try {
+      form = await Astro.request.formData();
+    } catch {
+      form = null;
+    }
+
+    email = String(form?.get('email') ?? '');
+    const password = String(form?.get('password') ?? '');
+    const turnstileToken = form?.get('cf-turnstile-response');
 
     const limit = await checkRateLimit(kv, ip);
     if (limit.blocked) {
       error = 'bloccato';
+    } else if (!form) {
+      error = 'credenziali';
     } else {
       const bot = await verifyTurnstile(
         TURNSTILE_SECRET_KEY,
@@ -69,17 +98,22 @@ if (Astro.request.method === 'POST') {
       );
 
       if (!bot.ok) {
-        error = 'robot';
-        await recordFailure(kv, ip);
+        // Only an actual rejection is evidence of a bot. A missing token means
+        // the widget never rendered (a misconfigured deploy), and 'unreachable'
+        // means Cloudflare was unreachable from Rio — neither is Francesco's
+        // fault, and neither should count toward locking him out of his own site
+        // for fifteen minutes.
+        error = bot.reason === 'rejected' ? 'robot' : 'verifica';
+        if (bot.reason === 'rejected') await recordFailure(kv, ip, limit.attempts);
       } else {
         const user = await authenticate(users, email, password);
         if (user) {
           await clearFailures(kv, ip);
-          await issueSession(Astro.cookies, user, SESSION_SECRET, isSecureRequest(Astro));
+          await issueSession(Astro.cookies, user, SESSION_SECRET!, isSecureRequest(Astro));
           return Astro.redirect('/admin');
         }
         error = 'credenziali';
-        await recordFailure(kv, ip);
+        await recordFailure(kv, ip, limit.attempts);
       }
     }
   }

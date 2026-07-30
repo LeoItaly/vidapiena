@@ -19,14 +19,21 @@ Only `/admin/*` runs on demand.
    |---|---|
    | `CLOUDFLARE_API_TOKEN` | the token from step 2 |
    | `CLOUDFLARE_ACCOUNT_ID` | the account ID from step 1 |
-4. **GitHub repo variable** (same page, *Variables* tab) — optional:
+4. **GitHub repo variable** (same page, *Variables* tab) — **mandatory**:
    | Name | Value |
    |---|---|
-   | `SITE_ORIGIN` | the public origin, e.g. `https://vidapiena.com` |
+   | `SITE_ORIGIN` | the public origin, e.g. `https://vidapiena.<subdomain>.workers.dev` |
 
-   Leave it unset and the default in `astro.config.mjs` applies. It is a *variable*, not
-   a secret — it is a public URL, and it drives `canonical`, `hreflang`, `og:image` and
-   the sitemap.
+   It is a *variable*, not a secret — it is a public URL — and it drives `canonical`,
+   `hreflang`, `og:image` and the sitemap on all 27 prerendered pages.
+
+   > ⚠️ **This is not optional, despite the fallback in `astro.config.mjs`.** A Worker is
+   > served at `<worker>.<account-subdomain>.workers.dev`, so the fallback
+   > `https://vidapiena.workers.dev` is a hostname nobody owns. Shipping it would point the
+   > entire SEO/GEO surface off-site while every page still rendered perfectly — invisible
+   > until Google indexed it. `astro.config.mjs` therefore **fails the build in CI** when
+   > `SITE_ORIGIN` is unset. Find your subdomain under Workers & Pages → the Worker →
+   > Settings → Domains & Routes, and set the variable to `https://` + that hostname.
 
 The first deploy creates the Worker (named `vidapiena`) and provisions the `SESSION` KV
 namespace automatically.
@@ -68,8 +75,24 @@ page detects this and says so, but the warning is easier to avoid than to read.
 the one recovery mechanism guaranteed to fail him. If he loses the passphrase, rotate
 `ADMIN_USERS` and hand him a new one. Put this on the handover sheet.
 
-To add a second person, keep both objects in the same JSON array. Changing
-`SESSION_SECRET` signs everyone out.
+To add a second person, keep both objects in the same JSON array.
+
+### Revoking access
+
+The session token carries a fingerprint of the password hash it was issued against, and
+the guard re-checks it against live `ADMIN_USERS` on every request. So:
+
+| To do this | Do this | Effect |
+|---|---|---|
+| Lock out a lost or stolen phone | rotate that user's entry in `ADMIN_USERS` | that person's sessions die immediately; everyone else stays signed in |
+| Remove someone entirely | delete their object from the `ADMIN_USERS` array | their live session dies immediately |
+| Sign **everyone** out at once | change `SESSION_SECRET` | every cookie everywhere is invalidated |
+
+> This used to be untrue and it is worth knowing why. Before the fingerprint existed, a
+> session re-signed itself from its own contents every ~65 days, forever, without ever
+> consulting `ADMIN_USERS` — so rotating a password revoked nothing and the only real
+> lever was `SESSION_SECRET`. If you read an older handover note saying otherwise, this
+> table is the correct one.
 
 ### Turnstile (recommended, not yet configured)
 
@@ -80,13 +103,28 @@ in the Cloudflare dashboard, then:
 
 | Where | Name | Value |
 |---|---|---|
-| Worker secret | `TURNSTILE_SECRET_KEY` | the secret key |
 | Repo variable | `PUBLIC_TURNSTILE_SITE_KEY` | the site key |
+| Worker secret | `TURNSTILE_SECRET_KEY` | the secret key |
 
-The login form renders the widget only when the site key is present, so setting these is
-the whole activation step. Note the rate limiter locks an IP for 15 quiet minutes after 10
-failures — generous for someone with the password in a keychain, but it does mean a
-fumbling user can lock themselves out briefly.
+> ⚠️ **Do these in that order, and let a deploy finish in between.** The two halves are
+> not symmetrical:
+>
+> - `PUBLIC_TURNSTILE_SITE_KEY` is read as `import.meta.env.…`, which Vite inlines **at
+>   build time**. It only takes effect after a rebuild *and* only if `deploy.yml` forwards
+>   it to the Build step — it does now, but it did not originally, which meant the widget
+>   could never render in production no matter what the dashboard said.
+> - `TURNSTILE_SECRET_KEY` is a Worker secret and is live **the instant you set it**.
+>
+> Set the secret first and every login fails the bot check against a form that has no
+> widget on it — a dead end with nothing to click. Francesco cannot diagnose that, and it
+> is his only way in. Undo is `npx wrangler secret delete TURNSTILE_SECRET_KEY`.
+
+The login form renders the widget only when the site key is present. A Turnstile failure
+that is *not* an outright rejection (widget missing, or Cloudflare unreachable from Rio)
+shows its own Italian message and deliberately does **not** count toward the lockout —
+otherwise a flaky mobile connection would lock him out for 15 minutes for a network
+problem. The rate limiter still locks an IP for 15 quiet minutes after 10 genuinely wrong
+attempts.
 
 ## Regenerating Cloudflare types
 
@@ -150,7 +188,29 @@ npm run cf:deploy
 Manual deploy. Normally unnecessary: pushing to `main` deploys via
 `.github/workflows/deploy.yml`.
 
-## Three things that will bite you
+## Four things that will bite you
+
+**`assets.not_found_handling` in `wrangler.jsonc` must stay `"none"`.** Set it to
+`"404-page"` and the entire back office becomes unreachable from a browser. The asset
+router sits in front of the Worker; with a not-found mode set, a *navigation* request
+(`Sec-Fetch-Mode: navigate`) that matches no asset is answered by the asset router with
+`dist/client/404.html` instead of falling through — and there is no `dist/client/admin`,
+so `/admin` and `/admin/entra` both return the static 404 and the Worker never runs.
+
+The trap is that it is **invisible to `curl`**: without the navigation headers the request
+does fall through and the login works perfectly. That is exactly how this shipped
+"verified" once already. Any future check of an on-demand route must use:
+
+```bash
+curl -si -H 'Sec-Fetch-Mode: navigate' -H 'Accept: text/html' http://127.0.0.1:8787/admin
+```
+
+`run_worker_first: ["/admin/*"]` looks like the surgical fix and is worse: once set,
+anything that does *not* match is handled by the asset router and never reaches the
+Worker, which breaks the adapter's own prerender server (it POSTs to collect static paths;
+assets answer POST with 405) and fails the **build**.
+
+## Three more things that will bite you
 
 **`imageService: 'compile'` in `astro.config.mjs` is mandatory.** The adapter's default is
 `'cloudflare-binding'`, which moves image transformation to runtime Cloudflare Images — a
