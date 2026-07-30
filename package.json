@@ -12,6 +12,8 @@
     "cf:dev": "wrangler dev",
     "cf:check": "wrangler deploy --dry-run",
     "cf:deploy": "wrangler deploy",
+    "cf:types": "wrangler types",
+    "admin:credentials": "node scripts/admin-credentials.mjs",
     "photos": "node scripts/prepare-photos.mjs",
     "instagram": "node scripts/fetch-instagram.mjs"
   },

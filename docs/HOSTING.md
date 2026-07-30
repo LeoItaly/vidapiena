@@ -31,6 +31,72 @@ Only `/admin/*` runs on demand.
 The first deploy creates the Worker (named `vidapiena`) and provisions the `SESSION` KV
 namespace automatically.
 
+## Back-office credentials
+
+Generate them once, locally:
+
+```bash
+npm run admin:credentials -- "francesco@vidapiena.com" "Francesco"
+```
+
+It prints a generated ~62-bit Italian passphrase, the `ADMIN_USERS` JSON and a fresh
+`SESSION_SECRET`, plus a ready-to-paste `.dev.vars` block for local work. **Nothing is
+written to disk** — copy the passphrase before closing the terminal.
+
+Then store the two secrets on the Worker:
+
+```bash
+npx wrangler secret put ADMIN_USERS
+```
+
+```bash
+npx wrangler secret put SESSION_SECRET
+```
+
+Francesco does not choose his own password, deliberately. `workerd` caps PBKDF2 at
+100,000 iterations, which is below what a human-chosen password would need to survive an
+offline attack if `ADMIN_USERS` ever leaked — so the strength comes from generated
+entropy instead. Send it over a channel he already trusts and tell him to let the phone
+save it.
+
+**There is no password reset.** His Outlook mailbox is full, so an emailed magic link is
+the one recovery mechanism guaranteed to fail him. If he loses the passphrase, rotate
+`ADMIN_USERS` and hand him a new one. Put this on the handover sheet.
+
+To add a second person, keep both objects in the same JSON array. Changing
+`SESSION_SECRET` signs everyone out.
+
+### Turnstile (recommended, not yet configured)
+
+Without it, the login is protected by the rate limiter (10 failed attempts per IP per 15
+minutes) and the passphrase's entropy — adequate, but Turnstile is what actually stops
+automated credential stuffing, and it is free and unlimited. Create a Managed-mode widget
+in the Cloudflare dashboard, then:
+
+| Where | Name | Value |
+|---|---|---|
+| Worker secret | `TURNSTILE_SECRET_KEY` | the secret key |
+| Repo variable | `PUBLIC_TURNSTILE_SITE_KEY` | the site key |
+
+The login form renders the widget only when the site key is present, so setting these is
+the whole activation step. Note the rate limiter locks an IP for 15 quiet minutes after 10
+failures — generous for someone with the password in a keychain, but it does mean a
+fumbling user can lock themselves out briefly.
+
+## Regenerating Cloudflare types
+
+`worker-configuration.d.ts` is generated and committed, because CI runs `astro check` and
+needs it to resolve `cloudflare:workers` and the binding types. **Rerun it after any change
+to `wrangler.jsonc`:**
+
+```bash
+npm run cf:types
+```
+
+Note `Astro.locals.runtime.env` was removed in Astro v6 — the supported way to reach a
+binding is `import { env } from 'cloudflare:workers'`. See `src/lib/admin/runtime.ts`,
+which is the single place the back office touches the platform.
+
 ## Cost
 
 £0/month at this traffic. The free plan gives 100,000 Worker requests/day and unlimited

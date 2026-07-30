@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
@@ -38,9 +38,33 @@ export default defineConfig({
     locales: ['it', 'en'],
     routing: { prefixDefaultLocale: false },
   },
+  // Back-office secrets. Every one is `optional` on purpose: Astro validates
+  // secrets at runtime, not at build, and marking them required would risk the
+  // `astro check && astro build` deploy gate failing on a config problem rather
+  // than a code one. Missing secrets instead make the login fail closed — see
+  // src/lib/admin/session.ts (parseUsers returns no users, so nobody gets in).
+  env: {
+    schema: {
+      /** HMAC key for the session cookie. Rotating it logs everyone out. */
+      SESSION_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
+      /** JSON: [{ "email", "name", "hash" }] — see scripts/admin-credentials.mjs */
+      ADMIN_USERS: envField.string({ context: 'server', access: 'secret', optional: true }),
+      /** Turnstile. Both unset = the check is skipped, which is only allowed in dev. */
+      TURNSTILE_SECRET_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      PUBLIC_TURNSTILE_SITE_KEY: envField.string({
+        context: 'client',
+        access: 'public',
+        optional: true,
+      }),
+    },
+  },
+
   integrations: [
     sitemap({
       i18n: { defaultLocale: 'it', locales: { it: 'it', en: 'en' } },
+      // The back office is a login, not content. Keep it out of the sitemap even
+      // if a future /admin route is ever accidentally prerendered.
+      filter: (page) => !page.includes('/admin'),
     }),
   ],
   vite: {

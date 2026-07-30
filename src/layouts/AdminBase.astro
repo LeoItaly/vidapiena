@@ -1,0 +1,64 @@
+---
+/**
+ * Back-office shell.
+ *
+ * Deliberately not the public Base.astro: that one loads GSAP, the motion system,
+ * fonts for the cinematic scroll and JSON-LD. None of that belongs behind a login,
+ * and Francesco is on mobile data in Rio — the admin should be small and instant.
+ *
+ * It does reuse src/styles/global.css, so the @theme tokens and the .btn/.eyebrow
+ * components are the same ones the public site uses. Same brand, no second system.
+ *
+ * All copy in this area is Italian. Francesco does not read English.
+ */
+import '../styles/global.css';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+
+interface Props {
+  /** Browser tab title; ' — Vidapiena' is appended. */
+  title: string;
+  /** Shown when signed in, so he can always tell whose account he is using. */
+  user?: { name: string } | undefined;
+  /** Hides the chrome on the login screen, which has no navigation. */
+  bare?: boolean;
+}
+
+const { title, user, bare = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="it" class="bg-ink">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Belt and braces: middleware also sets X-Robots-Tag for the whole area. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="dark" />
+    <title>{title} — Vidapiena</title>
+    <link rel="icon" href="/favicon.png" />
+  </head>
+
+  <body class="bg-ink font-sans text-paper antialiased">
+    <a href="#contenuto" class="skip-link">Vai al contenuto</a>
+
+    {
+      !bare && (
+        <header class="border-b border-paper/10">
+          <div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 md:px-10">
+            <a href="/admin" class="eyebrow text-ouro">Vidapiena · Gestione</a>
+            <div class="flex items-center gap-4">
+              {user && <span class="eyebrow hidden text-paper/40 sm:inline">{user.name}</span>}
+              <a href="/admin/esci" class="eyebrow link-sweep text-paper/60">Esci</a>
+            </div>
+          </div>
+        </header>
+      )
+    }
+
+    <main id="contenuto" class="mx-auto w-full max-w-4xl px-5 py-10 md:px-10 md:py-16">
+      <slot />
+    </main>
+  </body>
+</html>

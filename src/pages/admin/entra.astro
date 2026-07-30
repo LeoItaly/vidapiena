@@ -1,0 +1,149 @@
+---
+export const prerender = false;
+
+import { ADMIN_USERS, SESSION_SECRET, TURNSTILE_SECRET_KEY } from 'astro:env/server';
+import AdminBase from '../../layouts/AdminBase.astro';
+import { parseUsers, authenticate, issueSession, readSession } from '../../lib/admin/session';
+import { checkRateLimit, recordFailure, clearFailures } from '../../lib/admin/rate-limit';
+import { verifyTurnstile } from '../../lib/admin/turnstile';
+import { getKV, getClientIp, isSecureRequest } from '../../lib/admin/runtime';
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const kv = getKV();
+const ip = getClientIp(Astro);
+
+/**
+ * Italian, and deliberately vague about *why* a login failed: telling a stranger
+ * "that email doesn't exist" hands them a list of valid accounts. Francesco has
+ * one account and knows his own address, so the vagueness costs him nothing.
+ */
+const MESSAGES = {
+  credenziali: 'Email o password non corretti. Riprova.',
+  bloccato: 'Troppi tentativi. Aspetta un quarto d’ora e riprova.',
+  robot: 'Verifica di sicurezza non superata. Ricarica la pagina e riprova.',
+  configurazione:
+    'Il pannello non è ancora configurato. Scrivi a Leo — non è un problema del tuo accesso.',
+} as const;
+
+type MessageKey = keyof typeof MESSAGES;
+
+let error: MessageKey | null = null;
+let email = '';
+
+// Already signed in? Skip the form.
+if (SESSION_SECRET && (await readSession(Astro.cookies, SESSION_SECRET))) {
+  return Astro.redirect('/admin');
+}
+
+const queryError = Astro.url.searchParams.get('errore');
+if (queryError && queryError in MESSAGES) error = queryError as MessageKey;
+
+if (Astro.request.method === 'POST') {
+  const users = parseUsers(ADMIN_USERS);
+
+  if (!SESSION_SECRET || users.length === 0) {
+    error = 'configurazione';
+  } else {
+    const form = await Astro.request.formData();
+    email = String(form.get('email') ?? '');
+    const password = String(form.get('password') ?? '');
+    const turnstileToken = form.get('cf-turnstile-response');
+
+    const limit = await checkRateLimit(kv, ip);
+    if (limit.blocked) {
+      error = 'bloccato';
+    } else {
+      const bot = await verifyTurnstile(
+        TURNSTILE_SECRET_KEY,
+        typeof turnstileToken === 'string' ? turnstileToken : undefined,
+        ip,
+      );
+
+      if (!bot.ok) {
+        error = 'robot';
+        await recordFailure(kv, ip);
+      } else {
+        const user = await authenticate(users, email, password);
+        if (user) {
+          await clearFailures(kv, ip);
+          await issueSession(Astro.cookies, user, SESSION_SECRET, isSecureRequest(Astro));
+          return Astro.redirect('/admin');
+        }
+        error = 'credenziali';
+        await recordFailure(kv, ip);
+      }
+    }
+  }
+}
+---
+
+<AdminBase title="Entra" bare>
+  <div class="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center">
+    <p class="eyebrow text-ouro">Vidapiena</p>
+    <h1 class="mt-3 font-display text-3xl font-bold">Il tuo pannello</h1>
+    <p class="mt-3 text-paper/60">Entra per scrivere e pubblicare gli articoli del blog.</p>
+
+    {
+      error && (
+        <p
+          role="alert"
+          class="mt-6 rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-sm text-paper"
+        >
+          {MESSAGES[error]}
+        </p>
+      )
+    }
+
+    <form method="POST" class="mt-8 flex flex-col gap-5">
+      <label class="flex flex-col gap-2">
+        <span class="eyebrow text-paper/50">Email</span>
+        <input
+          type="email"
+          name="email"
+          value={email}
+          required
+          autocomplete="username"
+          inputmode="email"
+          autocapitalize="none"
+          autocorrect="off"
+          spellcheck="false"
+          class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper placeholder:text-paper/30"
+        />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="eyebrow text-paper/50">Password</span>
+        <input
+          type="password"
+          name="password"
+          required
+          autocomplete="current-password"
+          class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
+        />
+      </label>
+
+      {
+        turnstileSiteKey && (
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark" />
+        )
+      }
+
+      <button type="submit" class="btn btn-primary mt-2 w-full justify-center">Entra</button>
+    </form>
+
+    <p class="mt-8 text-sm text-paper/40">
+      Password dimenticata? Scrivi a Leo: per sicurezza non si può recuperare da qui.
+    </p>
+  </div>
+
+  {
+    turnstileSiteKey && (
+      <script
+        is:inline
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer
+      />
+    )
+  }
+</AdminBase>
