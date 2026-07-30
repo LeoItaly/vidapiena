@@ -54,11 +54,20 @@
     "not_found_handling": "none"
   },
 
-  // Session + draft storage. Wrangler provisions this namespace on first deploy;
-  // Astro's Sessions API picks it up automatically via the adapter.
-  // Note the free plan allows only 1,000 KV writes/day — draft autosave must stay
-  // debounced, and sessions must not write on every request.
-  "kv_namespaces": [{ "binding": "SESSION" }],
+  // Login throttling + draft storage. Provisioned on the first deploy (30 Jul 2026)
+  // as the namespace "vidapiena-session"; the id is pinned here so every later
+  // deploy binds the same one instead of provisioning a second.
+  //
+  // The id is not a secret — it is useless without account credentials — so it is
+  // safe in this public repo, and committing it is what makes CI deploys
+  // reproducible.
+  //
+  // Note the free plan allows only 1,000 KV writes/day, so draft autosave must stay
+  // debounced and sessions must not write on every request (they don't: the session
+  // is a self-contained signed cookie, and KV is written only on *failed* logins).
+  "kv_namespaces": [
+    { "binding": "SESSION", "id": "db118bfa7407475ba5cd8cbbb34856ec" }
+  ],
 
   "observability": {
     "enabled": true
