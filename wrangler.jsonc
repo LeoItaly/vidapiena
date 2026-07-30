@@ -27,10 +27,31 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist",
-    // The site has a real 404 page (src/pages/404.astro); serve it instead of
-    // Cloudflare's default for unmatched static paths. Verified not to shadow
-    // /admin: there is no dist/client/admin, so /admin reaches the Worker.
-    "not_found_handling": "404-page"
+
+    // ⚠️ MUST STAY "none". Setting it to "404-page" makes the ENTIRE BACK OFFICE
+    // UNREACHABLE FROM A BROWSER.
+    //
+    // The asset router runs in front of the Worker. With a not-found mode set, a
+    // *navigation* request (Sec-Fetch-Mode: navigate) that matches no asset is
+    // answered by the asset router itself — with dist/client/404.html — instead
+    // of falling through. There is no dist/client/admin, so every real browser
+    // hit on /admin and /admin/entra got the static 404 and the Worker never ran.
+    //
+    // It is invisible to a plain `curl`: without the navigation headers the
+    // request does fall through and the login works perfectly, which is exactly
+    // how this shipped "verified" the first time. Always test with
+    //   curl -H 'Sec-Fetch-Mode: navigate' -H 'Accept: text/html' .../admin
+    //
+    // "none" costs us nothing: the Worker still renders the real branded 404 from
+    // src/pages/404.astro with a 404 status for unmatched paths (verified), so
+    // the only thing lost is a redundant static shortcut.
+    //
+    // `run_worker_first: ["/admin/*"]` looks like the targeted fix and is NOT:
+    // once it is set, everything that does *not* match is handled by the asset
+    // router and never reaches the Worker — which breaks the adapter's own
+    // prerender server (it POSTs to collect static paths, assets answer POST with
+    // 405) and fails the BUILD, not just the runtime.
+    "not_found_handling": "none"
   },
 
   // Session + draft storage. Wrangler provisions this namespace on first deploy;
