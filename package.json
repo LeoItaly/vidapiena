@@ -15,7 +15,8 @@
     "cf:types": "wrangler types",
     "admin:credentials": "node scripts/admin-credentials.mjs",
     "photos": "node scripts/prepare-photos.mjs",
-    "instagram": "node scripts/fetch-instagram.mjs"
+    "instagram": "node scripts/fetch-instagram.mjs",
+    "admin:secrets": "node scripts/push-secrets.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.7",
