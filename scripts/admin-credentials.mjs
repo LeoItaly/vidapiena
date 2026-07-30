@@ -148,19 +148,73 @@ async function hashPassword(password) {
   return `pbkdf2$${PBKDF2_ITERATIONS}$${toBase64(salt)}$${toBase64(new Uint8Array(bits))}`;
 }
 
-const [email, name] = process.argv.slice(2);
+/**
+ * Accepts any number of `<email> <name>` pairs and emits ONE ADMIN_USERS array
+ * plus ONE SESSION_SECRET.
+ *
+ * Deliberately not one-user-per-run. Run twice and you get two secrets, of which
+ * exactly one must be kept, and two single-element arrays that have to be
+ * hand-merged into one — with the hashes containing `$` and the whole thing
+ * pasted into an interactive prompt. That merge is the single most breakable step
+ * in the setup, and its failure mode is silent: a malformed array means nobody
+ * can log in, which reads as a wrong password.
+ */
+const args = process.argv.slice(2);
 
-if (!email || !name) {
-  console.error('Usage: node scripts/admin-credentials.mjs <email> <name>');
+if (args.length < 2 || args.length % 2 !== 0) {
+  console.error(
+    'Usage: node scripts/admin-credentials.mjs <email> <name> [<email> <name> ...]\n' +
+      '\n' +
+      'Example — both accounts at once, which is what you want:\n' +
+      '  node scripts/admin-credentials.mjs \\\n' +
+      '    "vidapiena-riotours@outlook.com" "Francesco" \\\n' +
+      '    "leonardo.rodo@outlook.it" "Leo"',
+  );
   process.exit(1);
 }
 
-const passphrase = generatePassphrase();
-const hash = await hashPassword(passphrase);
-const sessionSecret = toBase64(crypto.getRandomValues(new Uint8Array(32)));
-const entropyBits = Math.round(ENTROPY_BITS);
+const people = [];
+for (let i = 0; i < args.length; i += 2) {
+  people.push({ email: args[i].trim(), name: args[i + 1].trim() });
+}
 
-console.log(`
+// A typo'd address is a login nobody can use, and the error it produces is
+// "email o password non corretti" — indistinguishable from a wrong password.
+for (const { email } of people) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    console.error(`Not a valid email address: "${email}"`);
+    process.exit(1);
+  }
+}
+
+const seen = new Set();
+for (const { email } of people) {
+  const k = email.toLowerCase();
+  // authenticate() takes the FIRST match, so a duplicate would silently create an
+  // account whose password can never work.
+  if (seen.has(k)) {
+    console.error(`Duplicate email: "${email}" — each account needs its own address.`);
+    process.exit(1);
+  }
+  seen.add(k);
+}
+
+const entropyBits = Math.round(ENTROPY_BITS);
+const sessionSecret = toBase64(crypto.getRandomValues(new Uint8Array(32)));
+
+const accounts = [];
+for (const { email, name } of people) {
+  const passphrase = generatePassphrase();
+  accounts.push({ email, name, passphrase, hash: await hashPassword(passphrase) });
+}
+
+const adminUsers = JSON.stringify(
+  accounts.map(({ email, name, hash }) => ({ email, name, hash })),
+);
+
+const handouts = accounts
+  .map(
+    ({ email, name, passphrase }) => `
 ──────────────────────────────────────────────────────────────
  GIVE THIS TO ${name.toUpperCase()} (and to nobody else)
 ──────────────────────────────────────────────────────────────
@@ -168,8 +222,16 @@ console.log(`
   Indirizzo:  ${email}
   Password:   ${passphrase}
 
-  (~${entropyBits} bits of entropy. Send it over a channel he already
-   trusts, and tell him to let the phone save it.)
+  Link to send, with the address already filled in:
+  https://<il-sito>/admin/entra?email=${encodeURIComponent(email)}
+
+  (~${entropyBits} bits of entropy. Send it over a channel they already
+   trust, and tell them to let the phone save it. Tell Francesco to
+   open it in Safari, NOT inside WhatsApp.)`,
+  )
+  .join('\n');
+
+console.log(`${handouts}
 
 ──────────────────────────────────────────────────────────────
  SECRETS — Cloudflare (production)
@@ -179,19 +241,20 @@ console.log(`
   npx wrangler secret put SESSION_SECRET
 
   ADMIN_USERS:
-[{"email":"${email}","name":"${name}","hash":"${hash}"}]
+${adminUsers}
 
   SESSION_SECRET:
 ${sessionSecret}
 
-  To add a second person, keep both objects in the same JSON array.
+  Both accounts are already in the array above — paste it whole.
   Changing SESSION_SECRET signs everyone out.
+  Rotating one person's hash signs out only that person.
 
 ──────────────────────────────────────────────────────────────
  .dev.vars — local only, git-ignored
 ──────────────────────────────────────────────────────────────
 
-ADMIN_USERS='[{"email":"${email}","name":"${name}","hash":"${hash}"}]'
+ADMIN_USERS='${adminUsers}'
 SESSION_SECRET="${sessionSecret}"
 
 ──────────────────────────────────────────────────────────────

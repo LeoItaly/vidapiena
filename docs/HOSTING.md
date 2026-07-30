@@ -40,17 +40,28 @@ namespace automatically.
 
 ## Back-office credentials
 
-Generate them once, locally:
+Generate them once, locally — **both accounts in a single run**:
 
 ```bash
-npm run admin:credentials -- "francesco@vidapiena.com" "Francesco"
+npm run admin:credentials -- "vidapiena-riotours@outlook.com" "Francesco" "leonardo.rodo@outlook.it" "Leo"
 ```
 
-It prints a generated ~62-bit Italian passphrase, the `ADMIN_USERS` JSON and a fresh
-`SESSION_SECRET`, plus a ready-to-paste `.dev.vars` block for local work. **Nothing is
-written to disk** — copy the passphrase before closing the terminal.
+It prints a generated ~62-bit Italian passphrase **per person**, one combined `ADMIN_USERS`
+array, one `SESSION_SECRET`, and a ready-to-paste `.dev.vars` block for local work.
+**Nothing is written to disk** — copy the passphrases before closing the terminal.
 
-Then store the two secrets on the Worker:
+> Run it once with every account you want. Running it twice per person produces two
+> `SESSION_SECRET`s (only one of which can be kept) and two single-element arrays that must
+> be hand-merged — with `$` characters inside the hashes, pasted into an interactive prompt.
+> A botched merge means nobody can log in, and it surfaces as "wrong password".
+
+Then store the two secrets on the Worker.
+
+> ⚠️ **The Worker must already exist**, so deploy first. `wrangler secret put` against a
+> name that has never been deployed drops into an interactive "there doesn't seem to be a
+> Worker called vidapiena — create one?" prompt, and answering yes creates an empty
+> placeholder that the real deploy then has to overwrite. Order: **deploy → secrets**.
+> Secrets take effect immediately and need no redeploy.
 
 ```bash
 npx wrangler secret put ADMIN_USERS
