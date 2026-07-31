@@ -1,0 +1,157 @@
+---
+/**
+ * In-app help, in Italian (Leo's 30/07 decision, overriding the plan's
+ * "explicitly out" list).
+ *
+ * It lives here rather than in a PDF or a WhatsApp message because the project
+ * history is unambiguous on this point: written multi-step instructions sent to
+ * this client do not land, and anything not on the screen at the moment he needs
+ * it does not exist. Every answer below is one he has actually needed, or will:
+ * the questions are drawn from what the design deliberately does NOT do (no
+ * password reset, no unpublishing, a six-minute publish).
+ *
+ * ⚠️ `prerender = false` is load-bearing — see the note in scrivi.astro.
+ */
+export const prerender = false;
+
+import AdminBase from '../../layouts/AdminBase.astro';
+
+const admin = Astro.locals.admin;
+
+const SEZIONI: { titolo: string; voci: { d: string; r: string }[] }[] = [
+  {
+    titolo: 'Scrivere',
+    voci: [
+      {
+        d: 'Come scrivo un articolo?',
+        r: 'Tocca «Scrivi un articolo nuovo». Metti un titolo, due righe di riassunto, e poi aggiungi i pezzi uno alla volta con i pulsanti in fondo: Paragrafo per il testo, Sottotitolo per dividere, Foto per una fotografia. Puoi spostarli con le frecce ↑ ↓ o toglierli.',
+      },
+      {
+        d: 'Devo salvare?',
+        r: 'No. Salvo da solo mentre scrivi, e il testo resta sul telefono anche se chiudi tutto o resti senza linea. Il pulsante «Salva» c’è solo se vuoi essere sicuro.',
+      },
+      {
+        d: 'Ho chiuso per fare un tour. Ho perso tutto?',
+        r: 'No. Riapri la pagina e ritrovi esattamente quello che avevi scritto, anche dopo giorni.',
+      },
+      {
+        d: 'Cosa scrivo nel riassunto?',
+        r: 'Due righe che dicano di cosa parla l’articolo. È quello che si legge su Google e nella lista del blog, quindi conviene che faccia venire voglia di aprirlo.',
+      },
+      {
+        d: 'Posso mettere un link a un mio tour?',
+        r: 'Sì. Seleziona le parole che vuoi rendere cliccabili, poi tocca «Collega un tour» e scegli quale.',
+      },
+    ],
+  },
+  {
+    titolo: 'Foto',
+    voci: [
+      {
+        d: 'Che foto posso usare?',
+        r: 'Panorami, strade, murales, e tu. Mai foto in cui si riconoscono in faccia i visitatori: è una regola del sito, non una preferenza.',
+      },
+      {
+        d: 'Devo rimpicciolire le foto prima?',
+        r: 'No, mai. Mandale come sono, direttamente dal rullino. Ci penso io a rimpicciolirle, raddrizzarle e togliere il luogo dove sono state scattate.',
+      },
+      {
+        d: 'Perché ci mette qualche secondo per foto?',
+        r: 'Perché la foto viene preparata sul tuo telefono prima di partire, così il caricamento è veloce anche con poca linea. Due o tre secondi a foto è normale.',
+      },
+      {
+        d: 'Cos’è la «descrizione» della foto?',
+        r: 'Una frase che dice cosa si vede. Serve a chi non può vedere le immagini e aiuta Google a capire la foto. Es. «I tetti del Vidigal al tramonto».',
+      },
+      {
+        d: 'E la didascalia?',
+        r: 'È facoltativa. Se la scrivi, appare in piccolo sotto la foto sul sito. Se la lasci vuota, non appare niente.',
+      },
+    ],
+  },
+  {
+    titolo: 'Pubblicare',
+    voci: [
+      {
+        d: 'Quanto ci mette ad andare online?',
+        r: 'Sei o sette minuti. Puoi chiudere il telefono: il sito si aggiorna lo stesso, non serve restare a guardare.',
+      },
+      {
+        d: 'E l’inglese?',
+        r: 'Lo scrivo io automaticamente quando pubblichi. Tu scrivi solo in italiano.',
+      },
+      {
+        d: 'Posso cambiare un articolo già online?',
+        r: 'Sì, quante volte vuoi. L’indirizzo però resta quello del primo giorno, anche se cambi il titolo: così i link che hai già mandato a qualcuno continuano a funzionare.',
+      },
+      {
+        d: 'Ho pubblicato una cosa sbagliata.',
+        r: 'Correggila e ripubblica: sei minuti dopo è a posto. Se è una cosa grave e urgente, scrivi a Leo.',
+      },
+    ],
+  },
+  {
+    titolo: 'Entrare',
+    voci: [
+      {
+        d: 'Mi chiede la password ogni volta?',
+        r: 'No. Una volta entrato resti dentro per un anno. Se te la richiede spesso, probabilmente stai aprendo il link dentro WhatsApp invece che in Safari.',
+      },
+      {
+        d: 'Ho aperto il link dentro WhatsApp.',
+        r: 'Tocca i tre puntini in alto a destra e scegli «Apri in Safari». Dentro WhatsApp il telefono non riesce a ricordarsi di te.',
+      },
+      {
+        d: 'Ho perso la password.',
+        r: 'Scrivi a Leo e te ne fa una nuova. Non si può recuperare da qui — è voluto: è quello che tiene fuori tutti gli altri.',
+      },
+      {
+        d: 'Ho scritto la password sbagliata troppe volte.',
+        r: 'Aspetta un minuto e riprova. Non è successo niente di grave.',
+      },
+    ],
+  },
+];
+---
+
+<AdminBase title="Come si fa" user={admin}>
+  <p class="eyebrow text-ouro">Aiuto</p>
+  <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">Come si fa</h1>
+  <p class="mt-3 max-w-prose text-paper/60">
+    Le risposte alle domande che vengono davvero. Se non trovi quello che cerchi, scrivi a Leo.
+  </p>
+
+  {
+    SEZIONI.map((sezione) => (
+      <section class="mt-10">
+        <h2 class="font-display text-xl font-bold text-ouro">{sezione.titolo}</h2>
+        <div class="mt-3 flex flex-col gap-2">
+          {sezione.voci.map((v) => (
+            /*
+              <details> rather than an accordion component: it works with no JS,
+              it is keyboard- and screen-reader-correct for free, and it is the
+              one disclosure widget that behaves identically in every iOS Safari
+              version he might be on.
+            */
+            <details class="rounded-lg border border-paper/10 bg-paper/5 px-4 py-3">
+              <summary class="cursor-pointer font-display font-bold">{v.d}</summary>
+              <p class="mt-2 max-w-prose text-paper/70">{v.r}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <p class="mt-12">
+    <a href="/admin" class="btn btn-primary">Torna ai tuoi articoli</a>
+  </p>
+
+  <p class="mt-6 text-sm text-paper/40">
+    Qualcosa non torna?{' '}
+    <a
+      href="mailto:leonardo.rodo@outlook.it?subject=Vidapiena%20—%20aiuto%20con%20il%20pannello"
+      class="link-sweep text-ouro">Scrivi a Leo</a
+    >.
+  </p>
+</AdminBase>

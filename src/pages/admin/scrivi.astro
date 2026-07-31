@@ -1,0 +1,224 @@
+---
+/**
+ * Write or edit one article.
+ *
+ * ⚠️ `prerender = false` is load-bearing. `output` is `'static'`, so a page
+ * without this line is prerendered into dist/client and served by Cloudflare's
+ * asset router — in FRONT of the Worker, so src/middleware.ts never runs and the
+ * page is readable by anyone. `npm run build` fails if it is ever forgotten
+ * (scripts/verify-build.mjs).
+ */
+export const prerender = false;
+
+import AdminBase from '../../layouts/AdminBase.astro';
+import { getKV } from '../../lib/admin/runtime';
+import {
+  DRAFT_ID,
+  getDraft,
+  getPhotoIndex,
+  newDraftId,
+  ownership,
+  type DraftDoc,
+} from '../../lib/admin/draft-store';
+import { getPhoto } from '../../lib/admin/photo-store';
+import { BLOCK_LABELS } from '../../lib/admin/blocks';
+import { TOURS } from '../../data/tours';
+import { it } from '../../i18n/it';
+
+const admin = Astro.locals.admin;
+const kv = getKV();
+
+const richiesta = Astro.url.searchParams.get('bozza') ?? '';
+const draftId = DRAFT_ID.test(richiesta) ? richiesta : newDraftId();
+
+const oggi = new Date().toISOString().slice(0, 10);
+const vuoto: DraftDoc = {
+  title: '',
+  description: '',
+  date: oggi,
+  coverPhotoId: '',
+  blocks: [{ k: 'p', testo: '' }],
+  owner: admin?.email ?? '',
+  updatedAt: 0,
+};
+
+let doc = vuoto;
+let foto: { id: string; width: number; height: number; alt: string; caption: string }[] = [];
+let negato = false;
+
+if (kv && DRAFT_ID.test(richiesta)) {
+  const salvata = await getDraft(kv, richiesta);
+  if (salvata) {
+    if (ownership(salvata.owner, admin?.email ?? '') === 'altrui') negato = true;
+    else doc = salvata;
+  }
+  const index = await getPhotoIndex(kv, richiesta);
+  if (index && ownership(index.owner, admin?.email ?? '') !== 'altrui') {
+    for (const id of index.ids) {
+      const p = await getPhoto(kv, richiesta, id);
+      if (p) foto.push({ id, width: p.width, height: p.height, alt: p.alt, caption: p.caption });
+    }
+  }
+}
+
+// Italian names only: the picker is a list he reads. The link it emits is
+// locale-invariant (`../../tour/<slug>/`), so the same relative URL resolves
+// correctly from both /blog/ and /en/blog/ — which is why the five hand-written
+// articles use that form too.
+const tours = TOURS.map((t) => ({ slug: t.slug, nome: it.tours.items[t.id].name }));
+
+const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
+  { k: 'p', aiuto: 'Il testo normale dell’articolo' },
+  { k: 'h2', aiuto: 'Divide l’articolo in parti' },
+  { k: 'h3', aiuto: 'Una sotto-parte' },
+  { k: 'ul', aiuto: 'Un elenco puntato' },
+  { k: 'ol', aiuto: 'Un elenco numerato' },
+  { k: 'quote', aiuto: 'Una frase messa in evidenza' },
+  { k: 'foto', aiuto: 'Una delle foto che hai caricato' },
+];
+---
+
+<AdminBase title={doc.title || 'Nuovo articolo'} user={admin}>
+  {
+    negato ? (
+      <div class="rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-paper">
+        <p>Questa bozza è di un altro account.</p>
+        <p class="mt-3">
+          <a href="/admin" class="btn btn-primary">Torna ai tuoi articoli</a>
+        </p>
+      </div>
+    ) : (
+      <div data-editor data-bozza={draftId}>
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+          <p class="eyebrow text-ouro">{doc.publishedSlug ? 'Modifica' : 'Nuovo articolo'}</p>
+          <p data-stato class="eyebrow text-paper/40" role="status" aria-live="polite" />
+        </div>
+
+        <label class="mt-6 flex flex-col gap-1">
+          <span class="eyebrow text-paper/50">Titolo</span>
+          <input
+            data-titolo
+            type="text"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 font-display text-xl font-bold text-paper"
+            placeholder="Di cosa parla questo articolo?"
+          />
+        </label>
+        {doc.publishedSlug && (
+          <p class="mt-1 text-xs text-paper/40">
+            L’indirizzo dell’articolo resta <code>/blog/{doc.publishedSlug}/</code> anche se cambi il
+            titolo, così i link che hai già mandato continuano a funzionare.
+          </p>
+        )}
+
+        <label class="mt-5 flex flex-col gap-1">
+          <span class="eyebrow text-paper/50">Riassunto</span>
+          <textarea
+            data-riassunto
+            rows="2"
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
+            placeholder="Due righe: è quello che si legge su Google e nella lista del blog."
+          />
+        </label>
+
+        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+          <label class="flex flex-col gap-1">
+            <span class="eyebrow text-paper/50">Data</span>
+            <input
+              data-data
+              type="date"
+              class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="eyebrow text-paper/50">Foto di copertina</span>
+            <select
+              data-copertina
+              class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
+            >
+              <option value="">Nessuna</option>
+              {foto.map((f, i) => (
+                <option value={f.id}>{f.alt || `Foto ${i + 1}`}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {/* The real 16:9 crop, because his photos are mostly vertical. */}
+        <div data-copertina-anteprima class="mt-3 max-w-sm" />
+
+        <h2 class="mt-10 font-display text-xl font-bold">L’articolo</h2>
+        <ol data-blocchi class="mt-3 flex flex-col gap-3" />
+
+        <div class="mt-5">
+          <p class="eyebrow text-paper/50">Aggiungi</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            {TIPI.map((t) => (
+              <button
+                type="button"
+                data-aggiungi={t.k}
+                title={t.aiuto}
+                class="rounded-lg border border-paper/20 px-3 py-2 text-sm text-paper/80"
+              >
+                {BLOCK_LABELS[t.k]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/*
+          Sticky, because on a phone the save button is otherwise a long scroll
+          away from wherever he is typing — and this is a client who leaves
+          mid-sentence to start a tour.
+        */}
+        <div
+          class="sticky bottom-0 -mx-5 mt-10 flex flex-wrap gap-3 border-t border-paper/10 bg-ink/95 px-5 py-4 backdrop-blur md:-mx-10 md:px-10"
+        >
+          <button type="button" data-salva class="btn btn-primary">Salva</button>
+          <a href={`/admin/anteprima?bozza=${draftId}`} class="btn">Anteprima</a>
+          <a href="/admin/aiuto" class="eyebrow self-center text-paper/40">Come si fa?</a>
+        </div>
+      </div>
+    )
+  }
+
+  {/*
+    The draft is handed to the client as JSON in a data island rather than via
+    `define:vars`, because the module script below is bundled and cannot see
+    server scope. `set:html` with JSON.stringify is safe here: the value is
+    serialised, not interpolated into markup — and every string in it (title,
+    body, alt text) is attacker-influenced only by the two people who can log in.
+  */}
+  <script
+    is:inline
+    type="application/json"
+    id="dati-bozza"
+    set:html={JSON.stringify({ draftId, doc, foto, tours })}
+  />
+
+  <script>
+    import { mountEditor, recuperaLocale } from '../../scripts/admin-editor';
+
+    // Cast, not a generic: worker-configuration.d.ts declares a global `Element`
+    // for HTMLRewriter, which shadows the DOM one and breaks querySelector's
+    // `extends Element` constraint.
+    const root = document.querySelector('[data-editor]') as HTMLElement | null;
+    const isola = document.getElementById('dati-bozza');
+
+    if (root && isola?.textContent) {
+      const dati = JSON.parse(isola.textContent) as Omit<
+        Parameters<typeof mountEditor>[0],
+        'root' | 'doc'
+      > & { doc: Parameters<typeof mountEditor>[0]['doc'] };
+
+      // localStorage wins when it is newer: KV holds what was pushed up to a
+      // minute ago, localStorage holds every keystroke since. This is what makes
+      // "Safari killed the backgrounded tab" a non-event.
+      mountEditor({
+        root,
+        draftId: dati.draftId,
+        doc: recuperaLocale(dati.draftId, dati.doc),
+        foto: dati.foto,
+        tours: dati.tours,
+      });
+    }
+  </script>
+</AdminBase>
