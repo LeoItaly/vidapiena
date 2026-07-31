@@ -114,6 +114,11 @@ export const en: typeof it = {
     highlightsHeading: 'What we see',
     galleryHeading: 'From the tour',
     galleryCount: (n: number) => (n === 1 ? '1 photograph' : `${n} photographs`),
+    galleryPrev: 'Previous photo',
+    galleryNext: 'Next photo',
+    /** Live-region + progress-dot label. %c = current, %t = total. */
+    galleryPosition: 'Photo %c of %t',
+    galleryHint: 'Drag or use the arrows',
     practicalHeading: 'Practical info',
     includesHeading: 'Included in the price',
     priceHeading: 'Prices',

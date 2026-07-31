@@ -1,12 +1,21 @@
 ---
 /**
  * The tour deck — every original from the tour's media/ folder beyond the
- * hero, as a stack of cards. Dual-form (DESIGN.md §4): the default styling is
- * a complete, plain photo column; under `.motion-ok` the same nodes become
- * sticky cards that pile up one over the other while deck.ts scrubs the
- * depth cues (covered card settles back and dims) and ticks the live counter.
- * Tolerates missing keys (skipped, never a hole) and renders nothing when
- * the set is empty.
+ * hero, as a horizontal pile of cards flipped through like a deck.
+ *
+ * Dual-form (DESIGN.md §4), resilient like the marquees (§12): ONE markup
+ * tree, two presentations.
+ *   • Static / reduced-motion / no-JS: a horizontal scroll-snap strip — the
+ *     cards sit side by side and you swipe or scroll sideways. Complete and
+ *     useful with zero JavaScript, keyboard-reachable, captions visible.
+ *   • JS-live: deck.ts adds `.is-live` to the section and restyles those exact
+ *     nodes into an absolute pile — one photo on top of the next, a peek of
+ *     the ones behind — that you drag/fling or step with the ‹ › buttons and
+ *     the arrow keys. If that init ever throws, the section simply stays a
+ *     strip; it is never a stranded pile with no engine.
+ *
+ * Tolerates missing keys (skipped, never a hole) and renders nothing when the
+ * set is empty.
  */
 import { Picture } from 'astro:assets';
 import { getPhoto } from '../../lib/photos';
@@ -18,10 +27,20 @@ interface Props {
   tourName: string;
   /** dict.tourPage.galleryCount — the static total label ("12 fotografie") */
   countLabel: (n: number) => string;
+  /** dict.tourPage.galleryPrev / galleryNext — nav button labels */
+  prevLabel: string;
+  nextLabel: string;
+  /** dict.tourPage.galleryPosition — "Foto %c di %t", %c current / %t total */
+  positionLabel: string;
+  /** dict.tourPage.galleryHint — the drag affordance line */
+  hint: string;
 }
-const { keys, heading, tourName, countLabel } = Astro.props;
+const { keys, heading, tourName, countLabel, prevLabel, nextLabel, positionLabel, hint } =
+  Astro.props;
 const photos = keys.map((key) => getPhoto(key)).filter((p) => p !== null);
 const total = String(photos.length).padStart(2, '0');
+const posLabel = (cur: number) =>
+  positionLabel.replace('%c', String(cur)).replace('%t', String(photos.length));
 ---
 
 {
@@ -39,45 +58,96 @@ const total = String(photos.length).padStart(2, '0');
             </span>
           </p>
         </div>
-        <ol class="mt-6 list-none space-y-4" role="list">
-          {photos.map((photo, i) => (
-            <li class="deck-item" data-deck-item>
-              <figure class="deck-card">
-                <div class="deck-frame relative overflow-hidden rounded-lg">
-                  <Picture
-                    src={photo}
-                    formats={['avif', 'webp']}
-                    widths={[640, 1080, 1600]}
-                    sizes="(min-width: 80rem) 72rem, 100vw"
-                    alt={`${tourName} — ${heading} ${i + 1}`}
-                    class="h-full w-full object-cover"
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    decoding="async"
-                  />
-                  <div class="deck-shade" aria-hidden="true" />
-                </div>
-                <figcaption class="mt-2 flex items-baseline justify-between font-mono text-xs text-ink/65">
-                  <span>{tourName}</span>
-                  <span class="tabular-nums">
-                    {String(i + 1).padStart(2, '0')} / {total}
-                  </span>
-                </figcaption>
-              </figure>
-            </li>
-          ))}
-        </ol>
+
+        <div class="deck-stage mt-6" data-deck-stage>
+          <ol
+            class="deck-track list-none"
+            role="list"
+            tabindex="0"
+            aria-label={heading}
+          >
+            {photos.map((photo, i) => (
+              <li class="deck-item" data-deck-item>
+                <figure class="deck-card">
+                  <div class="deck-frame relative overflow-hidden rounded-lg">
+                    <Picture
+                      src={photo}
+                      formats={['avif', 'webp']}
+                      widths={[640, 1080, 1600]}
+                      sizes="(min-width: 48rem) 44rem, 90vw"
+                      alt={`${tourName} — ${heading} ${i + 1}`}
+                      class="h-full w-full object-cover"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                    <div class="deck-shade" aria-hidden="true" />
+                  </div>
+                  <figcaption class="deck-caption mt-2 flex items-baseline justify-between font-mono text-xs text-ink/65">
+                    <span>{tourName}</span>
+                    <span class="tabular-nums">
+                      {String(i + 1).padStart(2, '0')} / {total}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ol>
+
+          <div class="deck-nav">
+            <button type="button" class="deck-btn" data-deck-prev aria-label={prevLabel}>
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button type="button" class="deck-btn" data-deck-next aria-label={nextLabel}>
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="deck-foot mt-4 flex items-center justify-between gap-6">
+          <ol class="deck-dots" aria-hidden="true" role="list">
+            {photos.map(() => (
+              <li>
+                <span class="deck-dot" data-deck-dot />
+              </li>
+            ))}
+          </ol>
+          <p class="deck-hint font-mono text-xs text-ink/50">{hint}</p>
+        </div>
+
+        <p
+          class="sr-only"
+          role="status"
+          aria-live="polite"
+          data-deck-status
+          data-status-tpl={positionLabel}
+        >
+          {posLabel(1)}
+        </p>
       </div>
     </section>
   )
 }
 
 <style>
-  /* Static form — a complete, plain photo column. */
+  /* ------------------------------------------------------------------ *
+   * Static form — a horizontal scroll-snap strip. Works with no JS:
+   * swipe or scroll sideways, one card snaps into view at a time.
+   * ------------------------------------------------------------------ */
+  .deck-track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.75rem;
+    scrollbar-color: color-mix(in srgb, var(--color-ink) 26%, var(--color-paper)) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  .deck-item {
+    flex: 0 0 min(86%, 40rem);
+    scroll-snap-align: center;
+  }
   .deck-frame {
     aspect-ratio: 4 / 3;
-  }
-  .deck-live {
-    display: none;
   }
   .deck-shade {
     position: absolute;
@@ -87,34 +157,145 @@ const total = String(photos.length).padStart(2, '0');
     pointer-events: none;
   }
 
-  /* Motion form — the sticky deck. The li itself sticks (its containing block
-     is the whole list), so each card stays pinned under the head while the
-     next one rides up and covers it; later siblings paint over earlier ones
-     because sticky is positioned. Heights are viewport-derived, never
-     image-derived, so lazy loads shift nothing and triggers stay true. */
-  :global(.motion-ok) .deck-total {
+  /* Live counter, nav and dots are inert chrome until deck.ts wires them —
+     hidden on the static path, revealed only once the pile is live. */
+  .deck-live,
+  .deck-nav,
+  .deck-foot {
     display: none;
   }
-  :global(.motion-ok) .deck-live {
+
+  /* ------------------------------------------------------------------ *
+   * Live form — the pile. deck.ts sets `.is-live` on the section after a
+   * clean init; GSAP owns every card transform from here (transform +
+   * opacity only, DESIGN.md §4 budget). CSS only lays out the coordinate
+   * space; the depth cues are scripted.
+   * ------------------------------------------------------------------ */
+  [data-deck].is-live .deck-total {
+    display: none;
+  }
+  [data-deck].is-live .deck-live {
     display: inline;
   }
-  :global(.motion-ok) .deck-head {
-    position: sticky;
-    top: var(--nav-h);
-    z-index: 2;
-    background: var(--color-paper);
-    padding-block: 0.375rem;
+  [data-deck].is-live .deck-nav,
+  [data-deck].is-live .deck-foot {
+    display: flex;
   }
-  :global(.motion-ok) .deck-item {
-    position: sticky;
-    top: calc(var(--nav-h) + 2.75rem);
+
+  [data-deck].is-live .deck-stage {
+    position: relative;
+    overflow: clip; /* a flung card leaves cleanly; never `hidden` (§7) */
+    touch-action: pan-y; /* horizontal drags belong to the deck, vertical to the page */
   }
-  :global(.motion-ok) .deck-card {
-    background: var(--color-paper);
-    transform-origin: center top;
+  [data-deck].is-live .deck-track {
+    display: block;
+    position: relative;
+    max-width: 44rem;
+    margin-inline: auto;
+    overflow: visible;
+    padding: 0;
+    /* height is set by deck.ts from the front card's width (4:3) */
   }
-  :global(.motion-ok) .deck-frame {
+  [data-deck].is-live .deck-item {
+    position: absolute;
+    inset: 0;
+    flex: none;
+    /* horizontal drags drive the deck, vertical stays native page scroll */
+    touch-action: pan-y;
+    /* seeded hidden so the first paint can't flash an un-piled row; deck.ts
+       overwrites this the instant it lays the pile out.
+       No `will-change`: blanket promotion would GPU-composite every card in the
+       stack (up to ~16 viewport-size layers); GSAP promotes only what it
+       animates, for the short life of each transition. */
+    opacity: 0;
+  }
+  [data-deck].is-live .deck-card {
+    height: 100%;
+  }
+  [data-deck].is-live .deck-frame {
     aspect-ratio: auto;
-    height: calc(100svh - var(--nav-h) - 6.5rem);
+    height: 100%;
+    box-shadow: 0 18px 40px -20px color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+  [data-deck].is-live .deck-caption {
+    display: none;
+  }
+  [data-deck].is-live .deck-item.is-grabbable {
+    cursor: grab;
+  }
+  [data-deck].is-live .deck-item.is-grabbing {
+    cursor: grabbing;
+  }
+
+  /* Nav — a mono ‹ › pair pinned to the pile's lower-right corner. */
+  [data-deck].is-live .deck-nav {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 50;
+    gap: 0.5rem;
+  }
+  .deck-btn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+    background: color-mix(in srgb, var(--color-paper) 82%, transparent);
+    backdrop-filter: blur(6px);
+    color: var(--color-ink);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 1.5rem;
+    line-height: 1;
+    transition:
+      background 0.25s var(--ease-vp),
+      transform 0.25s var(--ease-vp),
+      color 0.25s var(--ease-vp);
+  }
+  .deck-btn > span {
+    margin-top: -0.15em; /* optical centring of the chevron glyph */
+  }
+  .deck-btn:hover {
+    background: var(--color-ouro);
+    color: var(--color-ink);
+  }
+  .deck-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* Progress dots — decorative (the ‹ › buttons + live region carry the
+     semantics); the active one stretches to a gold bar. */
+  .deck-dots {
+    display: flex;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+  }
+  .deck-dot {
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-ink) 22%, transparent);
+    cursor: pointer;
+    transition:
+      width 0.35s var(--ease-vp-out),
+      background 0.35s var(--ease-vp-out);
+  }
+  .deck-dot[data-active] {
+    width: 1.5rem;
+    background: var(--color-ouro);
+  }
+  .deck-hint {
+    flex: none;
+  }
+
+  @media (max-width: 30rem) {
+    .deck-hint {
+      display: none; /* the swipe is self-evident on touch; reclaim the row */
+    }
   }
 </style>
