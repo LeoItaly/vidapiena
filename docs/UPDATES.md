@@ -109,7 +109,7 @@
 - **SEO/GEO**: per-locale meta/OG/Twitter/canonical/hreflang · JSON-LD `@graph` (TourOperator+LocalBusiness, WebSite, ItemList of 4 TouristTrip with BRL Offers) fed from `src/data/tours.ts` · `robots.txt` + `llms.txt` (semi-inert at subpath until custom domain) · sitemap with i18n alternates.
 - **Perf (Lighthouse mobile, simulated slow-4G)**: **92 · CLS 0 · TBT 0ms · LCP 3.3s lab** (AVIF posters 96–108KB; real-device 4G expected < 2.5s — optional LQIP upgrade listed below).
 - **Credits fact-check**: balance API says **7 → 5 credits** (100 trial granted 20/07, 103 spent on logo package) — the docs were right. The 5-clip shoot (~360–450 cr) needs the Plus renewal (~23 Jul).
-- **⚠ Open data (TODOs in `src/data/`)**: 4 live OTA listing URLs (badges are non-links until then) · confirm WhatsApp number `+55 21 98148-1718` for publication · "Un Giorno a Rio" max pax (site says 15, capacity row says 20) · guest consent if any group photo is ever used.
+- **⚠ Open data (TODOs in `src/data/`)**: 4 live OTA listing URLs (badges are non-links until then) · confirm the client's WhatsApp number for publication (kept in the local-only client profile — this repo is public) · "Un Giorno a Rio" max pax (site says 15, capacity row says 20) · guest consent if any group photo is ever used.
 - **Next**: let Plus renew → 5-clip Seedance shoot → implement `FrameSequenceBackdrop` (M7, seam ready) · custom domain (one-commit switch documented in astro.config) · optional: LQIP poster placeholder, PSI field check after some traffic.
 
 ## 2026-07-20 (evening) — Logo animation COMPLETE ✅
