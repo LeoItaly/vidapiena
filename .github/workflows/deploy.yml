@@ -95,11 +95,31 @@ jobs:
       # secret alone makes every login fail 'robot' with nothing to click.
       # See docs/HOSTING.md for the activation order (variable first, then deploy,
       # then the secret).
+      # ⚠️ The Cloudflare credentials belong on the BUILD step too, not only on the
+      # deploy below, and it is not obvious why.
+      #
+      # `ai` in wrangler.jsonc is a **remote-only** binding — there is no local
+      # emulation of Workers AI. So when the adapter prerenders the static pages it
+      # spins up a Vite dev/preview server, sees a remote binding, and opens a
+      # remote proxy session against the real account. With no token in the
+      # environment that session cannot start and the BUILD dies before a single
+      # page is rendered:
+      #
+      #   Failed to start the remote proxy session. Error reloading remote server:
+      #   In a non-interactive environment, it's necessary to set a
+      #   CLOUDFLARE_API_TOKEN environment variable for wrangler to work.
+      #
+      # It passes locally regardless, because `wrangler login` leaves an OAuth
+      # token in the keyring and the session picks that up — so this is invisible
+      # until CI runs it. Same shape as the other traps in this project: the thing
+      # that only fails where nobody is watching.
       - name: Build
         run: npm run build
         env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
