@@ -116,6 +116,11 @@ export const it = {
     highlightsHeading: 'Cosa vediamo',
     galleryHeading: 'Dal tour',
     galleryCount: (n: number) => (n === 1 ? '1 fotografia' : `${n} fotografie`),
+    galleryPrev: 'Foto precedente',
+    galleryNext: 'Foto successiva',
+    /** Live-region + progress-dot label. %c = current, %t = total. */
+    galleryPosition: 'Foto %c di %t',
+    galleryHint: 'Trascina o usa le frecce',
     practicalHeading: 'Informazioni pratiche',
     includesHeading: 'Incluso nel prezzo',
     priceHeading: 'Prezzi',
