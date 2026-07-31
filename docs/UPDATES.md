@@ -2,6 +2,71 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 (later still) — Tour galleries: vertical sticky deck → horizontal swipe deck
+
+Client asked for the per-tour photo gallery to stop being an infinite vertical
+scroll and become **a deck of cards flipped horizontally** — one photo stacked on
+top of the next, swiped through like a physical pile.
+
+Rebuilt `TourGallery.astro` + `deck.ts` around the site's **dual-form contract**
+(one markup tree, two presentations — same discipline as the marquees' `.is-js`):
+
+- **Static / no-JS / reduced-motion / failed-init:** a horizontal CSS
+  **scroll-snap strip** — cards side by side, swipe or scroll sideways, captions
+  visible, fully keyboard-reachable, zero JS. This is the readable baseline.
+- **JS-live:** `deck.ts` adds `.is-live` to the section **as its last step**, and
+  only then does CSS restyle those exact nodes into an **absolute pile** — front
+  card + a peek of the two behind (scale/offset/rotate + a dimming shade), lifted
+  with a soft shadow. A throw before `.is-live` leaves the strip intact; a failed
+  init is a strip, never a stranded pile.
+
+Interaction: **drag/fling** the top card either way → next (GSAP `Draggable` +
+`InertiaPlugin`, both already free in 3.15); **‹ ›** buttons; **←/→/Home/End**
+keys on the focusable `role="group"` stage; a live `aria-live` "Foto N di T"
+status; progress **dots**; a mono live counter. The deck **loops** (past the last
+wraps to the first, and backward from the first wraps to the last). Captions hide
+in the pile — the counter/dots carry position.
+
+**No ScrollTrigger** (unlike the old vertical deck) → the sticky-rect measurement
+caveat is gone entirely. Height is `clientWidth × 0.75` (4:3) via a
+**ResizeObserver**, so it's correct even when first measured in a hidden pane.
+Initial/instant layout uses `gsap.set` (synchronous) not zero-duration `gsap.to`,
+so the first paint is already the laid-out pile — no seeded-hidden flash. Motion
+budget respected: transform/opacity only; `onDrag` writes, never reads layout.
+
+i18n: added `galleryPrev` / `galleryNext` / `galleryPosition` (a `%c`/`%t`
+template, rendered in Astro and re-templated in TS via `data-status-tpl`) /
+`galleryHint` to **both** `it.ts` and `en.ts`.
+
+**Verified:** `astro check` 0 errors · full `npm run build` green (Draggable +
+InertiaPlugin bundle, verify-build gates pass) · static strip confirmed with JS
+off · live state machine driven by hand through the frozen-ticker preview —
+next / prev / backward loop-wrap / dot `goTo` / ArrowRight all keep counter, front
+card and active dot in sync. Not visually screenshotable (preview pane runs
+hidden), so peek offsets / shadow / drag physics are code-reasoned, not pixel-seen.
+Not pushed (push = deploy).
+
+**Adversarial review — 28 agents (4 dimensions × double-verify), 0 errors.** Two
+findings survived; both were real a11y bugs I'd introduced and both are now fixed:
+
+- **`aria-hidden="true"` on `.deck-nav`** wrapped the focusable ‹ › buttons — in
+  the live pile that's a WCAG 4.1.2 "aria-hidden-focus" trap (keyboard/SR user
+  tabs onto controls the tree announces as empty). Removed it; `display:none`
+  already keeps them out of the static form. *Verified:* buttons now expose their
+  `aria-label`s, no aria-hidden ancestor.
+- **The static/reduced-motion strip had no keyboard-focusable scroller** —
+  keyboard-only users couldn't reach photos 2…N (WCAG 2.1.1). Gave `.deck-track`
+  `tabindex="0"` + `aria-label`; it's now the single keyboard entry in both forms
+  (its keydown bubbles to the pile handler in live mode), so the stage's JS
+  `tabIndex` was dropped. *Verified:* track focusable, ArrowRight from it still
+  advances the pile.
+
+Also folded in a rejected-but-fair note: `onDrag` no longer reads layout —
+the drag threshold is sampled once on press. Everything else the review raised
+(`overflow:hidden` on the frame, `is-live` ordering, the ~80 ms `busy` release,
+`will-change`) was double-refuted as a non-defect. Re-checked: `astro check` 0,
+full build green.
+
 ## 2026-07-31 (later) — Stage 3 could never have worked · stages 4 and 5 built
 
 ### 🔴 The photo upload was 100% broken in production, and every local test passed
