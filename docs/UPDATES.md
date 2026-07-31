@@ -73,7 +73,38 @@ byte-identical on the server · a WhatsApp-sized 640×480 rejected with the Ital
 sentence in red, the block keeping its existing photo · double-tap refused with
 "Sto ancora caricando l'altra foto" · /admin/foto handoff carried its batch *and*
 its descriptions into a new article. `astro check` 0 errors · full `npm run build`
-green (verify-build passes). Not pushed.
+green (verify-build passes).
+
+**Then merged to `main` and deployed — this was the Pages → Workers cutover.**
+`main` had been running the *GitHub Pages* workflow all along (it had no
+`wrangler.jsonc` at all); the Workers deploys until now were manual `cf:deploy`
+runs off this branch. Merging replaced `deploy.yml`, so a push to main now builds
+and deploys the Worker. Note `gh run list` shows the *current* name for a workflow
+path against *old* runs, so those earlier "Deploy to Cloudflare Workers ✓" rows on
+main were really Pages runs — misleading if you are reconstructing the history.
+
+⚠️ **New CI trap, cost one red build.** The first CI build with `wrangler.jsonc`
+present died before rendering a page: *"Failed to start the remote proxy session
+… necessary to set a CLOUDFLARE_API_TOKEN"*. `ai` is a **remote-only** binding —
+Workers AI has no local emulation — so the adapter's prerenderer opens a remote
+proxy session against the real account *at build time*. The token was scoped to
+the deploy step only. It passes on a dev machine regardless, because
+`wrangler login` leaves an OAuth token in the keyring that the session picks up:
+the same shape as every other trap here — it only fails where nobody is watching.
+Fixed by giving the Build step `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`.
+
+Live and verified on `https://vidapiena.leonardo-rodo.workers.dev`: homepage 200 ·
+`/admin` **as a navigation request** 302s to `/admin/entra` (the asset-router trap
+is not biting) · `/admin/api/*` returns the 401 Italian JSON when logged out ·
+canonical/hreflang carry the real origin · blog page and sitemap 200.
+
+🔑 **Open — Francesco has no login yet (almost certainly).** The local `.dev.vars`
+holds exactly one account, Leo, and `push-secrets.mjs` is what pushed
+`ADMIN_USERS` to the Worker, so production is Leo-only. It cannot be read back to
+confirm (secrets are write-only, and the login is deliberately timing-safe, so
+probing an address tells you nothing). Creating his account is one local run —
+see docs/HOSTING.md; it must include **both** people, since the secret is the
+whole array and pushing Francesco alone would lock Leo out.
 
 ⚠️ Note for whoever tests next: the Browser pane never has document focus, so
 **focus/blur events do not fire there at all** (`document.hasFocus()` is false).
