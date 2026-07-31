@@ -2,6 +2,43 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 (late) — OTA trust strip: drop the cream panel, drift the marks in white
+
+Leo didn't like the home page's closing "Prenota Vidapiena anche su" section on
+a front-end level: the floating cream panel felt heavy, and the logos sat still.
+Ask: kill the background, make the marks auto-scroll horizontally, keep only the
+logos. Two calls were his to make, so I asked — he chose **all-white/monochrome
+marks** and **keep the heading**.
+
+- **[`TrustBadges.astro`](../src/components/TrustBadges.astro) rewritten.** The
+  `.badge-panel` (cream `bg-paper` card + box-shadow) is gone; the section is now
+  a bare `bg-ink` band, so it merges seamlessly with FinalCta above and the ink
+  Footer below — one continuous dark region instead of a boxed panel with two
+  seams. Heading kept, recolored `text-ink/55` → `text-paper/55` for the dark bg.
+- **The auto-scroll was already built** — the row has always carried the
+  `data-marquee-*` hooks that [`marquees.ts`](../src/scripts/marquees.ts) drives
+  (constant base drift + scroll-velocity boost, CSS `mq-drift` floor). It only
+  *looked* static because it sat inside the centred panel and the pane forces
+  reduced-motion. Made the row full-bleed (heading stays in `max-w-5xl`), so the
+  strip drifts edge-to-edge behind the existing 8%/92% edge mask.
+- **Legibility problem the panel was hiding.** On `#10150f`, Civitatis (pure
+  `#000`) is invisible and Viator (dark-teal raster, no white master) near-so.
+  Per Leo's choice, one uniform tint solves all four: `filter: brightness(0)
+  invert(1)` collapses each mark to solid black (alpha kept) then lifts it to
+  white — identical result on the inline SVG fills (Airbnb/GYG/Civitatis) **and**
+  the transparent Viator PNG — at `opacity: 0.82` so it reads as a partner row,
+  not a shout. This is a *whitening filter*, not a recolor of the source art;
+  Airbnb/GYG/Civitatis all publish official reversed variants, Viator is the only
+  bend. Component header comment + trademark note updated to say so honestly (the
+  old comment claimed "no filters are ever applied to these marks").
+- **Verified in the live DOM** (pane forces reduced-motion, so I drove it by
+  hand): panel gone, section `rgb(16,21,15)`, all four marks
+  `brightness(0) invert(1)` @ 0.82, heading present in off-white. Forced
+  `.motion-ok` → all 4 sequences show, `mq-drift` runs, track translates left
+  `0 → −99 → −296px` over the loop (2012px track = 4×503px seq → seamless).
+  `astro check` clean (0/0/0, 114 files).
+- Local only, not pushed (push = deploy).
+
 ## 2026-07-31 (night) — Photos go into the article from the phone, where he is standing
 
 Client asked for a photo to be addable **inside the editor**, not only pickable

@@ -10,12 +10,17 @@ const { locale } = Astro.props;
 const dict = t(locale);
 
 /*
- * Trademark rules (visual-references/platform-logos/README.md): official variants
- * only, no recoloring, equal optical height, light neutral background. The
- * marquee only translates the row — no filters are ever applied to these marks.
- * Deliberately UNLINKED (OTA-LINKS.md rule): this is the global "Vidapiena is
- * on…" row — per-tour deep links belong on the cards and tour pages, and a
- * global badge pointing at one arbitrary tour's listing would mislead.
+ * The global "Vidapiena is on…" strip. No panel: the marks drift straight on
+ * the ink band, tinted to one soft off-white so four differently-coloured
+ * brand logos read as a single clean row (client decision 31/07 — the cream
+ * panel and per-mark colours were dropped). The tint is a whitening filter,
+ * not a recolour of the source art (see the <style> note): Airbnb, GetYourGuide
+ * and Civitatis all publish official reversed/white variants, and Viator — a
+ * teal raster with no white master — is whitened by the same filter so the
+ * strip stays uniform on the dark background.
+ * Deliberately UNLINKED (OTA-LINKS.md rule): per-tour deep links belong on the
+ * cards and tour pages; a global badge pointing at one arbitrary tour's listing
+ * would mislead.
  */
 const SIZES: Record<string, string> = {
   viator: 'h-6 md:h-7',
@@ -26,46 +31,51 @@ const SIZES: Record<string, string> = {
 const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key] }));
 ---
 
-{/* The band is ink like its neighbours; the trademark "light neutral
-    background" now lives on a floating paper panel — two hard seams
-    (FinalCta→here, here→Footer) become none. */}
-<section class="bg-ink text-paper">
-  <div class="mx-auto max-w-5xl px-5 py-16 md:px-10 md:py-20">
-    <div class="badge-panel rounded-xl bg-paper px-6 py-10 text-ink md:px-10">
-      <p class="eyebrow text-center text-ink/55" data-scramble>{dict.badges.heading}</p>
+{/* One continuous ink region with Footer/FinalCta — no seams, no panel. */}
+<section class="bg-ink text-paper py-16 md:py-20">
+  <p class="eyebrow mx-auto max-w-5xl px-5 text-center text-paper/55" data-scramble>
+    {dict.badges.heading}
+  </p>
 
-    {/* Default: the centred row it has always been. With motion: the same list
-        becomes a slow, endless drift that quickens as you scroll past. Four
-        server-rendered copies (the row is short) keep the CSS -50% base loop
-        seamless before the JS engine adopts it; duplicates are display:none on
-        the static path. */}
-    <div class="badge-row mt-8" data-marquee-row data-dir="-1" data-speed="38" style="--mq-dur: 90s">
-      <div class="badge-track" data-marquee-track>
-        {
-          [0, 1, 2, 3].map((copy) => (
-            <ul
-              class:list={['badge-seq', copy > 0 && 'mq-dupe']}
-              data-marquee-seq={copy === 0 ? true : undefined}
-              aria-hidden={copy > 0 ? 'true' : undefined}
-            >
-              {badges.map((b) => (
-                <li class="flex items-center">
-                  <OtaLogo platform={b.key} name={b.name} class={b.h} />
-                </li>
-              ))}
-            </ul>
-          ))
-        }
-      </div>
-    </div>
+  {/* Full-bleed drift. Default (no JS / reduced motion): the same list is a
+      centred, wrapping row. With motion: it becomes a slow endless drift that
+      quickens as you scroll past. Four server-rendered copies (the row is
+      short) keep the CSS -50% base loop seamless before the JS engine adopts
+      it; duplicates are display:none on the static path. */}
+  <div class="badge-row mt-9" data-marquee-row data-dir="-1" data-speed="38" style="--mq-dur: 90s">
+    <div class="badge-track" data-marquee-track>
+      {
+        [0, 1, 2, 3].map((copy) => (
+          <ul
+            class:list={['badge-seq', copy > 0 && 'mq-dupe']}
+            data-marquee-seq={copy === 0 ? true : undefined}
+            aria-hidden={copy > 0 ? 'true' : undefined}
+          >
+            {badges.map((b) => (
+              <li class="flex items-center">
+                <OtaLogo platform={b.key} name={b.name} class={b.h} />
+              </li>
+            ))}
+          </ul>
+        ))
+      }
     </div>
   </div>
 </section>
 
 <style>
-  .badge-panel {
-    box-shadow: 0 24px 80px -32px rgb(0 0 0 / 0.8);
+  /* Uniform off-white tint for every mark — the inline SVGs (Airbnb, GYG,
+     Civitatis) and the transparent Viator raster alike. brightness(0) collapses
+     each mark to solid black while preserving its alpha; invert(1) lifts that
+     to white. One filter, identical result on vector fills and PNG pixels, so
+     the four brands read as one strip on the ink band. Slightly dimmed so it
+     sits back like a partner row rather than shouting. */
+  .badge-row :global(.ota-logo),
+  .badge-row :global(img) {
+    filter: brightness(0) invert(1);
+    opacity: 0.82;
   }
+
   /* ---- Static path (default) — the centred, wrapping row ----------------- */
   .badge-seq {
     display: flex;
@@ -73,6 +83,8 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
     align-items: center;
     justify-content: center;
     gap: 1.5rem 3rem;
+    /* Keep wrapped marks off the viewport edge on narrow screens. */
+    padding-inline: 1.5rem;
   }
 
   /* ---- Motion path — endless drift -------------------------------------- */
@@ -96,8 +108,9 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
     flex-wrap: nowrap;
     justify-content: flex-start;
     /* Trailing gap inside the sequence — its measured width is the exact wrap
-       distance, so the loop has no seam. */
+       distance, so the loop has no seam. Explicit 0 on the left overrides the
+       static inline padding, keeping that measurement accurate. */
     gap: 3rem;
-    padding-right: 3rem;
+    padding: 0 3rem 0 0;
   }
 </style>
