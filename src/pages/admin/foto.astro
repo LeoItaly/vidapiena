@@ -36,7 +36,16 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
 ---
 
 <AdminBase title="Foto" user={admin}>
-  <p class="eyebrow text-ouro">Foto</p>
+  {/* The way back, so this page is not a dead end. Photos and descriptions are
+      saved as they are uploaded, so leaving loses nothing. */}
+  <a
+    href="/admin"
+    class="link-sweep eyebrow inline-flex items-center gap-1 text-paper/50"
+    data-torna
+  >
+    ‹ I tuoi articoli
+  </a>
+  <p class="mt-3 eyebrow text-ouro">Foto</p>
   <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">Aggiungi le foto</h1>
   <p class="mt-3 max-w-prose text-paper/60">
     Scegli le foto dal telefono. Le preparo io per il sito: le rimpicciolisco, le raddrizzo e
@@ -46,17 +55,6 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
   <p class="mt-3 max-w-prose text-sm text-paper/40">
     Se preferisci, puoi anche caricare le foto direttamente mentre scrivi: dentro l’articolo,
     ogni foto ha il suo tasto «Carica una foto dal telefono».
-  </p>
-
-  {/*
-    DESIGN.md forbids identifiable guests, and the review was right that a
-    checkbox someone taps through is not a control. There is no reliable face
-    detector on iOS Safari, so this is stated plainly and kept on screen while he
-    chooses — an honest reminder rather than a control that pretends to enforce.
-  */}
-  <p class="mt-6 rounded-lg border border-ouro/40 bg-ouro/10 px-4 py-3 text-sm text-paper">
-    <strong>Una regola sola:</strong> niente foto in cui si riconoscono i visitatori in volto.
-    Panorami, strade, murales e tu: sì. Gruppi in posa: no.
   </p>
 
   <label
@@ -287,6 +285,17 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
       } catch {
         // Private browsing. The handoff itself still works.
       }
+    });
+
+    /**
+     * Don't let a batch be abandoned half-way. A stored photo is safe the moment
+     * its row turns green, so this only fires while one is still uploading —
+     * leaving then would drop the photo mid-flight. Desktop-only (iOS Safari shows
+     * no prompt); the leaving-the-page links are always available once idle.
+     */
+    addEventListener('beforeunload', (event) => {
+      if (!occupato) return;
+      event.preventDefault();
     });
   </script>
 </AdminBase>

@@ -2,6 +2,59 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 (later) — Back-office: exit navigation + unsaved-changes guard; drop the "no faces" rule
+
+Leo, on Francesco's behalf: once you tap **«Scrivi un articolo»** there is no way
+back — the editor is a long form whose only exit is the small header link, which
+this client never finds. Ask: (1) a real "back" control, and if you leave with
+unsaved work, be **asked whether to save**; (2) the same fix on the photo-upload
+page; (3) delete the on-screen rule telling him **not to upload photos with faces**
+— guests have agreed to appear, so the rule is no longer true.
+
+- **Exit guard in [`admin-editor.ts`](../src/scripts/admin-editor.ts).** Every way
+  out of the editor now runs through one `esciVerso(url, chiedi)`. The *exits*
+  (a new `‹ I tuoi articoli` back link, plus the shell's home + logout links,
+  wired from `document` since they live outside the editor root, and "Come si fa?")
+  are `chiedi: true`: with unsaved work they open a small three-choice modal —
+  **Salva ed esci · Esci senza salvare · Annulla** — styled with the shared `.btn`
+  tokens (not `window.confirm`, which can't offer three answers). The forward steps
+  (**Anteprima**, **Pubblica**) are `chiedi: false`: they save first, so the next
+  page reads the current text instead of a stale KV copy. A failed save keeps him
+  on the page with the reason already shown.
+- **Honest "Esci senza salvare".** The editor auto-saves to KV on `pagehide`; that
+  path now checks a `scartaAllUscita` flag so "don't save" actually leaves the
+  server copy where it was. localStorage still holds the text (the phone-crash net,
+  not a publish), so nothing is lost on the device. A `beforeunload` net covers
+  reload/tab-close/hardware-back on desktop; it is a no-op on iOS Safari, where the
+  existing `pagehide` beacon is the real safety, which is exactly why intercepting
+  the in-app links is what makes iPhone safe.
+- **[`foto.astro`](../src/pages/admin/foto.astro):** added the same `‹ I tuoi
+  articoli` back link (photos + descriptions already save as they upload, so
+  leaving loses nothing), and a `beforeunload` guard that only fires while a batch
+  is still uploading, so a half-finished upload isn't abandoned mid-flight.
+- **Removed the "no faces" disclosure.** Deleted the boxed «Una regola sola:
+  niente foto in cui si riconoscono i visitatori in volto» notice in `foto.astro`,
+  and reworded the *"Che foto posso usare?"* answer in
+  [`aiuto.astro`](../src/pages/admin/aiuto.astro) to name no prohibition. ⚠️ The
+  origin of that rule — `docs/DESIGN.md` §"Privacy rule … No identifiable guests"
+  and its public-site photo-curation stance — was left untouched; that's a policy
+  doc that also governs marquee/hero curation, so flag to Leo whether it should
+  change too.
+- **CF-types trap:** `.append(...children)` fails the build (the worker `Element`
+  shadow types it as 1–2 args) — used `appendChild` per node, as the rest of the
+  file does. Dropped the deprecated `event.returnValue`; modern `preventDefault()`
+  alone raises the desktop prompt.
+- **Verified** on the running dev server (minted a session cookie from the local
+  `SESSION_SECRET`, since login is cookie-only): editor renders with the back link,
+  the modal shows all three buttons with correct copy + computed styling (fixed,
+  z-50, ink box, gold primary), **Annulla** stays, **Salva ed esci** saved and went
+  to `/admin`, **Esci senza salvare** went to `/admin`; foto + aiuto confirmed
+  clean of the faces text; no console errors. `astro check` clean (0/0/0, 114
+  files). (An unrelated Vite `optimizeDeps` staleness error on `astro:content`
+  pages showed up in the *shared* dev server after `astro check` re-synced content
+  — environmental, self-heals on restart; build/deploy unaffected.)
+- Local only, not pushed (push = deploy).
+
 ## 2026-07-31 (late) — OTA trust strip: drop the cream panel, drift the marks in white
 
 Leo didn't like the home page's closing "Prenota Vidapiena anche su" section on

@@ -73,6 +73,18 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
   let dirtyRemote = false;
   let lastRemoteJson = JSON.stringify(doc);
 
+  /**
+   * Exit-guard state.
+   *
+   * `permettiUscita` lets an intentional navigation past the beforeunload net (a
+   * desktop-only prompt; iOS Safari never shows it). `scartaAllUscita` is set only
+   * on the explicit "Esci senza salvare" path, and suppresses the exit beacon so
+   * that choice actually means what it says — the server copy is left where it was.
+   * localStorage still holds the text, which is the phone-crash net, not a publish.
+   */
+  let permettiUscita = false;
+  let scartaAllUscita = false;
+
   const stato = root.querySelector('[data-stato]') as HTMLElement;
   const elenco = root.querySelector('[data-blocchi]') as HTMLElement;
 
@@ -173,6 +185,116 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     doc.updatedAt = Date.now();
     salvaLocale();
     segnala('Non salvato', 'attesa');
+  }
+
+  /* -------------------------------------------------------------- exit guard */
+
+  /**
+   * Asks whether to save before leaving.
+   *
+   * A small modal rather than `window.confirm`, because a two-button confirm
+   * cannot offer the three real answers — save, leave, stay — and on a phone a
+   * native dialog is dismissed by an accidental tap. Resolves to the choice; the
+   * caller acts on it. Styled with the shared .btn tokens, so it is the same brand
+   * as the rest of the panel.
+   */
+  function chiediSalvataggio(): Promise<'salva' | 'esci' | 'annulla'> {
+    return new Promise((resolve) => {
+      const sfondo = document.createElement('div');
+      sfondo.className =
+        'fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-4 backdrop-blur sm:items-center';
+      sfondo.setAttribute('role', 'dialog');
+      sfondo.setAttribute('aria-modal', 'true');
+      sfondo.setAttribute('aria-labelledby', 'vp-uscita-titolo');
+
+      const riquadro = document.createElement('div');
+      riquadro.className = 'w-full max-w-sm rounded-xl border border-paper/15 bg-ink p-5';
+
+      const titolo = document.createElement('h2');
+      titolo.id = 'vp-uscita-titolo';
+      titolo.className = 'font-display text-xl font-bold text-paper';
+      titolo.textContent = 'Hai modifiche non salvate';
+
+      const testo = document.createElement('p');
+      testo.className = 'mt-2 text-sm text-paper/60';
+      testo.textContent = 'Vuoi salvarle prima di uscire?';
+
+      const azioni = document.createElement('div');
+      azioni.className = 'mt-5 flex flex-col gap-2';
+
+      let chiuso = false;
+      const chiudi = (scelta: 'salva' | 'esci' | 'annulla') => {
+        if (chiuso) return;
+        chiuso = true;
+        document.removeEventListener('keydown', suTasto);
+        sfondo.remove();
+        resolve(scelta);
+      };
+      const suTasto = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') chiudi('annulla');
+      };
+
+      const bSalva = document.createElement('button');
+      bSalva.type = 'button';
+      bSalva.className = 'btn btn-primary w-full';
+      bSalva.textContent = 'Salva ed esci';
+      bSalva.addEventListener('click', () => chiudi('salva'));
+
+      const bEsci = document.createElement('button');
+      bEsci.type = 'button';
+      bEsci.className = 'btn w-full';
+      bEsci.textContent = 'Esci senza salvare';
+      bEsci.addEventListener('click', () => chiudi('esci'));
+
+      const bAnnulla = document.createElement('button');
+      bAnnulla.type = 'button';
+      bAnnulla.className = 'eyebrow w-full py-2 text-paper/50';
+      bAnnulla.textContent = 'Annulla';
+      bAnnulla.addEventListener('click', () => chiudi('annulla'));
+
+      azioni.appendChild(bSalva);
+      azioni.appendChild(bEsci);
+      azioni.appendChild(bAnnulla);
+      riquadro.appendChild(titolo);
+      riquadro.appendChild(testo);
+      riquadro.appendChild(azioni);
+      sfondo.appendChild(riquadro);
+      sfondo.addEventListener('click', (e) => {
+        if (e.target === sfondo) chiudi('annulla');
+      });
+      document.addEventListener('keydown', suTasto);
+      document.body.appendChild(sfondo);
+      bSalva.focus();
+    });
+  }
+
+  /**
+   * Leaving the editor safely.
+   *
+   * `chiedi` is true for the ways *out* of the article — the back link, and the
+   * shell's home and logout links: with unsaved changes it asks first. It is false
+   * for the steps *forward* in the same flow (Anteprima, Pubblica), which read the
+   * draft from KV and so must push the latest text up before they load — no
+   * question, just save-then-go. Either way, a failed save keeps him on the page
+   * with the reason already shown, instead of navigating to a stale copy.
+   */
+  async function esciVerso(url: string, chiedi: boolean) {
+    if (dirtyRemote) {
+      if (chiedi) {
+        const scelta = await chiediSalvataggio();
+        if (scelta === 'annulla') return;
+        if (scelta === 'esci') {
+          scartaAllUscita = true;
+          permettiUscita = true;
+          location.href = url;
+          return;
+        }
+      }
+      const ok = await salvaRemoto('manuale');
+      if (!ok) return;
+    }
+    permettiUscita = true;
+    location.href = url;
   }
 
   /* ------------------------------------------------------------------ blocks */
@@ -749,6 +871,41 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
 
   root.querySelector('[data-salva]')?.addEventListener('click', () => void salvaRemoto('manuale'));
 
+  /**
+   * Every way out of the editor runs through the guard.
+   *
+   * `data-nav="indietro"` are the exits (the back link, "Come si fa?"); they ask
+   * before dropping unsaved work. `data-nav="avanti"` are the forward steps
+   * (Anteprima, Pubblica); they save first so the next page reads the current text.
+   * The shell's home and logout links live outside the editor root, so they are
+   * wired from the document. Intercepting these is what makes iOS safe — there is
+   * no reliable beforeunload prompt on the one device this client uses.
+   */
+  const collega = (a: HTMLElement, chiedi: boolean) =>
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      void esciVerso((a as HTMLAnchorElement).href, chiedi);
+    });
+
+  (root.querySelectorAll('[data-nav="indietro"]') as NodeListOf<HTMLElement>).forEach((a) =>
+    collega(a, true),
+  );
+  (root.querySelectorAll('[data-nav="avanti"]') as NodeListOf<HTMLElement>).forEach((a) =>
+    collega(a, false),
+  );
+  (
+    document.querySelectorAll(
+      'header a[href="/admin"], header a[href="/admin/esci"]',
+    ) as NodeListOf<HTMLElement>
+  ).forEach((a) => collega(a, true));
+
+  // Desktop safety net for the exits JS cannot intercept (reload, tab close,
+  // hardware back). No-op on iOS Safari, where pagehide already saves instead.
+  addEventListener('beforeunload', (e) => {
+    if (permettiUscita || !dirtyRemote) return;
+    e.preventDefault();
+  });
+
   bindCampo(root, '[data-titolo]', doc.title, (v) => {
     doc.title = v;
     cambiato();
@@ -844,10 +1001,11 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
   }, AUTOSAVE_REMOTE_MS);
 
   addEventListener('pagehide', () => {
-    if (dirtyRemote) void salvaRemoto('uscita');
+    if (dirtyRemote && !scartaAllUscita) void salvaRemoto('uscita');
   });
   addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && dirtyRemote) void salvaRemoto('uscita');
+    if (document.visibilityState === 'hidden' && dirtyRemote && !scartaAllUscita)
+      void salvaRemoto('uscita');
   });
   // Coming back online is the moment a failed save can finally succeed.
   addEventListener('online', () => {
