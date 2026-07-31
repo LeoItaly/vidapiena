@@ -59,7 +59,20 @@ export const MAX_BYTES = 900 * 1024;
 
 const QUALITY_START = 0.82;
 const QUALITY_FLOOR = 0.62;
-const QUALITY_STEP = 0.06;
+
+/**
+ * Smallest source we will accept, on the long edge.
+ *
+ * MIN_EDGE below only stops the search *descending*; it never rejected anything,
+ * so a 60×40 image processed cleanly and reported "Pronta" — verified. The cover
+ * renders full-width at `aspect-[16/9]`, so a small source is visibly soft on the
+ * one image that sells the article. Images arriving over WhatsApp are routinely
+ * this small, and WhatsApp is how this client receives most things.
+ *
+ * Mirrored server-side in src/pages/admin/api/foto.ts: this check is here so he
+ * is told *before* a slow upload, not so the server can trust it.
+ */
+const MIN_SOURCE_EDGE = 900;
 
 export interface ProcessedPhoto {
   blob: Blob;
@@ -136,6 +149,29 @@ function targetSize(w: number, h: number, maxEdge: number) {
   return { w: Math.max(1, Math.round(w * scale)), h: Math.max(1, Math.round(h * scale)) };
 }
 
+/**
+ * True when the drawn canvas is a single flat colour across nine spread samples.
+ *
+ * A real photograph — even a plain sky — does not produce nine byte-identical
+ * pixels from corner to corner. A canvas that iOS failed to allocate does,
+ * every time. Nine 1×1 reads rather than one large `getImageData`, because
+ * pulling a 1200×1600 buffer back off the GPU would cost more than the encode
+ * this is protecting.
+ */
+function looksBlank(ctx: CanvasRenderingContext2D, w: number, h: number): boolean {
+  if (w < 3 || h < 3) return false;
+  let first: string | null = null;
+  for (const fx of [0.15, 0.5, 0.85]) {
+    for (const fy of [0.15, 0.5, 0.85]) {
+      const [r, g, b] = ctx.getImageData(Math.floor(w * fx), Math.floor(h * fy), 1, 1).data;
+      const key = `${r},${g},${b}`;
+      if (first === null) first = key;
+      else if (key !== first) return false;
+    }
+  }
+  return true;
+}
+
 function toBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -162,76 +198,129 @@ export async function processPhoto(file: File): Promise<ProcessedPhoto> {
   }
 
   const source = await decode(file);
-  const srcW = 'width' in source ? source.width : 0;
-  const srcH = 'height' in source ? source.height : 0;
 
-  if (!srcW || !srcH) {
-    throw new PhotoError('Questa foto sembra danneggiata. Prova a sceglierne un’altra.', 'zero dims');
-  }
+  try {
+    const srcW = 'width' in source ? source.width : 0;
+    const srcH = 'height' in source ? source.height : 0;
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  if (!ctx) {
-    throw new PhotoError('Il telefono non riesce a elaborare la foto. Riprova.', 'no 2d context');
-  }
-
-  let maxEdge = MAX_EDGE;
-  let downscaled = false;
-  /** Best result so far, kept in case nothing reaches the target. */
-  let fallback: ProcessedPhoto | null = null;
-
-  // Quality first, then resolution — in that order because JPEG artifacts on a
-  // textured favela wall are more objectionable than a slightly smaller image.
-  // The loop stops descending at MIN_EDGE: past that the cover goes soft, and
-  // overshooting the byte target costs only repo space.
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const { w, h } = targetSize(srcW, srcH, maxEdge);
-    canvas.width = w;
-    canvas.height = h;
-    // Re-fill on every attempt: a resized canvas is transparent, and JPEG has no
-    // alpha, so an unfilled canvas encodes transparent pixels as black.
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(source as CanvasImageSource, 0, 0, w, h);
-
-    for (let q = QUALITY_START; q >= QUALITY_FLOOR - 1e-9; q -= QUALITY_STEP) {
-      const blob = await toBlob(canvas, Number(q.toFixed(2)));
-      const result: ProcessedPhoto = {
-        blob,
-        width: w,
-        height: h,
-        bytes: blob.size,
-        quality: Number(q.toFixed(2)),
-        downscaled,
-      };
-
-      if (blob.size <= TARGET_BYTES) {
-        if ('close' in source) source.close();
-        return result;
-      }
-      // Remember the smallest acceptable-quality candidate, so a photo that can
-      // never reach the target still ships at the best size we managed rather
-      // than failing outright.
-      if (blob.size <= MAX_BYTES && (!fallback || blob.size < fallback.bytes)) {
-        fallback = result;
-      }
+    if (!srcW || !srcH) {
+      throw new PhotoError(
+        'Questa foto sembra danneggiata. Prova a sceglierne un’altra.',
+        'zero dims',
+      );
     }
 
-    // Stop shrinking once the cover would go soft. Overshooting 400 KB costs
-    // repo space; going under 1280 px costs the client a blurry article header.
-    const next = Math.round(maxEdge * 0.8);
-    if (next < MIN_EDGE) break;
-    maxEdge = next;
-    downscaled = true;
+    if (Math.max(srcW, srcH) < MIN_SOURCE_EDGE) {
+      throw new PhotoError(
+        'Questa foto è troppo piccola per il sito: verrebbe sgranata. ' +
+          'Scegline una scattata con la fotocamera del telefono.',
+        `source too small: ${srcW}x${srcH}`,
+      );
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) {
+      throw new PhotoError('Il telefono non riesce a elaborare la foto. Riprova.', 'no 2d context');
+    }
+
+    let maxEdge = MAX_EDGE;
+    let downscaled = false;
+    /** Best result so far, kept in case nothing reaches the target. */
+    let fallback: ProcessedPhoto | null = null;
+
+    // Quality first, then resolution — in that order because JPEG artifacts on a
+    // textured favela wall are more objectionable than a slightly smaller image.
+    // The loop stops descending at MIN_EDGE: past that the cover goes soft, and
+    // overshooting the byte target costs only repo space.
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const { w, h } = targetSize(srcW, srcH, maxEdge);
+      canvas.width = w;
+      canvas.height = h;
+      // Re-fill on every attempt: a resized canvas is transparent, and JPEG has no
+      // alpha, so an unfilled canvas encodes transparent pixels as black.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(source as CanvasImageSource, 0, 0, w, h);
+
+      // iOS Safari enforces a total canvas-memory budget across the tab and does
+      // NOT throw when it is exceeded: `drawImage` quietly leaves the canvas
+      // blank. Uploading twenty photos in one go is a normal after-tour batch,
+      // and the failure would be twenty uniform rectangles reported as "Pronta"
+      // — discovered only once they were live. Sampling costs a fraction of a
+      // millisecond and turns a silent corruption into a sentence he can act on.
+      if (attempt === 0 && looksBlank(ctx, w, h)) {
+        throw new PhotoError(
+          'Il telefono non ce l’ha fatta a preparare questa foto. Chiudi e riapri la pagina, ' +
+            'poi caricane poche per volta.',
+          'canvas came back blank — likely iOS canvas memory exhaustion',
+        );
+      }
+
+      const at = async (q: number): Promise<ProcessedPhoto> => {
+        const quality = Number(q.toFixed(2));
+        const blob = await toBlob(canvas, quality);
+        return { blob, width: w, height: h, bytes: blob.size, quality, downscaled };
+      };
+      const keep = (r: ProcessedPhoto) => {
+        if (r.bytes <= MAX_BYTES && (!fallback || r.bytes < fallback.bytes)) fallback = r;
+      };
+
+      /*
+       * Two probes and at most one refinement, instead of walking a fixed ladder
+       * of four qualities.
+       *
+       * Measured on a 24 MP original: each encode of the 1200×1600 canvas costs
+       * **~1.05 s** on desktop Chrome, and the ladder spent four of them (4.8 s)
+       * to arrive where the second probe already proves the answer lies. The
+       * photos that cannot reach the target at all — six of ten in the real
+       * archive — paid the full four encodes at *each* size before shrinking.
+       *
+       * The probes bracket the answer: if the floor still overshoots, no quality
+       * at this size will fit and the only remedy is fewer pixels.
+       */
+      const high = await at(QUALITY_START);
+      if (high.bytes <= TARGET_BYTES) return high;
+      keep(high);
+
+      const low = await at(QUALITY_FLOOR);
+      keep(low);
+
+      if (low.bytes <= TARGET_BYTES) {
+        // Bytes fall roughly monotonically with quality, so interpolating between
+        // the two probes lands close to the best quality that still fits. If the
+        // guess overshoots we keep `low`, which is known good — so this can cost
+        // one encode but can never cost correctness.
+        const span = high.bytes - low.bytes;
+        const guess =
+          span > 0
+            ? QUALITY_FLOOR +
+              ((TARGET_BYTES - low.bytes) / span) * (QUALITY_START - QUALITY_FLOOR)
+            : QUALITY_FLOOR;
+        const clamped = Math.min(QUALITY_START - 0.01, Math.max(QUALITY_FLOOR + 0.01, guess));
+        const mid = await at(clamped);
+        return mid.bytes <= TARGET_BYTES && mid.quality > low.quality ? mid : low;
+      }
+
+      // Stop shrinking once the cover would go soft. Overshooting 400 KB costs
+      // repo space; going under 1280 px costs the client a blurry article header.
+      const next = Math.round(maxEdge * 0.8);
+      if (next < MIN_EDGE) break;
+      maxEdge = next;
+      downscaled = true;
+    }
+
+    if (fallback) return fallback;
+
+    throw new PhotoError(
+      'Questa foto è troppo pesante anche dopo la compressione. Provane un’altra.',
+      'could not reach size budget',
+    );
+  } finally {
+    // `finally`, not a call per exit path: the previous version leaked the whole
+    // decoded bitmap (~100 MB for a 24 MP photo) whenever toBlob threw, which is
+    // exactly when a phone is already short of memory.
+    if ('close' in source) source.close();
   }
-
-  if ('close' in source) source.close();
-
-  if (fallback) return fallback;
-
-  throw new PhotoError(
-    'Questa foto è troppo pesante anche dopo la compressione. Provane un’altra.',
-    'could not reach size budget',
-  );
 }

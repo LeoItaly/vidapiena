@@ -2,15 +2,35 @@ name: Deploy to Cloudflare Workers
 
 # The site moved off GitHub Pages because the back office at /admin needs a
 # server runtime. Every public page is still prerendered; only /admin/* runs
-# on demand. The triggers are unchanged from the Pages workflow: every push to
-# main publishes, and the daily cron rebuilds so the Instagram tiles refresh
-# after Behold's once-daily sync.
+# on demand.
+#
+# ⚠️ THERE IS DELIBERATELY NO `schedule:` TRIGGER, and it must not come back
+# into this file.
+#
+# GitHub's documented policy: "In a public repository, scheduled workflows are
+# automatically disabled when no repository activity has occurred in 60 days."
+# Only pushes reset that clock — the cron's own runs do not, which is the point
+# of the rule. This repo is public and, by the project's own timeline, 60 quiet
+# days is the *expected* state: the client is fully booked mid-June to August
+# and visibility is suspended in August.
+#
+# The trap is that all three triggers live in ONE workflow file, so when GitHub
+# disables it for inactivity it disables `push` and `workflow_dispatch` too.
+# That is the back office's publish path: Francesco taps Pubblica, stage 5
+# commits the article, and no build ever runs. The article silently never
+# appears, and the one person who could diagnose it gets an email he is not
+# expecting at an address the failure has nothing to do with.
+#
+# Nothing is lost by dropping the cron. It refreshed the Instagram tiles after
+# Behold's daily sync, and Behold is not activated (no BEHOLD_FEED_ID), so today
+# it is a no-op. Once it is live the tiles refresh on the next publish or on a
+# manual "Run workflow". If a daily refresh is ever genuinely wanted, put the
+# `schedule:` in its OWN workflow file so its auto-disabling cannot take the
+# deploy path down with it.
 on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *' # daily 06:00 UTC — refreshes the Instagram tiles after Behold's once-daily sync
 
 permissions:
   contents: read

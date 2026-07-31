@@ -10,7 +10,7 @@ import type { APIContext } from 'astro';
 // `Astro.locals.runtime.env` was removed in Astro v6 — accessing it throws at
 // runtime with an explicit message. This is the supported replacement.
 import { env } from 'cloudflare:workers';
-import type { KVLike } from './rate-limit';
+import type { KVLike, RateLimiterLike } from './rate-limit';
 
 /**
  * Cloudflare KV binding declared in wrangler.jsonc.
@@ -24,6 +24,19 @@ export function getKV(): KVLike | null {
   // provision would still arrive undefined here.
   const binding = env?.SESSION as KVLike | undefined;
   return binding && typeof binding.get === 'function' ? binding : null;
+}
+
+/**
+ * Cloudflare Rate Limiting binding declared in wrangler.jsonc.
+ *
+ * Narrowed the same way as the KV binding, and for the same reason: the generated
+ * types promise it exists because the config file says so, which is not a
+ * statement about the runtime a given request landed in. Callers handle null by
+ * letting the request through and logging — see checkLoginRate.
+ */
+export function getLoginLimiter(): RateLimiterLike | null {
+  const binding = env?.LOGIN_RL as RateLimiterLike | undefined;
+  return binding && typeof binding.limit === 'function' ? binding : null;
 }
 
 /**

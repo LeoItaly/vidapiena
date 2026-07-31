@@ -69,6 +69,27 @@
     { "binding": "SESSION", "id": "db118bfa7407475ba5cd8cbbb34856ec" }
   ],
 
+  // Login throttling. This used to be a KV counter and could not stay one.
+  //
+  // KV made the throttle itself the attack: every failed login cost one of the
+  // 1,000 daily writes, `cf-connecting-ip` carries a full IPv6 address so a
+  // single /64 supplies unlimited fresh buckets, and KV's 60-second read cache
+  // plus a non-atomic read-modify-write meant concurrent attempts all wrote the
+  // same value. Worst of all, the over-quota error was swallowed by a catch —
+  // so once the quota was gone the limiter reported "not blocked" forever, and
+  // photo uploads and draft autosave (same quota) stopped working for the day.
+  //
+  // The Rate Limiting binding is edge-local: no KV writes, no daily quota, and
+  // the check runs before PBKDF2 so a blocked attempt costs no crypto either.
+  // `period` accepts only 10 or 60 seconds, so the 15-minute lockout becomes a
+  // one-minute one — which is better for the actual user, since a mistyped
+  // passphrase on a phone keyboard no longer costs him a quarter of an hour.
+  // Strength against guessing comes from the ~62-bit generated passphrase, not
+  // from the window.
+  "ratelimits": [
+    { "name": "LOGIN_RL", "namespace_id": "1001", "simple": { "limit": 8, "period": 60 } }
+  ],
+
   "observability": {
     "enabled": true
   }

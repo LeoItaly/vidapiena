@@ -39,9 +39,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     const isApi = pathname.startsWith(API_PREFIX);
+
+    /**
+     * The JSON body is read by the editor *and* shown to Francesco, so it carries
+     * both: `codice` for branching and `errore` in Italian for the screen. The
+     * first version sent only the code, and the photo page rendered it verbatim —
+     * the page literally read `non-autenticato`, next to a thumbnail that made it
+     * look as though the upload had worked.
+     */
+    const ITALIANO: Record<string, string> = {
+      'non-autenticato': 'Il collegamento è scaduto. Entra di nuovo per continuare.',
+      configurazione: 'Il pannello non è ancora configurato. Scrivi a Leo.',
+    };
+
     const deny = (reason: string, status: number) =>
       isApi
-        ? new Response(JSON.stringify({ errore: reason }), {
+        ? new Response(JSON.stringify({ codice: reason, errore: ITALIANO[reason] ?? reason }), {
             status,
             headers: { 'content-type': 'application/json; charset=utf-8' },
           })
@@ -77,5 +90,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
   })();
 
   response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+
+  /**
+   * Nothing behind this login may be stored by anything.
+   *
+   * Set here rather than per route so a new /admin page cannot ship cacheable,
+   * for the same reason the auth guard lives here. Three distinct caches are in
+   * scope: Safari's back-forward cache on his phone (which would redisplay a
+   * logged-in page after sign-out), any proxy between Rio and Cloudflare, and the
+   * edge cache — which does not cache Worker responses by default, but "by
+   * default" is not a property to rely on for authenticated HTML.
+   *
+   * The exception is the photo bytes: they are immutable under their id and
+   * re-fetching 400 KB per thumbnail on mobile data is its own harm, so
+   * /admin/api/foto sets `private, max-age=…` and keeps it.
+   */
+  if (!response.headers.has('cache-control')) {
+    response.headers.set('cache-control', 'no-store, private');
+  }
   return response;
 });

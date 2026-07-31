@@ -150,6 +150,33 @@ const graph = {
     margin-top: 1.5em;
     border-radius: 0.5rem;
   }
+  /*
+    Captioned photos from the back office. The editor emits
+    <figure><p><img></p><figcaption>…</figcaption></figure> — markdown wraps the
+    image in a paragraph even inside raw HTML, so the paragraph rule above would
+    otherwise leave a body-text gap between photo and caption.
+
+    Styled here rather than left bare because constraint 7 of the back-office plan
+    is that nothing reachable from the editor may render unstyled on a live page.
+  */
+  .article-body :global(figure) {
+    margin-top: 1.5em;
+  }
+  .article-body :global(figure p) {
+    margin-top: 0;
+  }
+  .article-body :global(figure img) {
+    margin-top: 0;
+  }
+  .article-body :global(figcaption) {
+    margin-top: 0.6em;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    /* 65%, not 55%: measured at 5.5:1 on paper — the same AA fix the tour-deck
+       captions took on 22/07. */
+    color: color-mix(in oklab, var(--color-ink-soft) 65%, transparent);
+  }
   .article-body :global(blockquote) {
     margin-top: 1.5em;
     border-left: 3px solid var(--color-ouro);

@@ -62,9 +62,9 @@ export function photoKey(draftId: string, photoId: string): string {
   return `draft:${draftId}:foto:${photoId}`;
 }
 
-export function photoIndexKey(draftId: string): string {
-  return `draft:${draftId}:foto-index`;
-}
+// The per-draft photo index lives in draft-store.ts (`photoIndexKey`), next to
+// the ownership record it shares a key with. Two spellings of the same index —
+// `:foto-index` here and `:indice` there — would each hold half the truth.
 
 export async function putPhoto(
   kv: KVLike,
@@ -112,27 +112,109 @@ export function looksLikeJpeg(bytes: Uint8Array): boolean {
 }
 
 /**
- * True if the JPEG carries any EXIF/XMP block.
+ * Walks the JPEG header segments once, answering both questions we have about a
+ * photo: does it still carry identifying metadata, and how big is it really?
  *
- * The browser pipeline strips metadata by construction — a canvas re-encode
- * cannot preserve it — so this is a belt-and-braces check on the one privacy
- * promise that cannot be walked back once a photo is public: DESIGN.md's rule and
- * the GPS coordinates of a favela embedded in a holiday snap.
+ * Measured at **0.01 ms** on a 400 KB photo, because it reads only the segment
+ * headers and stops at the first scan — O(a few hundred bytes), not O(file).
+ * That matters: this runs inside the free plan's 10 ms per-request CPU budget,
+ * shared with the public marketing site.
  *
- * Scans only the header segments, so it is O(few hundred bytes), not O(file).
+ * Reading the dimensions here rather than trusting the client is not paranoia
+ * about the client — it is that the form fields are the only source otherwise,
+ * and they were observed to accept `larghezza=-99999`, `altezza=1e9` and to
+ * default to `0×0` when simply omitted. Those numbers go on to drive the cover
+ * crop preview and the published `<img>`.
  */
-export function hasMetadata(bytes: Uint8Array): boolean {
+export interface JpegHeader {
+  /** APP1 (EXIF/XMP) or APP13 (IPTC) present — i.e. possibly GPS or a name. */
+  hasMetadata: boolean;
+  width: number;
+  height: number;
+}
+
+/** SOF markers. C4 (Huffman), C8 (reserved) and CC (arithmetic) are not frames. */
+function isStartOfFrame(marker: number): boolean {
+  return marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+}
+
+export function readJpegHeader(bytes: Uint8Array): JpegHeader {
+  const out: JpegHeader = { hasMetadata: false, width: 0, height: 0 };
   let i = 2; // skip SOI
+
   while (i + 4 < bytes.length) {
-    if (bytes[i] !== 0xff) return false;
+    // Segments may be padded with any number of 0xFF fill bytes before the
+    // marker. Skipping them rather than bailing out is the difference between
+    // reading a legal file and silently reporting "no metadata, 0×0" for it.
+    while (i < bytes.length && bytes[i] === 0xff && bytes[i + 1] === 0xff) i += 1;
+    if (bytes[i] !== 0xff) break;
+
     const marker = bytes[i + 1]!;
-    // APP1 (EXIF/XMP) and APP13 (IPTC) are the ones that carry identity or place.
-    if (marker === 0xe1 || marker === 0xed) return true;
-    // Start of scan: past the headers, nothing left to find.
-    if (marker === 0xda) return false;
+    // Standalone markers carry no length payload.
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      i += 2;
+      continue;
+    }
+    if (marker === 0xe1 || marker === 0xed) out.hasMetadata = true;
+    // Start of scan — the compressed data begins, nothing further to read.
+    if (marker === 0xda || marker === 0xd9) break;
+
     const len = (bytes[i + 2]! << 8) | bytes[i + 3]!;
-    if (len < 2) return false;
+    if (len < 2 || i + 2 + len > bytes.length) break;
+
+    if (isStartOfFrame(marker) && i + 9 <= bytes.length) {
+      out.height = (bytes[i + 5]! << 8) | bytes[i + 6]!;
+      out.width = (bytes[i + 7]! << 8) | bytes[i + 8]!;
+      // Both answers are now known; EXIF always precedes the frame.
+      if (out.hasMetadata) break;
+    }
+
     i += 2 + len;
   }
-  return false;
+
+  return out;
+}
+
+/**
+ * Base64 for KV, using the runtime's native codec.
+ *
+ * ⚠️ The obvious implementation — `String.fromCharCode(...chunk)` in a loop, then
+ * `btoa` — costs **30 ms** in workerd for a 400 KB photo. The free plan allows
+ * **10 ms of CPU per request**, so that version failed *every* upload in
+ * production with error 1102 while passing perfectly under `wrangler dev`, which
+ * does not enforce the limit. This is the identical trap that PBKDF2 at 100,000
+ * iterations fell into on the login (docs/HOSTING.md).
+ *
+ * `Uint8Array.prototype.toBase64` costs **1 ms** and was verified in workerd
+ * itself — available, and byte-identical to the `btoa` output.
+ */
+interface Base64Codec {
+  toBase64?: () => string;
+}
+interface Base64Static {
+  fromBase64?: (s: string) => Uint8Array;
+}
+
+export function bytesToBase64(bytes: Uint8Array): string {
+  const native = (bytes as unknown as Base64Codec).toBase64;
+  if (typeof native === 'function') return native.call(bytes);
+
+  // Fallback for a runtime without the native codec. Kept because a silent
+  // TypeError here would lose a photo, but it is the slow path and must not be
+  // the one that runs — see the CPU note above.
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+export function base64ToBytes(data: string): Uint8Array {
+  const native = (Uint8Array as unknown as Base64Static).fromBase64;
+  if (typeof native === 'function') return native(data);
+
+  const binary = atob(data);
+  const out = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) out[i] = binary.charCodeAt(i);
+  return out;
 }

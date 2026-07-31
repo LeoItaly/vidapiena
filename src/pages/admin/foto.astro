@@ -2,22 +2,30 @@
 /**
  * Stage 3 surface: pick photos, watch them shrink, keep them for an article.
  *
- * Deliberately standalone. The block editor (stage 4) absorbs this component, but
- * shipping it alone means the photo pipeline is verifiable on a real iPhone —
- * with a real HEIC — before any editor code exists to confuse a failure with.
+ * Deliberately standalone. The block editor (stage 4) reuses the same upload
+ * client (src/lib/admin/upload-client.ts), but shipping this alone means the
+ * photo pipeline is verifiable on a real iPhone — with a real HEIC — before any
+ * editor code exists to confuse a failure with.
  */
 export const prerender = false;
 
 import AdminBase from '../../layouts/AdminBase.astro';
 import { TARGET_BYTES } from '../../lib/admin/photo-process';
+import { newDraftId } from '../../lib/admin/draft-store';
 
 const admin = Astro.locals.admin;
 
 /**
- * One draft id per visit for now; stage 4 hands over the real one. Generated
- * server-side because it namespaces KV keys — see photo-store.ts.
+ * A draft id for this test surface, generated server-side because it namespaces
+ * KV keys (see photo-store.ts). It is *offered*, not imposed: the client keeps
+ * the first one it is given in localStorage and reuses it.
+ *
+ * The previous version minted a fresh id on every page load, so a reload — or
+ * Safari reclaiming a backgrounded tab, which is routine on a phone — orphaned
+ * every photo already uploaded, for the full 30-day TTL, with no way to list or
+ * delete them. Verified: three loads produced three different ids.
  */
-const draftId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+const draftId = newDraftId();
 const maxKb = Math.round(TARGET_BYTES / 1024);
 ---
 
@@ -63,7 +71,16 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
 
   <p id="stato" role="status" aria-live="polite" class="mt-6 text-sm text-paper/60"></p>
 
-  <ul id="elenco" class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3"></ul>
+  {/*
+    Shown only when the session has died. A message about logging in again is
+    useless without something to tap — he is on a phone, and retyping the URL is
+    exactly the friction the one-year cookie exists to remove.
+  */}
+  <p id="riaccedi" hidden class="mt-4">
+    <a href="/admin/entra" class="btn btn-primary">Entra di nuovo</a>
+  </p>
+
+  <ul id="elenco" class="mt-8 flex flex-col gap-4"></ul>
 
   <p class="mt-10 text-sm text-paper/40">
     Ogni foto viene ridotta sotto i {maxKb} KB prima di partire dal telefono, così il
@@ -71,75 +88,153 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
   </p>
 
   <script>
-    import { processPhoto, PhotoError, TARGET_BYTES } from '../../lib/admin/photo-process';
+    import { processAndUpload, pesoLeggibile } from '../../lib/admin/upload-client';
+    import { processPhoto, TARGET_BYTES } from '../../lib/admin/photo-process';
 
     const input = document.getElementById('scegli') as HTMLInputElement | null;
-    const stato = document.getElementById('stato') as HTMLElement | null;
-    const elenco = document.getElementById('elenco') as HTMLElement | null;
-    // The draft id rides on the input's dataset: this is a module script, so
-    // `document.currentScript` is null and `define:vars` is not available.
-    const draftId = input?.dataset.draft ?? '';
+    const stato = document.getElementById('stato');
+    const elenco = document.getElementById('elenco');
+    const riaccedi = document.getElementById('riaccedi') as HTMLElement | null;
+
+    /**
+     * Keep the first draft id we are given. A reload then adds to the same set of
+     * photos instead of starting a fresh, unreachable one.
+     */
+    const CHIAVE = 'vp:bozza-foto';
+    const offerto = input?.dataset.draft ?? '';
+    let draftId = '';
+    try {
+      draftId = localStorage.getItem(CHIAVE) ?? '';
+      if (!/^[a-z0-9]{6,32}$/.test(draftId)) draftId = '';
+      if (!draftId && offerto) localStorage.setItem(CHIAVE, (draftId = offerto));
+    } catch {
+      // Private browsing throws on localStorage. Falling back to the per-load id
+      // is worse but still works for a single sitting.
+      draftId = offerto;
+    }
 
     /** Exposed for verification only — same `?vpdebug=1` convention as the public site. */
     if (new URLSearchParams(location.search).has('vpdebug')) {
-      (window as unknown as Record<string, unknown>).__vpFoto = { processPhoto, TARGET_BYTES };
+      (window as unknown as Record<string, unknown>).__vpFoto = {
+        processPhoto,
+        processAndUpload,
+        TARGET_BYTES,
+        draftId,
+      };
     }
 
-    function kb(n: number): string {
-      return `${Math.round(n / 1024)} KB`;
-    }
-
-    async function handle(file: File, bozza: string): Promise<void> {
+    function riga(nome: string) {
       const li = document.createElement('li');
-      li.className = 'rounded-lg border border-paper/10 bg-paper/5 p-3 text-xs text-paper/60';
-      li.textContent = `${file.name} — preparo…`;
+      li.className =
+        'flex items-start gap-3 rounded-lg border border-paper/10 bg-paper/5 p-3 text-sm';
+      const img = document.createElement('img');
+      img.alt = '';
+      img.className = 'h-20 w-20 shrink-0 rounded object-cover bg-paper/10';
+      const corpo = document.createElement('div');
+      corpo.className = 'min-w-0 flex-1';
+      const titolo = document.createElement('p');
+      titolo.className = 'truncate text-paper/50';
+      titolo.textContent = nome;
+      const nota = document.createElement('p');
+      nota.className = 'mt-1 text-paper/70';
+      nota.textContent = 'Preparo…';
+      corpo.appendChild(titolo);
+      corpo.appendChild(nota);
+      li.appendChild(img);
+      li.appendChild(corpo);
       elenco?.appendChild(li);
-
-      try {
-        const out = await processPhoto(file);
-
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(out.blob);
-        img.alt = '';
-        img.className = 'mb-2 aspect-[4/3] w-full rounded object-cover';
-        img.onload = () => URL.revokeObjectURL(img.src);
-
-        const body = new FormData();
-        body.append('foto', out.blob, 'foto.jpg');
-        body.append('bozza', bozza);
-        body.append('larghezza', String(out.width));
-        body.append('altezza', String(out.height));
-
-        const res = await fetch('/admin/api/foto', { method: 'POST', body });
-        // 401 arrives as JSON, not as a redirect to HTML — see src/middleware.ts.
-        const data = (await res.json().catch(() => ({}))) as { errore?: string };
-
-        li.textContent = '';
-        li.appendChild(img);
-        const p = document.createElement('p');
-        p.textContent = res.ok
-          ? `Pronta · ${kb(file.size)} → ${kb(out.bytes)} · ${out.width}×${out.height}`
-          : (data.errore ?? 'Non riesco a salvare questa foto.');
-        li.appendChild(p);
-        if (!res.ok) li.classList.add('border-rosso/40');
-      } catch (err) {
-        li.classList.add('border-rosso/40');
-        li.textContent =
-          err instanceof PhotoError
-            ? err.italiano
-            : 'Non riesco ad aprire questa foto. Provane un’altra.';
-      }
+      return { li, img, nota, corpo };
     }
+
+    /** The alt field only appears once the photo is actually stored. */
+    function campoAlt(corpo: HTMLElement, id: string) {
+      const label = document.createElement('label');
+      label.className = 'mt-2 flex flex-col gap-1';
+      const testo = document.createElement('span');
+      testo.className = 'eyebrow text-paper/40';
+      testo.textContent = 'Descrivi la foto (per chi non la può vedere)';
+      const campo = document.createElement('input');
+      campo.type = 'text';
+      campo.className =
+        'w-full rounded border border-paper/20 bg-paper/5 px-3 py-2 text-base text-paper';
+      campo.placeholder = 'Es. I tetti del Vidigal al tramonto';
+      campo.dataset.foto = id;
+      label.appendChild(testo);
+      label.appendChild(campo);
+      corpo.appendChild(label);
+    }
+
+    async function handle(file: File) {
+      const { li, img, nota, corpo } = riga(file.name);
+
+      const esito = await processAndUpload(file, { bozza: draftId }, (fase) => {
+        nota.textContent = fase === 'preparo' ? 'Preparo…' : 'Carico…';
+      });
+
+      if (esito.esito === 'ok') {
+        img.src = URL.createObjectURL(esito.foto.blob);
+        img.onload = () => URL.revokeObjectURL(img.src);
+        nota.textContent = `Pronta · ${pesoLeggibile(file.size)} → ${pesoLeggibile(esito.foto.bytes)} · ${esito.foto.width}×${esito.foto.height}`;
+        nota.className = 'mt-1 text-verde';
+        campoAlt(corpo, esito.id);
+        return;
+      }
+
+      // Every failing branch says what happened *and* leaves no thumbnail, so a
+      // photo that was not saved never looks like one that was.
+      li.classList.add('border-rosso/40');
+      nota.textContent = esito.messaggio;
+      nota.className = 'mt-1 text-paper';
+      if (esito.esito === 'sessione' && riaccedi) riaccedi.hidden = false;
+    }
+
+    /**
+     * One batch at a time.
+     *
+     * Without this, picking a second batch while the first is still running
+     * starts a parallel loop — two 24 MP decodes at once, which is exactly the
+     * out-of-memory failure the sequential loop exists to avoid. The picker is
+     * disabled for the duration so the state is visible rather than merely
+     * enforced.
+     */
+    let occupato = false;
 
     input?.addEventListener('change', async () => {
+      if (occupato) return;
       const files = [...(input.files ?? [])];
       if (!files.length) return;
-      if (stato) stato.textContent = `Preparo ${files.length} foto…`;
+      input.value = '';
+      occupato = true;
+      input.disabled = true;
+      let fatte = 0;
       // Sequential: two 24 MP decodes at once is how a phone runs out of memory
       // mid-upload, and the failure looks like the app crashing.
-      for (const f of files) await handle(f, draftId);
-      if (stato) stato.textContent = 'Fatto.';
-      input.value = '';
+      try {
+        for (const f of files) {
+          if (stato) stato.textContent = `Foto ${fatte + 1} di ${files.length}…`;
+          await handle(f);
+          fatte += 1;
+        }
+        if (stato) stato.textContent = fatte === 1 ? 'Fatto — 1 foto.' : `Fatto — ${fatte} foto.`;
+      } finally {
+        occupato = false;
+        input.disabled = false;
+      }
     });
+
+    /** Alt text is saved on blur, so nothing is lost if he navigates away. */
+    elenco?.addEventListener(
+      'blur',
+      async (event) => {
+        const campo = event.target as HTMLInputElement;
+        if (!campo?.dataset?.foto) return;
+        const body = new FormData();
+        body.append('bozza', draftId);
+        body.append('foto', campo.dataset.foto);
+        body.append('alt', campo.value);
+        await fetch('/admin/api/foto', { method: 'PATCH', body }).catch(() => undefined);
+      },
+      true,
+    );
   </script>
 </AdminBase>

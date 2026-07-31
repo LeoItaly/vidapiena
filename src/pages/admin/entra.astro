@@ -5,13 +5,22 @@ import { ADMIN_USERS, SESSION_SECRET, TURNSTILE_SECRET_KEY } from 'astro:env/ser
 import AdminBase from '../../layouts/AdminBase.astro';
 import { parseUsers, authenticate, issueSession, resolveSession } from '../../lib/admin/session';
 import { isUsableSecret } from '../../lib/admin/crypto';
-import { checkRateLimit, recordFailure, clearFailures } from '../../lib/admin/rate-limit';
+import { checkLoginRate } from '../../lib/admin/rate-limit';
 import { verifyTurnstile } from '../../lib/admin/turnstile';
-import { getKV, getClientIp, isSecureRequest } from '../../lib/admin/runtime';
+import { getLoginLimiter, getClientIp, isSecureRequest } from '../../lib/admin/runtime';
 
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
-const kv = getKV();
 const ip = getClientIp(Astro);
+
+/**
+ * Largest login form we will read.
+ *
+ * `formData()` parses the whole body before any check can reject it, and this is
+ * an *unauthenticated* endpoint — so without a bound, one anonymous POST of a
+ * 20 MB multipart body spends the entire 10 ms CPU allowance, and the public
+ * marketing site shares this Worker. A real login is a few hundred bytes.
+ */
+const MAX_LOGIN_BODY = 4 * 1024;
 const users = parseUsers(ADMIN_USERS);
 const configured = isUsableSecret(SESSION_SECRET) && users.length > 0;
 
@@ -22,7 +31,7 @@ const configured = isUsableSecret(SESSION_SECRET) && users.length > 0;
  */
 const MESSAGES = {
   credenziali: 'Email o password non corretti. Riprova.',
-  bloccato: 'Troppi tentativi. Aspetta un quarto d’ora e riprova.',
+  bloccato: 'Troppi tentativi. Aspetta un minuto e riprova.',
   /** Turnstile said no. Reloading genuinely can help here. */
   robot: 'Verifica di sicurezza non superata. Ricarica la pagina e riprova.',
   /**
@@ -71,49 +80,61 @@ if (Astro.request.method === 'POST') {
   if (!configured) {
     error = 'configurazione';
   } else {
-    // A non-form Content-Type makes formData() throw. Unauthenticated callers
-    // choose that header, so an uncaught throw here is a zero-byte 500 anyone
-    // can trigger on the login page.
-    let form: FormData | null = null;
-    try {
-      form = await Astro.request.formData();
-    } catch {
-      form = null;
-    }
+    /*
+     * Throttle FIRST — before the body is parsed and before any crypto.
+     *
+     * The old order read a KV counter, then parsed the body, then ran PBKDF2.
+     * That meant every unauthenticated POST cost a KV write plus ~3.7 ms of
+     * derive whether or not the caller was already over the limit. Checking
+     * first makes a throttled attempt cost effectively nothing, which is the
+     * whole point on a Worker that also serves the public site.
+     */
+    const limit = await checkLoginRate(getLoginLimiter(), ip);
+    const declared = Number(Astro.request.headers.get('content-length') ?? '0');
 
-    email = String(form?.get('email') ?? '');
-    const password = String(form?.get('password') ?? '');
-    const turnstileToken = form?.get('cf-turnstile-response');
-
-    const limit = await checkRateLimit(kv, ip);
-    if (limit.blocked) {
+    if (!limit.allowed) {
       error = 'bloccato';
-    } else if (!form) {
+    } else if (declared > MAX_LOGIN_BODY) {
+      // Not a message he can ever see from the real form: the form is tiny.
       error = 'credenziali';
     } else {
-      const bot = await verifyTurnstile(
-        TURNSTILE_SECRET_KEY,
-        typeof turnstileToken === 'string' ? turnstileToken : undefined,
-        ip,
-      );
+      // A non-form Content-Type makes formData() throw. Unauthenticated callers
+      // choose that header, so an uncaught throw here is a zero-byte 500 anyone
+      // can trigger on the login page.
+      let form: FormData | null = null;
+      try {
+        form = await Astro.request.formData();
+      } catch {
+        form = null;
+      }
 
-      if (!bot.ok) {
-        // Only an actual rejection is evidence of a bot. A missing token means
-        // the widget never rendered (a misconfigured deploy), and 'unreachable'
-        // means Cloudflare was unreachable from Rio — neither is Francesco's
-        // fault, and neither should count toward locking him out of his own site
-        // for fifteen minutes.
-        error = bot.reason === 'rejected' ? 'robot' : 'verifica';
-        if (bot.reason === 'rejected') await recordFailure(kv, ip, limit.attempts);
-      } else {
-        const user = await authenticate(users, email, password);
-        if (user) {
-          await clearFailures(kv, ip);
-          await issueSession(Astro.cookies, user, SESSION_SECRET!, isSecureRequest(Astro));
-          return Astro.redirect('/admin');
-        }
+      email = String(form?.get('email') ?? '');
+      const password = String(form?.get('password') ?? '');
+      const turnstileToken = form?.get('cf-turnstile-response');
+
+      if (!form) {
         error = 'credenziali';
-        await recordFailure(kv, ip, limit.attempts);
+      } else {
+        const bot = await verifyTurnstile(
+          TURNSTILE_SECRET_KEY,
+          typeof turnstileToken === 'string' ? turnstileToken : undefined,
+          ip,
+        );
+
+        if (!bot.ok) {
+          // Only an actual rejection is evidence of a bot. A missing token means
+          // the widget never rendered (a misconfigured deploy), and 'unreachable'
+          // means Cloudflare was unreachable from Rio — neither is Francesco's
+          // fault, and neither should count against him.
+          error = bot.reason === 'rejected' ? 'robot' : 'verifica';
+        } else {
+          const user = await authenticate(users, email, password);
+          if (user) {
+            await issueSession(Astro.cookies, user, SESSION_SECRET!, isSecureRequest(Astro));
+            return Astro.redirect('/admin');
+          }
+          error = 'credenziali';
+        }
       }
     }
   }
