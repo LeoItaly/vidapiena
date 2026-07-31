@@ -106,6 +106,40 @@ const scan = (dir) => {
 SCAN_DIRS.forEach(scan);
 if (!failed) console.log('  ✓ no client personal data in tracked source');
 
+// ---------------------------------------------------------------------------
+// 3. The built pages must not carry the placeholder origin
+// ---------------------------------------------------------------------------
+/*
+ * `astro.config.mjs` falls back to `https://vidapiena.workers.dev` when
+ * SITE_ORIGIN is unset — a hostname nobody owns, because a Worker is served at
+ * `<worker>.<account-subdomain>.workers.dev`. That value is baked into every
+ * canonical, hreflang, og:url and sitemap entry across all 27 prerendered pages.
+ *
+ * The config already fails the build in CI. It cannot fail a LOCAL build,
+ * because local builds legitimately run without the variable — but `npm run
+ * cf:deploy` publishes exactly such a build, and every deploy so far has been a
+ * local one. So the check that matters is at the deploy boundary, on the
+ * artifact: run with `--deploy` and a placeholder origin is fatal.
+ *
+ * Shipping it would point the whole SEO/GEO surface off-site while every page
+ * still rendered perfectly — invisible until Google indexed it.
+ */
+const PLACEHOLDER = 'https://vidapiena.workers.dev';
+const deploying = process.argv.includes('--deploy');
+const home = join(CLIENT, 'index.html');
+
+if (existsSync(home) && readFileSync(home, 'utf8').includes(PLACEHOLDER)) {
+  const message =
+    `the built pages carry the PLACEHOLDER origin ${PLACEHOLDER}, which is a\n` +
+    `    hostname nobody owns. Every canonical, hreflang, og:url and sitemap entry\n` +
+    `    points off-site. Rebuild with the real origin first:\n\n` +
+    `      SITE_ORIGIN=https://vidapiena.<subdomain>.workers.dev npm run build`;
+  if (deploying) fail(`Refusing to deploy: ${message}`);
+  else console.warn(`\n  ! Local build only: ${message}\n`);
+} else if (existsSync(home)) {
+  console.log('  ✓ built pages carry a real origin');
+}
+
 if (failed) {
   console.error('\nBuild verification FAILED.\n');
   process.exit(1);
