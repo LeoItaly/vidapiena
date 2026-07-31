@@ -43,8 +43,12 @@ namespace automatically.
 Generate them once, locally — **both accounts in a single run**:
 
 ```bash
-npm run admin:credentials -- "vidapiena-riotours@outlook.com" "Francesco" "leonardo.rodo@outlook.it" "Leo"
+npm run admin:credentials -- "<indirizzo-di-francesco>" "Francesco" "<indirizzo-di-leo>" "Leo"
 ```
+
+Use Francesco's real business address — the one he already uses on the OTA platforms, so
+his phone's keychain matches it. It is in the client profile in the (local-only) parent
+folder, deliberately not written down here: this repo is public.
 
 It prints a generated ~62-bit Italian passphrase **per person**, one combined `ADMIN_USERS`
 array, one `SESSION_SECRET`, and a ready-to-paste `.dev.vars` block for local work.

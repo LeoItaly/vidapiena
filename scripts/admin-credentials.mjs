@@ -167,8 +167,8 @@ if (args.length < 2 || args.length % 2 !== 0) {
       '\n' +
       'Example — both accounts at once, which is what you want:\n' +
       '  node scripts/admin-credentials.mjs \\\n' +
-      '    "vidapiena-riotours@outlook.com" "Francesco" \\\n' +
-      '    "leonardo.rodo@outlook.it" "Leo"',
+      '    "<indirizzo-di-francesco>" "Francesco" \\\n' +
+      '    "<indirizzo-di-leo>" "Leo"',
   );
   process.exit(1);
 }
