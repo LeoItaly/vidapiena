@@ -243,6 +243,17 @@ npm run cf:deploy
 Manual deploy. Normally unnecessary: pushing to `main` deploys via
 `.github/workflows/deploy.yml`.
 
+## Verifying a deploy: wait before you believe it
+
+`wrangler deploy` returns as soon as the upload finishes, but the new version
+reaches every colo a little after that. Checking immediately tests the **previous**
+version at some edges and the new one at others.
+
+This produced two convincing false alarms in one session: a `Cache-Control`
+header that was "missing" and two routes that were "404" — all four correct
+about thirty seconds later. Give it **~30 seconds**, and check the same path
+two or three times before concluding anything.
+
 ## Four things that will bite you
 
 **`assets.not_found_handling` in `wrangler.jsonc` must stay `"none"`.** Set it to
