@@ -102,6 +102,14 @@
     "binding": "AI"
   },
 
+  // Publish target for /admin/api/pubblica. Not a secret — just the repo name;
+  // the token that authorises writes to it is set via `wrangler secret put
+  // GITHUB_TOKEN` and stays out of source. If either is missing at runtime the
+  // publish endpoint returns a friendly Italian "not active yet" message.
+  "vars": {
+    "GITHUB_REPO": "LeoItaly/vidapiena"
+  },
+
   "observability": {
     "enabled": true
   }

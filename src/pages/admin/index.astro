@@ -5,22 +5,31 @@
  * Reachable only with a valid session — src/middleware.ts redirects to
  * /admin/entra otherwise, so this page never has to check.
  *
+ * Every card carries its own actions. Drafts: continue, preview, delete. Online
+ * articles: edit (re-opens the published article in the block editor via
+ * /admin/api/articolo), open the live page, and take offline / put back online —
+ * the reversible unpublish. The destructive and the outward-facing ones are wired
+ * by the script at the foot of the page; the safe navigations are plain links.
+ *
  * ⚠️ `prerender = false` is load-bearing — see the note in scrivi.astro.
  */
 export const prerender = false;
 
 import { getCollection } from 'astro:content';
 import AdminBase from '../../layouts/AdminBase.astro';
+import IconaAzione from '../../components/admin/IconaAzione.astro';
 import { getKV } from '../../lib/admin/runtime';
 import { asListable } from '../../lib/admin/kv-list';
 
 const admin = Astro.locals.admin;
 
 // Published articles, straight from the same content collection the public site
-// renders — so this list cannot disagree with what is actually online.
-const pubblicati = (await getCollection('blog', ({ data }) => data.locale === 'it')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+// renders — so this list cannot disagree with what is actually online. The format
+// template (draft, IT-only, never a real article) is filtered out so its card
+// can't offer to publish it.
+const pubblicati = (await getCollection('blog', ({ data }) => data.locale === 'it'))
+  .filter((p) => p.id.replace(/^it\//, '') !== 'modello-articolo')
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 /**
  * Unfinished drafts, from the metadata each KV write attaches. One `list` call
@@ -53,6 +62,12 @@ const dateFmt = new Intl.DateTimeFormat('it-IT', {
   year: 'numeric',
 });
 const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
+
+const BTN =
+  'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors';
+const BTN_PRIM = `${BTN} border-ouro/40 text-ouro hover:border-ouro`;
+const BTN_NEUTRO = `${BTN} border-paper/20 text-paper/70 hover:border-paper/40 hover:text-paper`;
+const BTN_ROSSO = `${BTN} border-rosso/30 text-rosso/80 hover:border-rosso/60 hover:text-rosso`;
 ---
 
 <AdminBase title="Gestione" user={admin}>
@@ -65,26 +80,39 @@ const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
     <a href="/admin/aiuto" class="btn">Come si fa</a>
   </div>
 
+  <p data-avviso class="eyebrow mt-4 h-5 text-paper/40" role="status" aria-live="polite"></p>
+
   {
     bozze.length > 0 && (
-      <section class="mt-12">
+      <section class="mt-8">
         <h2 class="font-display text-xl font-bold">Da finire</h2>
-        <p class="mt-1 text-sm text-paper/50">
-          Non sono ancora online. Nessuno li vede tranne te.
-        </p>
+        <p class="mt-1 text-sm text-paper/50">Non sono ancora online. Nessuno li vede tranne te.</p>
         <ul class="mt-4 flex flex-col gap-3">
           {bozze.map((b) => (
-            <li class="rounded-lg border border-ouro/30 bg-ouro/5 p-4">
+            <li
+              data-bozza={b.id}
+              class="rounded-lg border border-ouro/30 bg-ouro/5 p-4 transition-opacity"
+            >
               <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 {/* Clamped: the title is free text and 300 characters of it would
-                    otherwise push the Continua button off the bottom of a phone. */}
+                    otherwise push the buttons off the bottom of a phone. */}
                 <h3 class="line-clamp-2 min-w-0 font-display text-lg font-bold">{b.titolo}</h3>
                 <span class="eyebrow shrink-0 text-paper/40">{quando(b.aggiornata)}</span>
               </div>
-              <p class="mt-3 flex flex-wrap gap-3">
-                <a href={`/admin/scrivi?bozza=${b.id}`} class="btn btn-primary">Continua</a>
-                <a href={`/admin/anteprima?bozza=${b.id}`} class="btn">Anteprima</a>
-              </p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <a href={`/admin/scrivi?bozza=${b.id}`} class={BTN_PRIM}>
+                  <IconaAzione nome="modifica" />
+                  Continua
+                </a>
+                <a href={`/admin/anteprima?bozza=${b.id}`} class={BTN_NEUTRO}>
+                  <IconaAzione nome="anteprima" />
+                  Anteprima
+                </a>
+                <button type="button" class={BTN_ROSSO} data-elimina-bozza data-id={b.id}>
+                  <IconaAzione nome="elimina" />
+                  Elimina
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -92,7 +120,7 @@ const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
     )
   }
 
-  <section class="mt-12">
+  <section class="mt-10">
     <h2 class="font-display text-xl font-bold">Online</h2>
     {
       pubblicati.length === 0 ? (
@@ -101,8 +129,12 @@ const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
         <ul class="mt-4 flex flex-col gap-3">
           {pubblicati.map((post) => {
             const slug = post.id.replace(/^it\//, '');
+            const online = !post.data.draft;
             return (
-              <li class="rounded-lg border border-paper/10 bg-paper/5 p-4">
+              <li
+                data-articolo={slug}
+                class="rounded-lg border border-paper/10 bg-paper/5 p-4 transition-opacity"
+              >
                 <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <h3 class="font-display text-lg font-bold">{post.data.title}</h3>
                   <span class="eyebrow shrink-0 tabular-nums text-paper/40">
@@ -110,21 +142,34 @@ const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
                   </span>
                 </div>
                 <p class="mt-2 line-clamp-2 text-sm text-paper/60">{post.data.description}</p>
-                <p class="mt-3 flex flex-wrap items-center gap-3">
-                  <span class="eyebrow text-paper/40">
-                    {post.data.draft ? 'Bozza' : 'Pubblicato'}
+                <p class="mt-2">
+                  <span class={`eyebrow ${online ? 'text-verde' : 'text-paper/40'}`}>
+                    {online ? 'In linea' : 'Non in linea'}
                   </span>
-                  {!post.data.draft && (
-                    <a
-                      href={`/blog/${slug}/`}
-                      target="_blank"
-                      rel="noopener"
-                      class="eyebrow link-sweep text-ouro"
-                    >
-                      Guardalo online →
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button type="button" class={BTN_PRIM} data-modifica-articolo data-slug={slug}>
+                    <IconaAzione nome="modifica" />
+                    Modifica
+                  </button>
+                  {online && (
+                    <a href={`/blog/${slug}/`} target="_blank" rel="noopener" class={BTN_NEUTRO}>
+                      <IconaAzione nome="apri" />
+                      Guardalo online
                     </a>
                   )}
-                </p>
+                  {online ? (
+                    <button type="button" class={BTN_ROSSO} data-azione="ritira" data-slug={slug}>
+                      <IconaAzione nome="offline" />
+                      Metti offline
+                    </button>
+                  ) : (
+                    <button type="button" class={BTN_PRIM} data-azione="ripristina" data-slug={slug}>
+                      <IconaAzione nome="online" />
+                      Rimetti online
+                    </button>
+                  )}
+                </div>
               </li>
             );
           })}
@@ -133,8 +178,111 @@ const quando = (ms: number) => (ms ? dateFmt.format(new Date(ms)) : '');
     }
   </section>
 
-  <p class="mt-12 rounded-lg border border-paper/10 bg-paper/5 px-4 py-3 text-sm text-paper/60">
-    Per modificare un articolo già online serve il pulsante «Pubblica», che sto ancora finendo.
-    Per ora puoi scrivere, salvare e vedere l’anteprima quanto vuoi: non si perde niente.
+  <p class="mt-10 rounded-lg border border-paper/10 bg-paper/5 px-4 py-3 text-sm text-paper/60">
+    «Modifica» apre l’articolo qui, come quando lo hai scritto: cambia quello che
+    vuoi e ripubblica. «Metti offline» lo toglie dal sito senza cancellarlo — puoi
+    rimetterlo online quando vuoi. Le due cose ci mettono qualche minuto a comparire
+    sul sito vero.
   </p>
+
+  <script>
+    // Element cast: worker-configuration.d.ts declares a global `Element` for
+    // HTMLRewriter that shadows the DOM one and breaks querySelector's constraint.
+    const avviso = document.querySelector('[data-avviso]') as HTMLElement | null;
+    const segnala = (testo: string, tipo: 'ok' | 'errore' | 'attesa' | '' = '') => {
+      if (!avviso) return;
+      avviso.textContent = testo;
+      avviso.className =
+        'eyebrow mt-4 h-5 ' +
+        (tipo === 'ok'
+          ? 'text-verde'
+          : tipo === 'errore'
+            ? 'text-rosso'
+            : tipo === 'attesa'
+              ? 'text-ouro'
+              : 'text-paper/40');
+    };
+
+    /** Reads the JSON envelope, throwing the Italian error the API sends. */
+    async function invia(azione: string, slug: string): Promise<{ id?: string }> {
+      const res = await fetch('/admin/api/articolo', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ azione, slug }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; errore?: string; id?: string };
+      if (res.status === 401 || res.status === 403) throw new Error('Il collegamento è scaduto. Entra di nuovo.');
+      if (!res.ok || !data.ok) throw new Error(data.errore || 'Non riesco adesso. Riprova fra poco.');
+      return data;
+    }
+
+    // Delete a draft. The backend removes its photos too.
+    document.querySelectorAll('[data-elimina-bozza]').forEach((el) => {
+      const btn = el as HTMLButtonElement;
+      btn.addEventListener('click', async () => {
+        if (!confirm('Vuoi eliminare questa bozza? Non si può recuperare.')) return;
+        btn.disabled = true;
+        segnala('Elimino…', 'attesa');
+        try {
+          const res = await fetch(`/admin/api/bozza?id=${encodeURIComponent(btn.dataset.id ?? '')}`, {
+            method: 'DELETE',
+          });
+          if (!res.ok) throw new Error();
+          btn.closest('li')?.remove();
+          segnala('Bozza eliminata.', 'ok');
+        } catch {
+          segnala('Non riesco a eliminare adesso. Riprova.', 'errore');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Open a published article in the editor: seed the edit-draft, then go to it.
+    document.querySelectorAll('[data-modifica-articolo]').forEach((el) => {
+      const btn = el as HTMLButtonElement;
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        segnala('Apro l’articolo…', 'attesa');
+        try {
+          const { id } = await invia('apri-modifica', btn.dataset.slug ?? '');
+          if (!id) throw new Error();
+          location.href = `/admin/scrivi?bozza=${encodeURIComponent(id)}`;
+        } catch (e) {
+          segnala((e as Error).message, 'errore');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Take offline / put back online. The site itself changes after the rebuild,
+    // so the card is only dimmed and a wait message shown — a reload would still
+    // read the old deploy for a few minutes.
+    document.querySelectorAll('[data-azione]').forEach((el) => {
+      const btn = el as HTMLButtonElement;
+      btn.addEventListener('click', async () => {
+        const azione = btn.dataset.azione ?? '';
+        const parole =
+          azione === 'ritira'
+            ? {
+                conferma: 'Vuoi togliere questo articolo dal sito? Puoi rimetterlo quando vuoi.',
+                fatto: 'Sto togliendo l’articolo dal sito. Tra qualche minuto sparisce.',
+              }
+            : {
+                conferma: 'Vuoi rimettere online questo articolo?',
+                fatto: 'Sto rimettendo online l’articolo. Tra qualche minuto ricompare.',
+              };
+        if (!confirm(parole.conferma)) return;
+        btn.disabled = true;
+        segnala('Un momento…', 'attesa');
+        try {
+          await invia(azione, btn.dataset.slug ?? '');
+          btn.closest('li')?.classList.add('opacity-40', 'pointer-events-none');
+          segnala(parole.fatto, 'ok');
+        } catch (e) {
+          segnala((e as Error).message, 'errore');
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
 </AdminBase>

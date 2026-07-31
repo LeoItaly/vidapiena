@@ -20,6 +20,7 @@
  */
 
 import type { Block } from './blocks';
+import { isEmphasisBoundary } from './blocks';
 
 /** Text destined for an HTML text node or attribute. */
 function esc(text: string): string {
@@ -79,6 +80,24 @@ export function inlineHtml(text: string): string {
         flush();
         out += `<strong>${prosa(flat.slice(i + 2, end))}</strong>`;
         i = end + 2;
+        continue;
+      }
+    }
+    // Italics — the same boundary rule blocks.ts serialises with, so what he sees
+    // here is what remark renders on the published page.
+    if (flat[i] === '_') {
+      const end = flat.indexOf('_', i + 1);
+      const inner = end === -1 ? null : flat.slice(i + 1, end);
+      if (
+        inner &&
+        inner === inner.trim() &&
+        !inner.includes('_') &&
+        isEmphasisBoundary(flat[i - 1]) &&
+        isEmphasisBoundary(flat[end + 1])
+      ) {
+        flush();
+        out += `<em>${prosa(inner)}</em>`;
+        i = end + 1;
         continue;
       }
     }

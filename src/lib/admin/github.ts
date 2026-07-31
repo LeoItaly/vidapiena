@@ -141,6 +141,41 @@ export async function createBlobFromText(cfg: GitHubConfig, text: string): Promi
   return sha;
 }
 
+/**
+ * Reads a file from the repo with a caller-chosen Accept, so the raw bytes come
+ * back directly rather than as base64 wrapped in JSON — decoding a photo's base64
+ * would cost CPU this Worker does not have. Returns null on 404 (a not-yet-there
+ * file is a normal answer here, not an error).
+ */
+async function contents(cfg: GitHubConfig, path: string, accept: string): Promise<Response | null> {
+  const res = await fetch(
+    `${API}/repos/${cfg.repo}/contents/${path}?ref=${encodeURIComponent(cfg.branch)}`,
+    {
+      headers: {
+        authorization: `Bearer ${cfg.token}`,
+        accept,
+        'x-github-api-version': '2022-11-28',
+        'user-agent': UA,
+      },
+    },
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) throw fail(res.status, (await res.text().catch(() => '')).slice(0, 300));
+  return res;
+}
+
+/** The UTF-8 text of a committed file, or null if it is not in the repo. */
+export async function getFileText(cfg: GitHubConfig, path: string): Promise<string | null> {
+  const res = await contents(cfg, path, 'application/vnd.github.raw+json');
+  return res ? res.text() : null;
+}
+
+/** The raw bytes of a committed file (e.g. a photo), or null if it is not there. */
+export async function getFileBytes(cfg: GitHubConfig, path: string): Promise<ArrayBuffer | null> {
+  const res = await contents(cfg, path, 'application/vnd.github.raw');
+  return res ? res.arrayBuffer() : null;
+}
+
 export interface TreeEntry {
   /** Repo-relative, forward slashes, no leading slash. */
   path: string;

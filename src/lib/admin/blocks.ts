@@ -49,6 +49,18 @@ const SAFE_LINK = /^(?:\.\.\/[./a-z0-9-]*|https:\/\/[^\s()<>"']+)$/i;
 /** Markdown-significant characters that must never survive as literal text. */
 const ESCAPE = /([\\`*_[\]<>])/g;
 
+/**
+ * Whether a character sits on an emphasis boundary — i.e. an adjacent `_` may open
+ * or close italics. Mirrors CommonMark's rule that underscores do not emphasise
+ * inside a word: only a string edge, whitespace, or punctuation qualifies, so
+ * `dall'_alba_` italicises but `re_almente_` stays literal. Shared with
+ * preview-html.ts, so the preview and the published page agree on which `_..._`
+ * are italics — the property the whole preview rests on.
+ */
+export function isEmphasisBoundary(c: string | undefined): boolean {
+  return c === undefined || !/[\p{L}\p{N}]/u.test(c);
+}
+
 function escapeText(text: string): string {
   return text.replace(ESCAPE, '\\$1');
 }
@@ -98,6 +110,27 @@ export function inline(text: string): string {
       }
     }
 
+    // Italics: `_word_`, only on a word boundary so the emitted markdown is
+    // something remark actually emphasises (and so the preview, which applies the
+    // same rule, matches the published page). The inner text carries no edge
+    // whitespace — the toolbar trims the selection — which is what CommonMark
+    // requires of an underscore run.
+    if (flat[i] === '_') {
+      const end = flat.indexOf('_', i + 1);
+      const inner = end === -1 ? null : flat.slice(i + 1, end);
+      if (
+        inner &&
+        inner === inner.trim() &&
+        !inner.includes('_') &&
+        isEmphasisBoundary(flat[i - 1]) &&
+        isEmphasisBoundary(flat[end + 1])
+      ) {
+        out += `_${escapeText(inner)}_`;
+        i = end + 1;
+        continue;
+      }
+    }
+
     if (flat[i] === '[') {
       const close = flat.indexOf('](', i);
       if (close !== -1) {
@@ -136,6 +169,25 @@ function escapeHtml(text: string): string {
  */
 export function photoPath(key: string): string {
   return `../../../assets/photos/${key}.jpg`;
+}
+
+/**
+ * A `foto` block whose image is already committed to the repo (i.e. the article
+ * was opened for editing from a published `.md`) carries this sentinel as its
+ * `fotoId`, followed by the committed `<key>`. A staged upload's id is an opaque
+ * KV id and never starts with this. The distinction is load-bearing at publish:
+ * a `pub:` photo is passed through by key with no blob upload, because its bytes
+ * are not in KV — they are already in git.
+ */
+export const PUB_PREFIX = 'pub:';
+
+export function isPublishedPhoto(fotoId: string): boolean {
+  return fotoId.startsWith(PUB_PREFIX);
+}
+
+/** `pub:blog-x-01` → `blog-x-01`. Only meaningful when `isPublishedPhoto` is true. */
+export function publishedKey(fotoId: string): string {
+  return fotoId.slice(PUB_PREFIX.length);
 }
 
 /**

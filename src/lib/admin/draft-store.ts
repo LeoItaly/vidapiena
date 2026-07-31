@@ -27,6 +27,7 @@
 
 import type { KVLike } from './rate-limit';
 import type { Block } from './blocks';
+import { PUB_PREFIX } from './blocks';
 
 /** 90 days. An article abandoned for a season is abandoned. */
 const DRAFT_TTL_SECONDS = 60 * 60 * 24 * 90;
@@ -173,6 +174,15 @@ export function sanitiseDraft(input: unknown, owner: string): DraftDoc | null {
   const text = (v: unknown, max: number): string =>
     typeof v === 'string' ? v.slice(0, max) : '';
 
+  // A photo id is normally a short opaque KV id (32), but an article opened from
+  // a published `.md` carries `pub:<committed-key>`, which is longer — the slug
+  // is part of the key. Allow the sentinel form room without loosening the cap on
+  // the ordinary case.
+  const photoId = (v: unknown): string => {
+    const s = typeof v === 'string' ? v : '';
+    return s.startsWith(PUB_PREFIX) ? s.slice(0, 200) : s.slice(0, 32);
+  };
+
   const rawBlocks = Array.isArray(d.blocks) ? d.blocks.slice(0, MAX_BLOCKS) : [];
   const blocks: Block[] = [];
   for (const b of rawBlocks) {
@@ -196,7 +206,7 @@ export function sanitiseDraft(input: unknown, owner: string): DraftDoc | null {
       case 'foto':
         blocks.push({
           k: 'foto',
-          fotoId: text(r.fotoId, 32),
+          fotoId: photoId(r.fotoId),
           alt: text(r.alt, 300),
           ...(text(r.didascalia, 300) ? { didascalia: text(r.didascalia, 300) } : {}),
         });
@@ -215,7 +225,7 @@ export function sanitiseDraft(input: unknown, owner: string): DraftDoc | null {
     title: text(d.title, 300),
     description: text(d.description, 600),
     date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10),
-    coverPhotoId: text(d.coverPhotoId, 32),
+    coverPhotoId: photoId(d.coverPhotoId),
     blocks,
     ...(text(d.publishedSlug, 120) ? { publishedSlug: text(d.publishedSlug, 120) } : {}),
     owner,

@@ -1,11 +1,17 @@
 ---
 /**
- * Stage 3 surface: pick photos, watch them shrink, keep them for an article.
+ * Load a batch of photos off the phone, then start an article around them.
  *
- * Deliberately standalone. The block editor (stage 4) reuses the same upload
- * client (src/lib/admin/upload-client.ts), but shipping this alone means the
- * photo pipeline is verifiable on a real iPhone — with a real HEIC — before any
- * editor code exists to confuse a failure with.
+ * Deliberately standalone as a *pipeline*: it reuses only the upload client
+ * (src/lib/admin/upload-client.ts), so the photo path stays verifiable on a real
+ * iPhone — with a real HEIC — independently of any editor code.
+ *
+ * ⚠️ It was standalone as a *destination* too, and that was a dead end. Photos
+ * here are uploaded against this page's own draft id, so nothing loaded here ever
+ * appeared in an article's picker: he could upload twenty photos, open the
+ * editor, and find the grid empty with no way to tell why. The editor now takes
+ * photos directly, and this page hands its batch to a new article — which is the
+ * only thing the batch was ever for.
  */
 export const prerender = false;
 
@@ -34,7 +40,12 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
   <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">Aggiungi le foto</h1>
   <p class="mt-3 max-w-prose text-paper/60">
     Scegli le foto dal telefono. Le preparo io per il sito: le rimpicciolisco, le raddrizzo e
-    tolgo i dati di posizione. Tu non devi fare niente.
+    tolgo i dati di posizione. Tu non devi fare niente. Quando hai finito, qui sotto trovi il
+    tasto per scrivere l’articolo con queste foto.
+  </p>
+  <p class="mt-3 max-w-prose text-sm text-paper/40">
+    Se preferisci, puoi anche caricare le foto direttamente mentre scrivi: dentro l’articolo,
+    ogni foto ha il suo tasto «Carica una foto dal telefono».
   </p>
 
   {/*
@@ -82,6 +93,17 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
 
   <ul id="elenco" class="mt-8 flex flex-col gap-4"></ul>
 
+  {/*
+    The way out. Without it this page is a room with no door: the photos are
+    stored against its own draft, and the only thing that can reach them is an
+    article opened on that same draft. Shown once at least one photo is stored.
+  */}
+  <p id="continua" hidden class="mt-8">
+    <a id="vai-articolo" href="/admin/scrivi" class="btn btn-primary"
+      >Scrivi un articolo con queste foto</a
+    >
+  </p>
+
   <p class="mt-10 text-sm text-paper/40">
     Ogni foto viene ridotta sotto i {maxKb} KB prima di partire dal telefono, così il
     caricamento è veloce anche con poca linea.
@@ -95,6 +117,8 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
     const stato = document.getElementById('stato');
     const elenco = document.getElementById('elenco');
     const riaccedi = document.getElementById('riaccedi') as HTMLElement | null;
+    const continua = document.getElementById('continua') as HTMLElement | null;
+    const vaiArticolo = document.getElementById('vai-articolo') as HTMLAnchorElement | null;
 
     /**
      * Keep the first draft id we are given. A reload then adds to the same set of
@@ -177,6 +201,12 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
         nota.textContent = `Pronta · ${pesoLeggibile(file.size)} → ${pesoLeggibile(esito.foto.bytes)} · ${esito.foto.width}×${esito.foto.height}`;
         nota.className = 'mt-1 text-verde';
         campoAlt(corpo, esito.id);
+        // There is now something to write an article about, and this batch is
+        // reachable only through a draft opened on this same id.
+        if (continua && vaiArticolo) {
+          vaiArticolo.href = `/admin/scrivi?bozza=${encodeURIComponent(draftId)}`;
+          continua.hidden = false;
+        }
         return;
       }
 
@@ -222,7 +252,14 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
       }
     });
 
-    /** Alt text is saved on blur, so nothing is lost if he navigates away. */
+    /**
+     * Alt text is saved on blur, so nothing is lost if he navigates away.
+     *
+     * `keepalive` is what makes that sentence true. Tapping «Scrivi un articolo»
+     * blurs the field he is typing in and navigates in the same gesture, and a
+     * plain fetch is cancelled mid-flight by the navigation — so the description
+     * of the last photo, the one he just wrote, was the one that got lost.
+     */
     elenco?.addEventListener(
       'blur',
       async (event) => {
@@ -232,9 +269,24 @@ const maxKb = Math.round(TARGET_BYTES / 1024);
         body.append('bozza', draftId);
         body.append('foto', campo.dataset.foto);
         body.append('alt', campo.value);
-        await fetch('/admin/api/foto', { method: 'PATCH', body }).catch(() => undefined);
+        await fetch('/admin/api/foto', { method: 'PATCH', body, keepalive: true }).catch(
+          () => undefined,
+        );
       },
       true,
     );
+
+    /**
+     * Handing the batch over ends it: the next visit starts a fresh one rather
+     * than piling every photo he has ever uploaded into one draft, which would
+     * eventually hit the 40-photo cap and carry old photos into new articles.
+     */
+    vaiArticolo?.addEventListener('click', () => {
+      try {
+        localStorage.removeItem(CHIAVE);
+      } catch {
+        // Private browsing. The handoff itself still works.
+      }
+    });
   </script>
 </AdminBase>

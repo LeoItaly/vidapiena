@@ -30,7 +30,12 @@ import {
   ownership,
 } from '../../../lib/admin/draft-store';
 import { getPhoto } from '../../../lib/admin/photo-store';
-import { blocksToMarkdown, referencedPhotoIds } from '../../../lib/admin/blocks';
+import {
+  blocksToMarkdown,
+  isPublishedPhoto,
+  publishedKey,
+  referencedPhotoIds,
+} from '../../../lib/admin/blocks';
 import { buildArticleFile } from '../../../lib/admin/frontmatter';
 import { checkDraft, checkFile } from '../../../lib/admin/publish-check';
 import { translateBlocks, workersAiTranslator, type WorkersAI } from '../../../lib/admin/translate';
@@ -153,22 +158,44 @@ export const POST: APIRoute = async (context) => {
     const slug = esito.slug;
     const en = draft.en;
 
-    // Photo ids → their final `blog-<slug>-NN` keys, assigned once, now that the
-    // slug is finally frozen.
+    // Photo ids → their final `blog-<slug>-NN` keys.
     const usate = referencedPhotoIds(draft.blocks);
     const tutte = draft.coverPhotoId && !usate.includes(draft.coverPhotoId)
       ? [draft.coverPhotoId, ...usate]
       : usate;
+
     const chiavi = new Map<string, string>();
-    tutte.forEach((id, i) => chiavi.set(id, photoKeyFor(slug, i)));
+    // Pass-through: a photo the article already had when it was opened for editing
+    // keeps its committed key and is never re-uploaded — its bytes are in git, not
+    // KV. Also learn the highest `blog-<slug>-NN` already taken, so a freshly added
+    // photo cannot be numbered on top of one that is still in the repo.
+    const nomeChiave = new RegExp(`^blog-${slug}-(\\d+)$`);
+    let maxN = 0;
+    for (const id of tutte) {
+      if (!isPublishedPhoto(id)) continue;
+      const chiave = publishedKey(id);
+      chiavi.set(id, chiave);
+      const m = nomeChiave.exec(chiave);
+      if (m) maxN = Math.max(maxN, Number(m[1]));
+    }
+    // Staged uploads: fresh keys, numbered after any pass-through key.
+    let n = maxN;
+    for (const id of tutte) {
+      if (isPublishedPhoto(id)) continue;
+      chiavi.set(id, photoKeyFor(slug, n));
+      n += 1;
+    }
 
     const entries: TreeEntry[] = [];
 
     try {
-      // One blob per photo, straight from the base64 already in KV — no decode,
-      // no re-encode. Sequential so each request's CPU stays near zero.
-      for (const [fotoId, chiave] of chiavi) {
-        const photo = await getPhoto(kv, draftId, fotoId);
+      // One blob per staged photo, straight from the base64 already in KV — no
+      // decode, no re-encode. Sequential so each request's CPU stays near zero.
+      // Pass-through photos are skipped: they are already committed.
+      for (const id of tutte) {
+        if (isPublishedPhoto(id)) continue;
+        const chiave = chiavi.get(id)!;
+        const photo = await getPhoto(kv, draftId, id);
         if (!photo) return json({ ok: false, errori: ['Una foto non c’è più.'] }, 422);
         const sha = await createBlobFromBase64(cfg, photo.data);
         entries.push({ path: `src/assets/photos/${chiave}.jpg`, sha });

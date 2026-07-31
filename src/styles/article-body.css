@@ -1,0 +1,89 @@
+/*
+ * The one definition of how a blog article body looks.
+ *
+ * Shared by three renderings so they cannot drift apart: the published page
+ * (BlogPostPage.astro), the full preview page (anteprima.astro) and the live
+ * in-editor preview (scrivi.astro). Before this file each kept its own copy, and
+ * the whole point of a preview is that it matches — the moment they differ, the
+ * preview is lying.
+ *
+ * Global on purpose. `.article-body` is a specific class that only ever wraps
+ * rendered article HTML on a paper background, so these rules never leak onto the
+ * dark admin chrome or the marketing pages. The colours are the shared theme
+ * tokens from global.css, so they resolve identically wherever the class appears.
+ *
+ * The element vocabulary here IS the contract the block editor may never exceed
+ * (blocks.ts): p, h2, h3, ul, ol, li, a, img, figure, figcaption, blockquote —
+ * plus strong/em, which inherit bold/italic and need no rule.
+ */
+.article-body p {
+  margin-top: 1.1em;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--color-ink-soft);
+}
+.article-body h2 {
+  margin-top: 2em;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.article-body h3 {
+  margin-top: 1.6em;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.article-body ul,
+.article-body ol {
+  margin-top: 1.1em;
+  padding-left: 1.2em;
+  list-style: disc;
+  color: var(--color-ink-soft);
+}
+.article-body ol {
+  list-style: decimal;
+}
+.article-body li {
+  margin-top: 0.4em;
+  line-height: 1.7;
+}
+.article-body a {
+  color: var(--color-verde);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.article-body img {
+  margin-top: 1.5em;
+  border-radius: 0.5rem;
+}
+/*
+  Captioned photos from the back office. The editor emits
+  <figure><p><img></p><figcaption>…</figcaption></figure> — markdown wraps the
+  image in a paragraph even inside raw HTML, so the paragraph rule above would
+  otherwise leave a body-text gap between photo and caption.
+*/
+.article-body figure {
+  margin-top: 1.5em;
+}
+.article-body figure p {
+  margin-top: 0;
+}
+.article-body figure img {
+  margin-top: 0;
+}
+.article-body figcaption {
+  margin-top: 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  /* 65%, not 55%: measured at 5.5:1 on paper — the same AA fix the tour-deck
+     captions took on 22/07. */
+  color: color-mix(in oklab, var(--color-ink-soft) 65%, transparent);
+}
+.article-body blockquote {
+  margin-top: 1.5em;
+  border-left: 3px solid var(--color-ouro);
+  padding-left: 1em;
+  font-style: italic;
+}

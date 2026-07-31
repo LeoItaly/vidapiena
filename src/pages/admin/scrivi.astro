@@ -24,6 +24,9 @@ import { getPhoto } from '../../lib/admin/photo-store';
 import { BLOCK_LABELS } from '../../lib/admin/blocks';
 import { TOURS } from '../../data/tours';
 import { it } from '../../i18n/it';
+// The live preview ("Vedi com’è") renders the article body with the same styles
+// as the published page — one shared stylesheet, so it cannot lie.
+import '../../styles/article-body.css';
 
 const admin = Astro.locals.admin;
 const kv = getKV();
@@ -74,7 +77,9 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
   { k: 'ul', aiuto: 'Un elenco puntato' },
   { k: 'ol', aiuto: 'Un elenco numerato' },
   { k: 'quote', aiuto: 'Una frase messa in evidenza' },
-  { k: 'foto', aiuto: 'Una delle foto che hai caricato' },
+  // Not "una delle foto che hai caricato" any more: the block takes a photo off
+  // the phone itself, so the button must not describe a library he may not have.
+  { k: 'foto', aiuto: 'Una foto: la carichi qui dal telefono' },
 ];
 ---
 
@@ -94,6 +99,35 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
           <p data-stato class="eyebrow text-paper/40" role="status" aria-live="polite" />
         </div>
 
+        {/* Scrivi ↔ Vedi: the same article, being written or shown as it will look
+            online. The live preview is client-rendered, so switching costs nothing
+            and never touches the save budget. */}
+        <div
+          class="mt-4 inline-flex rounded-lg border border-paper/15 p-1"
+          role="tablist"
+          aria-label="Scrivi o guarda l’anteprima"
+        >
+          <button
+            type="button"
+            data-modo="scrivi"
+            role="tab"
+            aria-selected="true"
+            class="rounded-md px-3 py-1.5 text-sm font-medium bg-ouro text-ink"
+          >
+            Scrivi
+          </button>
+          <button
+            type="button"
+            data-modo="vedi"
+            role="tab"
+            aria-selected="false"
+            class="rounded-md px-3 py-1.5 text-sm font-medium text-paper/60"
+          >
+            Vedi com’è
+          </button>
+        </div>
+
+        <div data-pannello="scrivi">
         <label class="mt-6 flex flex-col gap-1">
           <span class="eyebrow text-paper/50">Titolo</span>
           <input
@@ -136,12 +170,21 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
               class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
             >
               <option value="">Nessuna</option>
+              {/* A cover carried over from a published article isn't a staged
+                  upload, so it needs its own option or it would be lost on save. */}
+              {doc.coverPhotoId?.startsWith('pub:') && (
+                <option value={doc.coverPhotoId}>Foto attuale (già online)</option>
+              )}
               {foto.map((f, i) => (
                 <option value={f.id}>{f.alt || `Foto ${i + 1}`}</option>
               ))}
             </select>
           </label>
         </div>
+        {/* Upload a cover straight from the phone. Outside the <label> above on
+            purpose: a file input nested inside a label that already wraps the
+            select is invalid, and Safari picks one of the two controls to open. */}
+        <div data-copertina-carica class="mt-3 max-w-sm"></div>
         {/* The real 16:9 crop, because his photos are mostly vertical. */}
         <div data-copertina-anteprima class="mt-3 max-w-sm" />
 
@@ -163,6 +206,22 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
             ))}
           </div>
         </div>
+        </div>
+
+        {/* The live preview. Rendered on paper with the real article styles, so
+            what he sees here is what the page will be. Hidden until he taps
+            "Vedi com’è"; the editor script fills it in. */}
+        <section data-pannello="vedi" hidden class="mt-6">
+          <p class="max-w-prose text-sm text-paper/50">
+            Così apparirà online. Non è ancora pubblicato: lo vedi solo tu.
+          </p>
+          <article class="mt-4 rounded-lg bg-paper px-5 py-8 text-ink md:px-10 md:py-12">
+            <p data-viva-data class="eyebrow text-ink-soft/60"></p>
+            <h1 data-viva-titolo class="mt-2 font-display text-3xl font-bold md:text-4xl"></h1>
+            <div data-viva-copertina></div>
+            <div data-viva-corpo class="article-body mt-8 max-w-prose"></div>
+          </article>
+        </section>
 
         {/*
           Sticky, because on a phone the save button is otherwise a long scroll

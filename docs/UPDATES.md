@@ -2,6 +2,142 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 (night) — Photos go into the article from the phone, where he is standing
+
+Client asked for a photo to be addable **inside the editor**, not only pickable
+from a library filled on the separate /admin/foto page.
+
+Reading the code first turned up why the ask exists: the two surfaces were never
+connected. /admin/foto uploads against **its own draft id**, kept in localStorage
+under `vp:bozza-foto`, while the editor's picker lists photos stored against the
+**article's** draft id. Those are different KV prefixes, so nothing uploaded on
+that page could ever appear in an article — and the editor's empty state said
+*"Vai su «Foto» e caricane qualcuna"*, which sent him to do exactly the thing that
+does not work. A new article's picker was therefore always empty, permanently.
+
+- **Upload control in the photo block.** One `controlloCarica()` — a plain
+  `<input type="file" accept="image/*">` inside a `<label>` (no contenteditable,
+  no custom picker; on iOS that is what reliably opens the camera roll and offers
+  "Scatta una foto"), 50 px tall, 16 px text so Safari does not zoom on focus. It
+  runs the **existing** pipeline unchanged: `processPhoto` on the phone →
+  `processAndUpload` → `POST /admin/api/foto`. Upload sits **above** the library
+  grid and *is* the empty state; the grid and its "oppure scegli una foto che hai
+  già caricato" heading only appear once there is something to choose from.
+- **After upload:** the photo joins the shared `foto` array (so *every* block's
+  picker refreshes), is auto-selected on the block, and the card is scrolled back
+  under his thumb. The thumbnail renders from an **object URL of the bytes we just
+  sent**, not a round-trip to the Worker — instant, and it saves ~400 KB of Rio
+  mobile data per photo. `fotoUrl()` now resolves three kinds of photo (local
+  blob → `pub:` committed → staged in KV) in one place.
+- **The cover too.** Its `<select>` is server-rendered, so a photo added after
+  page load was invisible to it — and on a *new* article the only way to get a
+  cover was to make a photo block, upload, then delete the block. Same control now
+  sits under the cover field, and new uploads are appended to the list.
+- **One upload at a time**, editor-wide: two 24 MP decodes at once is how a phone
+  runs out of memory, and on iOS `drawImage` fails *silently*. The second tap gets
+  a sentence, not a queue.
+- **/admin/foto is no longer a dead end.** Once a photo is stored it offers
+  «Scrivi un articolo con queste foto» → `/admin/scrivi?bozza=<that same id>`, so
+  the batch lands in an article's picker; the handoff clears `vp:bozza-foto` so
+  the next visit starts a fresh batch instead of dragging every photo he ever
+  uploaded into the next article (and eventually hitting the 40-photo cap).
+- **Descriptions persist.** The block's description used to live only on the
+  block, so the cover list went back to reading "Foto 1, Foto 2, Foto 3" on the
+  next load — and a `<select>` has no thumbnails, so picking a cover was
+  guesswork. One PATCH on blur (the route already skips the write when nothing
+  changed, so an untouched field costs a read), plus `keepalive` on both this and
+  /admin/foto's existing alt save — he types the last description and taps the
+  next button in the same gesture, and a plain fetch dies with the navigation.
+- Copy that had gone stale: the Foto block's hint ("Una delle foto che hai
+  caricato" → "Una foto: la carichi qui dal telefono") and a new first Q&A in
+  /admin/aiuto.
+
+**Two bugs the walkthrough caught, both in the cover control** — the one control
+that is created once and never redrawn, so unlike a photo block it cannot be
+cleaned up by a repaint: a stale error (and its «Entra di nuovo» button) survived
+under a cover that had since uploaded fine, and after a *successful* upload the
+line sat there reading "La sto caricando…", which reads as stuck. Both fixed with
+an explicit `pulisci()` on entry and on success.
+
+**Verified** under `wrangler dev` on an isolated port + `--persist-to` (another
+session held 8787), with a minted dev cookie, at a 375×812 viewport, driving the
+real pipeline with real 900 KB+ archive photos: new article written with heading,
+bold + italic, list and a directly-uploaded photo → "Vedi com'è" rendered
+`p/h2/strong/em/ul/li/figure/figcaption` → `/admin/pubblica` reported *"L'articolo
+è a posto"* (so publish-check accepts an in-editor upload end to end) · Rocinha
+reopened via **Modifica** with `publishedSlug` frozen, the note reading
+`/blog/rocinha-come-visitarla/`, the button reading **Aggiorna**, a paragraph
+edited, and a `pub:` photo **swapped for a fresh upload** while the other kept its
+`pub:` id · uploaded bytes confirmed 1200×1600 / 386 KB / EXIF-free and
+byte-identical on the server · a WhatsApp-sized 640×480 rejected with the Italian
+sentence in red, the block keeping its existing photo · double-tap refused with
+"Sto ancora caricando l'altra foto" · /admin/foto handoff carried its batch *and*
+its descriptions into a new article. `astro check` 0 errors · full `npm run build`
+green (verify-build passes). Not pushed.
+
+⚠️ Note for whoever tests next: the Browser pane never has document focus, so
+**focus/blur events do not fire there at all** (`document.hasFocus()` is false).
+Anything blur-driven — both alt-save paths — has to be exercised by dispatching
+the event directly; a real tap was not reproducible in the pane.
+
+## 2026-07-31 (even later) — Back office: WordPress/Gutenberg-style article editing
+
+Client liked the block editor and asked for it to feel more like WordPress: open
+an **already-online article and edit it**, per-card **action icons** (modify /
+delete / update), a **live preview** to see changes as in WordPress, and richer
+**inline formatting** ("bold, numbers… study the Gutenberg"). Confirmed two
+directions first: keep the phone-reliable **textareas** (styled blocks + live
+preview, *not* contenteditable — the iOS reason still holds), and make delete of a
+live article a **reversible "take offline"**, not a destroy.
+
+Four phases, all on `cloudflare-migration`, none pushed:
+
+- **Edit existing articles.** New `parse-markdown.ts` — `markdownToBlocks`, the
+  exact inverse of `blocksToMarkdown`, so any published `.md` (incl. the five
+  hand-written seeds) reopens in the editor. New `POST /admin/api/articolo`
+  `apri-modifica` seeds a draft from the collection entry's raw `body` + `data`,
+  freezes `publishedSlug` (→ the flow is "Aggiorna", same URL), and dedupes by slug
+  so re-opening never piles up drafts. Committed photos come back as a **`pub:<key>`
+  sentinel** `fotoId`: served for display by new `foto-pubblicata.ts` (GitHub raw
+  media, no base64 decode → within the 10 ms CPU budget), and at publish they
+  **pass through by key with no blob upload**, with new staged photos numbered
+  *past* any existing `blog-<slug>-NN` so they can't collide. `sanitiseDraft` /
+  `publish-check` / `pubblica` all learned the sentinel.
+- **Card icons + take-offline.** `index.astro` rebuilt: every card has an SVG icon
+  toolbar (`IconaAzione.astro`). Drafts: Continua / Anteprima / **Elimina** (wired
+  the existing DELETE). Online: **Modifica** (→ `apri-modifica` → editor) /
+  Guardalo online / **Metti offline**. Offline = `articolo.ts` `ritira` flips
+  `draft: true` on **both twins** and commits (build drops it from the collection,
+  so page + index + hreflang vanish together — no dangling hreflang); `ripristina`
+  flips it back. Stale "publish button not finished" note removed.
+- **Gutenberg inline formatting.** Added `_italic_` → `<em>` to `inline()` and
+  `inlineHtml()` in lockstep, gated on a shared `isEmphasisBoundary` (CommonMark's
+  no-intraword-underscore rule) so the emitted markdown is something **remark
+  actually emphasises** — verified byte-identical to the published page (incl.
+  `dall'_alba_` yes, `re_almente_` literal). Toolbar is now Grassetto / **Corsivo**
+  / **Collega** (general `https://`) / Tour, on **every** text block incl. headings
+  and lists, with `pointerdown` preventDefault so a tap doesn't blur away the
+  selection it wraps.
+- **Styled blocks + live preview.** Block textareas now echo the output (h2 big,
+  quote indented italic). New **"Scrivi ↔ Vedi com'è"** toggle renders the article
+  client-side via `blocksToPreviewHtml` (pure fn, no KV write). Extracted the
+  duplicated `.article-body` CSS into one shared `src/styles/article-body.css` used
+  by `BlogPostPage`, `anteprima`, **and** the live preview — the three can no
+  longer drift.
+
+**Verified.** `astro check` 0 errors · full `npm run build` green (verify-build:
+no prerendered `/admin`, no client PII) · a bundled round-trip test — synthetic
+blocks + **all 5 seed articles** parse idempotently (`blocks→md→blocks` stable) ·
+italic parity **byte-identical** to remark's real output · runtime walkthrough
+under `wrangler dev` with a minted dev session (no password used): dashboard shows
+the new actions, **Modifica** on Rocinha parsed it back into a fully populated
+editor (title, summary, `pub:tour-rocinha` cover, 10 blocks, photo alt text,
+"Aggiorna"), and the live preview rendered `p/h2/img/blockquote/ul/strong/a`. New
+API routes return the middleware's 401 JSON unauthenticated (registered + guarded).
+`ritira`/`foto-pubblicata` need `GITHUB_TOKEN`, so their happy path is deploy-only.
+`wrangler.jsonc` gained a `GITHUB_REPO` **var** (adapter auto-syncs the public env
+var on build). Not pushed (push = deploy).
+
 ## 2026-07-31 (later still) — Tour galleries: vertical sticky deck → horizontal swipe deck
 
 Client asked for the per-tour photo gallery to stop being an infinite vertical

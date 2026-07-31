@@ -16,10 +16,21 @@
  *   it in an afternoon and then fail silently on the one feature whose entire
  *   job is not losing his work. localStorage is free, instant, and works with no
  *   signal.
+ * - **Photos are uploaded from inside the editor**, through the same client
+ *   pipeline /admin/foto uses. Before that they could only be picked from a
+ *   library filled on a separate page — and that page uploads against a draft id
+ *   of its own, so nothing uploaded there ever appeared in this picker. The empty
+ *   grid told him to go to «Foto», he went, uploaded, came back, and the grid was
+ *   still empty. A photo now enters the article where he is standing.
  */
 
 import type { Block } from '../lib/admin/blocks';
 import { BLOCK_LABELS } from '../lib/admin/blocks';
+import { blocksToPreviewHtml } from '../lib/admin/preview-html';
+import { processAndUpload } from '../lib/admin/upload-client';
+
+const MODO_ATTIVO = 'rounded-md px-3 py-1.5 text-sm font-medium bg-ouro text-ink';
+const MODO_INATTIVO = 'rounded-md px-3 py-1.5 text-sm font-medium text-paper/60';
 
 interface DraftDoc {
   title: string;
@@ -64,6 +75,30 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
 
   const stato = root.querySelector('[data-stato]') as HTMLElement;
   const elenco = root.querySelector('[data-blocchi]') as HTMLElement;
+
+  /**
+   * Photos uploaded in this sitting, kept as object URLs.
+   *
+   * The bytes are already in memory the moment the upload succeeds, so asking the
+   * Worker to send them straight back would cost him ~400 KB of Rio mobile data
+   * per photo and a visible wait before the thumbnail appears. Not revoked: the
+   * same URL is re-read on every redraw and by the live preview, and a handful of
+   * ≤900 KB blobs is nothing against the page being open for an afternoon.
+   */
+  const anteprimeLocali = new Map<string, string>();
+
+  /**
+   * The URL for a photo, whichever kind it is. A staged upload is served from KV
+   * by its draft id; a `pub:<key>` photo — one already committed, from an article
+   * opened for editing — is served from the repo; one just uploaded is served from
+   * memory. Keeping this in one place means every img (block, cover preview, live
+   * preview) treats all three the same.
+   */
+  const fotoUrl = (id: string): string =>
+    anteprimeLocali.get(id) ??
+    (id.startsWith('pub:')
+      ? `/admin/api/foto-pubblicata?key=${encodeURIComponent(id.slice(4))}`
+      : `/admin/api/foto?bozza=${encodeURIComponent(draftId)}&foto=${encodeURIComponent(id)}`);
 
   /* ---------------------------------------------------------------- storage */
 
@@ -147,9 +182,27 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     area.style.height = `${area.scrollHeight}px`;
   }
 
-  /** Wraps the current selection, which is how Grassetto and the tour link work. */
-  function avvolgi(area: HTMLTextAreaElement, prima: string, dopo: string, onEmpty: string) {
-    const { selectionStart: s, selectionEnd: e, value } = area;
+  /**
+   * Wraps the current selection, which is how every format button works.
+   *
+   * `trim` pulls any whitespace out of the wrapped run — italics need their `_`
+   * markers hard against the word or CommonMark (and so the published page) will
+   * not emphasise them.
+   */
+  function avvolgi(
+    area: HTMLTextAreaElement,
+    prima: string,
+    dopo: string,
+    onEmpty: string,
+    trim = false,
+  ) {
+    let s = area.selectionStart;
+    let e = area.selectionEnd;
+    const value = area.value;
+    if (trim) {
+      while (s < e && /\s/.test(value[s]!)) s += 1;
+      while (e > s && /\s/.test(value[e - 1]!)) e -= 1;
+    }
     const scelto = value.slice(s, e) || onEmpty;
     area.value = value.slice(0, s) + prima + scelto + dopo + value.slice(e);
     area.focus();
@@ -170,17 +223,52 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     return b;
   }
 
+  /**
+   * A format button that keeps the caret where it is.
+   *
+   * Tapping a normal button blurs the textarea first, which throws away the
+   * selection the button is meant to wrap. Cancelling the pointerdown default
+   * stops the focus leaving the field, so the selection is still there when the
+   * click handler runs.
+   */
+  function bottoneFormato(testo: string, titolo: string, onClick: () => void): HTMLButtonElement {
+    const b = bottone(testo, titolo, onClick);
+    b.addEventListener('pointerdown', (e) => e.preventDefault());
+    return b;
+  }
+
+  /**
+   * The inline-formatting toolbar under a text block — the Gutenberg-style bit.
+   * Everything it inserts is one of the constructs blocks.ts validates on the way
+   * out, so a wrong tap can never put raw markup on the public page.
+   */
   function barraTesto(area: HTMLTextAreaElement): HTMLElement {
     const barra = document.createElement('div');
     barra.className = 'mt-2 flex flex-wrap gap-2';
     barra.appendChild(
-      bottone('Grassetto', 'Metti in grassetto il testo selezionato', () =>
+      bottoneFormato('Grassetto', 'Metti in grassetto il testo selezionato', () =>
         avvolgi(area, '**', '**', 'testo'),
       ),
     );
+    barra.appendChild(
+      bottoneFormato('Corsivo', 'Metti in corsivo il testo selezionato', () =>
+        avvolgi(area, '_', '_', 'testo', true),
+      ),
+    );
+    barra.appendChild(
+      bottoneFormato('Collega', 'Trasforma il testo selezionato in un link', () => {
+        const url = window.prompt('Indirizzo del link (deve iniziare con https://)', 'https://');
+        if (!url) return;
+        if (!/^https:\/\/\S+$/i.test(url)) {
+          window.alert('L’indirizzo deve iniziare con https:// e non deve avere spazi.');
+          return;
+        }
+        avvolgi(area, '[', `](${url})`, 'testo del link');
+      }),
+    );
     if (tours.length) {
       barra.appendChild(
-        bottone('Collega un tour', 'Inserisci un link a uno dei tuoi tour', () => {
+        bottoneFormato('Tour', 'Inserisci un link a uno dei tuoi tour', () => {
           const scelta = window.prompt(
             `Quale tour vuoi collegare?\n${tours.map((t, i) => `${i + 1}. ${t.nome}`).join('\n')}`,
             '1',
@@ -238,7 +326,7 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     card.appendChild(testa);
 
     if (block.k === 'foto') {
-      card.appendChild(corpoFoto(block));
+      card.appendChild(corpoFoto(block, index));
     } else if (block.k === 'ul' || block.k === 'ol') {
       card.appendChild(corpoElenco(block));
     } else {
@@ -248,13 +336,19 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     return card;
   }
 
-  function areaTesto(valore: string, placeholder: string, onInput: (v: string) => void) {
+  function areaTesto(
+    valore: string,
+    placeholder: string,
+    onInput: (v: string) => void,
+    extra = '',
+  ) {
     const area = document.createElement('textarea');
     area.value = valore;
     area.rows = 3;
     area.placeholder = placeholder;
     area.className =
-      'w-full resize-none rounded border border-paper/20 bg-ink px-3 py-2 text-base leading-relaxed text-paper';
+      'w-full resize-none rounded border border-paper/20 bg-ink px-3 py-2 leading-relaxed text-paper ' +
+      (extra || 'text-base');
     area.addEventListener('input', () => {
       onInput(area.value);
       autoGrow(area);
@@ -262,6 +356,22 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     });
     requestAnimationFrame(() => autoGrow(area));
     return area;
+  }
+
+  /** Editing surface styled to echo the finished article — a heading reads big and
+   *  bold, a quote sits indented in italic, so the block list already looks like
+   *  what it will become. The paper-perfect render is the live preview. */
+  function stileBlocco(k: Block['k']): string {
+    switch (k) {
+      case 'h2':
+        return 'font-display text-2xl font-bold';
+      case 'h3':
+        return 'font-display text-xl font-bold';
+      case 'quote':
+        return 'border-l-2 border-ouro/50 pl-3 text-base italic';
+      default:
+        return 'text-base';
+    }
   }
 
   function corpoTesto(block: Block & { testo: string }): HTMLElement {
@@ -272,11 +382,18 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
         : block.k === 'h2' || block.k === 'h3'
           ? 'Il titolo di questa parte'
           : 'Scrivi qui…';
-    const area = areaTesto(block.testo, placeholder, (v) => {
-      block.testo = v;
-    });
+    const area = areaTesto(
+      block.testo,
+      placeholder,
+      (v) => {
+        block.testo = v;
+      },
+      stileBlocco(block.k),
+    );
     wrap.appendChild(area);
-    if (block.k === 'p' || block.k === 'quote') wrap.appendChild(barraTesto(area));
+    // Grassetto/Corsivo/Collega on every text block, headings included — a link in
+    // a heading is valid, and there is no reason he cannot emphasise a word in one.
+    wrap.appendChild(barraTesto(area));
     return wrap;
   }
 
@@ -289,6 +406,7 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
       block.voci = v.split('\n');
     });
     wrap.appendChild(area);
+    wrap.appendChild(barraTesto(area));
     const nota = document.createElement('p');
     nota.className = 'mt-1 text-xs text-paper/40';
     nota.textContent = 'Una voce per riga.';
@@ -296,47 +414,277 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     return wrap;
   }
 
-  function corpoFoto(block: Block & { fotoId: string; alt: string; didascalia?: string }) {
+  /* -------------------------------------------------------------------- foto */
+
+  /**
+   * One photo at a time, across the whole editor.
+   *
+   * Two 24 MP decodes running at once is how a phone runs out of memory
+   * mid-upload, and on iOS the failure is silent — `drawImage` leaves the canvas
+   * blank rather than throwing (see photo-process.ts). /admin/foto serialises its
+   * batch for the same reason; here the second tap is refused with a sentence
+   * instead, because the two taps are on different blocks and queueing them would
+   * leave him watching a control that looks idle.
+   */
+  let caricamento = false;
+
+  /**
+   * The tappable "take it off the phone" control, shared by the photo blocks and
+   * the cover.
+   *
+   * A plain `<input type="file">` inside a `<label>`: on iOS that is the one
+   * control that reliably opens the camera roll (and offers "Scatta una foto"),
+   * and it needs no JS to become tappable. `accept="image/*"` without an explicit
+   * heic/heif is deliberate — iOS transcodes HEIC to JPEG on pick *unless* the
+   * page claims to accept HEIC, so staying vague is what gets us a JPEG on most
+   * iPhones. Same reasoning, same words, as /admin/foto.
+   */
+  function controlloCarica(etichetta: string, onCaricata: (meta: PhotoMeta) => void): HTMLElement {
+    const box = document.createElement('div');
+
+    const label = document.createElement('label');
+    label.className =
+      'flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed ' +
+      'border-ouro/50 bg-ouro/10 px-4 py-3 text-center text-base font-medium text-paper';
+
+    const testo = document.createElement('span');
+    testo.textContent = etichetta;
+    label.appendChild(testo);
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.className = 'sr-only';
+    label.appendChild(input);
+    box.appendChild(label);
+
+    const stato = document.createElement('p');
+    stato.className = 'mt-2 hidden text-sm';
+    stato.setAttribute('role', 'status');
+    stato.setAttribute('aria-live', 'polite');
+    box.appendChild(stato);
+
+    const dire = (messaggio: string, tipo: 'attesa' | 'errore') => {
+      stato.textContent = messaggio;
+      stato.className = `mt-2 text-sm ${tipo === 'errore' ? 'text-rosso' : 'text-ouro'}`;
+    };
+
+    /**
+     * Wipes the previous attempt's message and login link.
+     *
+     * A photo block is thrown away and rebuilt on every redraw, so a stale message
+     * there is impossible. The cover control is created once and lives for the
+     * whole page — without this, "Il collegamento è scaduto" and its «Entra di
+     * nuovo» button would still be sitting under a cover that has since uploaded
+     * perfectly.
+     */
+    const pulisci = () => {
+      stato.textContent = '';
+      stato.className = 'mt-2 hidden text-sm';
+      box.querySelector('a')?.remove();
+    };
+
+    async function esegui(file: File) {
+      pulisci();
+      caricamento = true;
+      input.disabled = true;
+      label.classList.add('pointer-events-none', 'opacity-60');
+      testo.textContent = 'Un momento…';
+      try {
+        const esito = await processAndUpload(file, { bozza: draftId }, (fase) => {
+          dire(fase === 'preparo' ? 'Preparo la foto…' : 'La sto caricando…', 'attesa');
+        });
+
+        if (esito.esito === 'ok') {
+          const meta: PhotoMeta = {
+            id: esito.id,
+            width: esito.foto.width,
+            height: esito.foto.height,
+            alt: '',
+            caption: '',
+          };
+          anteprimeLocali.set(meta.id, URL.createObjectURL(esito.foto.blob));
+          // Into the shared library, so every other photo block's picker has it
+          // too — and into the cover list, which is server-rendered and would
+          // otherwise never learn about a photo added after the page loaded.
+          foto.push(meta);
+          opzioneCopertina(meta);
+          // Drop the progress line before handing over. A photo block is rebuilt
+          // by the redraw and would lose it anyway, but the cover control is not:
+          // without this it sat there reading "La sto caricando…" under a cover
+          // that had already arrived, which reads as stuck.
+          pulisci();
+          onCaricata(meta);
+          return;
+        }
+
+        // A dropped connection is not a bad photo: 'rete' is amber and says he can
+        // retry, everything else is red. upload-client owns the wording.
+        dire(esito.messaggio, esito.esito === 'rete' ? 'attesa' : 'errore');
+        if (esito.esito === 'sessione' && !box.querySelector('a')) {
+          // A message about logging in again is useless without something to tap.
+          const entra = document.createElement('a');
+          entra.href = '/admin/entra';
+          entra.className = 'btn btn-primary mt-2 inline-block';
+          entra.textContent = 'Entra di nuovo';
+          box.appendChild(entra);
+        }
+      } finally {
+        // These nodes are detached by the redraw on the success path; touching
+        // them is harmless, and the flag has to be cleared on every path.
+        caricamento = false;
+        input.disabled = false;
+        label.classList.remove('pointer-events-none', 'opacity-60');
+        testo.textContent = etichetta;
+      }
+    }
+
+    input.addEventListener('change', () => {
+      const file = input.files?.[0];
+      // Cleared immediately so that re-picking the *same* photo — after a failed
+      // upload, which is the common case — fires `change` again.
+      input.value = '';
+      if (!file) return;
+      if (caricamento) {
+        dire('Sto ancora caricando l’altra foto. Aspetta un attimo e riprova.', 'attesa');
+        return;
+      }
+      void esegui(file);
+    });
+
+    return box;
+  }
+
+  /**
+   * Copies a block's description onto the stored photo itself.
+   *
+   * Without it the description lived only on the block, and the cover list — which
+   * the server renders from the stored photos — went back to reading "Foto 1,
+   * Foto 2, Foto 3" on the next page load. A `<select>` shows no thumbnails, so
+   * choosing a cover from three identical labels is guesswork he has to resolve by
+   * trying each one.
+   *
+   * One PATCH on blur, never on keystroke, and the route already answers "nothing
+   * changed" without writing — so blurring an untouched field, which is the common
+   * case, costs a read and not one of the 1,000 daily KV writes. `keepalive`
+   * because he types the last description and taps «Pubblica» in the same gesture,
+   * and a plain fetch dies with the navigation.
+   */
+  function salvaDescrizioneFoto(block: Block & { fotoId: string; alt: string; didascalia?: string }) {
+    // A `pub:` photo is already committed to the repo; there is no KV record.
+    if (!block.fotoId || block.fotoId.startsWith('pub:')) return;
+    const body = new FormData();
+    body.append('bozza', draftId);
+    body.append('foto', block.fotoId);
+    body.append('alt', block.alt);
+    body.append('didascalia', block.didascalia ?? '');
+    void fetch('/admin/api/foto', { method: 'PATCH', body, keepalive: true }).catch(
+      () => undefined,
+    );
+  }
+
+  function corpoFoto(
+    block: Block & { fotoId: string; alt: string; didascalia?: string },
+    index: number,
+  ) {
     const wrap = document.createElement('div');
 
-    const griglia = document.createElement('div');
-    griglia.className = 'grid grid-cols-3 gap-2';
-    if (!foto.length) {
-      const vuoto = document.createElement('p');
-      vuoto.className = 'text-sm text-paper/50';
-      vuoto.textContent = 'Non hai ancora caricato foto. Vai su «Foto» e caricane qualcuna.';
-      griglia.appendChild(vuoto);
+    // The photo currently on this block. When an article is opened for editing its
+    // photos are `pub:<key>` blocks that are not in the staged-upload grid below,
+    // so without this he could not see what is already there.
+    if (block.fotoId) {
+      const attuale = document.createElement('img');
+      attuale.src = fotoUrl(block.fotoId);
+      attuale.alt = block.alt || '';
+      attuale.loading = 'lazy';
+      attuale.className = 'mb-2 aspect-video w-full rounded object-cover';
+      wrap.appendChild(attuale);
     }
-    for (const f of foto) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = `overflow-hidden rounded border-2 ${
-        f.id === block.fotoId ? 'border-ouro' : 'border-transparent'
-      }`;
-      const img = document.createElement('img');
-      img.src = `/admin/api/foto?bozza=${encodeURIComponent(draftId)}&foto=${encodeURIComponent(f.id)}`;
-      img.alt = f.alt || '';
-      img.loading = 'lazy';
-      img.className = 'aspect-square w-full object-cover';
-      b.appendChild(img);
-      b.addEventListener('click', () => {
-        block.fotoId = f.id;
-        // Carrying the photo's own alt across saves him writing it twice — the
-        // same photo usually means the same description.
-        if (!block.alt) block.alt = f.alt;
-        if (!block.didascalia && f.caption) block.didascalia = f.caption;
-        cambiato();
-        disegna();
-      });
-      griglia.appendChild(b);
+
+    // Upload first, library second: the photo he wants is nearly always the one he
+    // has just taken, and this is the empty state as well — there is no longer a
+    // dead end telling him to go and upload somewhere else.
+    wrap.appendChild(
+      controlloCarica(
+        block.fotoId ? 'Cambia foto — prendila dal telefono' : 'Carica una foto dal telefono',
+        (meta) => {
+          block.fotoId = meta.id;
+          cambiato();
+          disegna();
+          // Redraw replaced the card; put the new one back under his thumb.
+          (elenco.children[index] as HTMLElement | undefined)?.scrollIntoView({ block: 'center' });
+        },
+      ),
+    );
+
+    if (foto.length) {
+      const oppure = document.createElement('p');
+      oppure.className = 'eyebrow mt-4 text-paper/40';
+      oppure.textContent = 'oppure scegli una foto che hai già caricato';
+      wrap.appendChild(oppure);
+
+      const griglia = document.createElement('div');
+      griglia.className = 'mt-2 grid grid-cols-3 gap-2';
+      for (const f of foto) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `overflow-hidden rounded border-2 ${
+          f.id === block.fotoId ? 'border-ouro' : 'border-transparent'
+        }`;
+        const img = document.createElement('img');
+        img.src = fotoUrl(f.id);
+        img.alt = f.alt || '';
+        img.loading = 'lazy';
+        img.className = 'aspect-square w-full object-cover';
+        b.appendChild(img);
+        b.addEventListener('click', () => {
+          block.fotoId = f.id;
+          // Carrying the photo's own alt across saves him writing it twice — the
+          // same photo usually means the same description.
+          if (!block.alt) block.alt = f.alt;
+          if (!block.didascalia && f.caption) block.didascalia = f.caption;
+          cambiato();
+          disegna();
+        });
+        griglia.appendChild(b);
+      }
+      wrap.appendChild(griglia);
     }
-    wrap.appendChild(griglia);
+
+    // Publishing is blocked on a missing description, and the block that stops it
+    // is often scrolled off the pubblica page by then. Say it here, next to the
+    // field, the moment there is a photo to describe.
+    const promemoria = document.createElement('p');
+    promemoria.className = 'mt-1 text-xs text-ouro';
+    const ricorda = () => {
+      promemoria.textContent =
+        block.fotoId && !block.alt.trim()
+          ? 'Scrivi cosa si vede: senza questa frase non posso pubblicare.'
+          : '';
+    };
 
     wrap.appendChild(
-      campo('Descrivi la foto (obbligatorio)', block.alt, 'Es. I tetti del Vidigal al tramonto', (v) => {
-        block.alt = v;
-      }),
+      campo(
+        'Descrivi la foto (obbligatorio)',
+        block.alt,
+        'Es. I tetti del Vidigal al tramonto',
+        (v) => {
+          block.alt = v;
+          // Keep the library entry in step, so the cover list stops reading
+          // "Foto 1, Foto 2, Foto 3" the moment he has described them.
+          const meta = foto.find((f) => f.id === block.fotoId);
+          if (meta) {
+            meta.alt = v;
+            rinominaOpzioneCopertina(meta);
+          }
+          ricorda();
+        },
+        () => salvaDescrizioneFoto(block),
+      ),
     );
+    wrap.appendChild(promemoria);
+    ricorda();
+
     wrap.appendChild(
       campo(
         'Didascalia sotto la foto (facoltativa)',
@@ -345,12 +693,19 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
         (v) => {
           block.didascalia = v;
         },
+        () => salvaDescrizioneFoto(block),
       ),
     );
     return wrap;
   }
 
-  function campo(etichetta: string, valore: string, placeholder: string, onInput: (v: string) => void) {
+  function campo(
+    etichetta: string,
+    valore: string,
+    placeholder: string,
+    onInput: (v: string) => void,
+    onBlur?: () => void,
+  ) {
     const label = document.createElement('label');
     label.className = 'mt-3 flex flex-col gap-1';
     const span = document.createElement('span');
@@ -366,6 +721,7 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
       onInput(input.value);
       cambiato();
     });
+    if (onBlur) input.addEventListener('blur', onBlur);
     label.appendChild(span);
     label.appendChild(input);
     return label;
@@ -417,6 +773,49 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
   }
 
   /**
+   * The cover list is rendered on the server from the photos that existed when the
+   * page loaded, so a photo uploaded since is invisible to it. These two keep it
+   * in step without a reload — the alternative being that he uploads a photo,
+   * cannot set it as the cover, and has no way to know why.
+   */
+  const opzioni = new Map<string, HTMLOptionElement>();
+  // Seeded from what the server rendered, not only from what this sitting
+  // uploaded: otherwise describing a photo he loaded yesterday renamed nothing,
+  // and the list stayed "Foto 1, Foto 2" until the page was loaded again.
+  for (const opt of cover?.options ?? []) if (opt.value) opzioni.set(opt.value, opt);
+
+  function opzioneCopertina(meta: PhotoMeta) {
+    if (!cover || opzioni.has(meta.id)) return;
+    const opt = document.createElement('option');
+    opt.value = meta.id;
+    opt.textContent = meta.alt || `Foto ${foto.length}`;
+    cover.appendChild(opt);
+    opzioni.set(meta.id, opt);
+  }
+
+  function rinominaOpzioneCopertina(meta: PhotoMeta) {
+    const opt = opzioni.get(meta.id);
+    if (opt && meta.alt.trim()) opt.textContent = meta.alt;
+  }
+
+  // Uploading a cover straight from the phone. Without this the only way to get a
+  // cover onto a new article is to create a photo block, upload there, then delete
+  // the block — which nobody would work out, so articles would go out coverless
+  // and appear on the blog index as a grey rectangle.
+  const caricaCopertina = root.querySelector('[data-copertina-carica]') as HTMLElement | null;
+  caricaCopertina?.appendChild(
+    controlloCarica('Carica la copertina dal telefono', (meta) => {
+      doc.coverPhotoId = meta.id;
+      if (cover) cover.value = meta.id;
+      cambiato();
+      aggiornaAnteprimaCopertina();
+      // The new photo belongs to the shared library, so every block picker must
+      // redraw with it.
+      disegna();
+    }),
+  );
+
+  /**
    * Shows the actual 16:9 crop the cover will get.
    *
    * His photos are mostly vertical and the cover renders `aspect-[16/9]`, so the
@@ -427,10 +826,11 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     const box = root.querySelector('[data-copertina-anteprima]') as HTMLElement | null;
     if (!box) return;
     box.textContent = '';
-    const f = foto.find((x) => x.id === doc.coverPhotoId);
-    if (!f) return;
+    // Works for both a staged upload and a `pub:<key>` cover carried over from a
+    // published article, so a re-opened article's cover shows its real crop.
+    if (!doc.coverPhotoId) return;
     const img = document.createElement('img');
-    img.src = `/admin/api/foto?bozza=${encodeURIComponent(draftId)}&foto=${encodeURIComponent(f.id)}`;
+    img.src = fotoUrl(doc.coverPhotoId);
     img.alt = '';
     img.className = 'aspect-[16/9] w-full rounded object-cover';
     box.appendChild(img);
@@ -452,6 +852,68 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
   // Coming back online is the moment a failed save can finally succeed.
   addEventListener('online', () => {
     if (dirtyRemote) void salvaRemoto('auto');
+  });
+
+  /* ------------------------------------------------------------ live preview */
+
+  const dataFmt = new Intl.DateTimeFormat('it-IT', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  /**
+   * Renders the article exactly as it will look online, into the "Vedi" panel.
+   *
+   * Reuses `blocksToPreviewHtml` — the same pure function the server-rendered
+   * preview page and (via the shared parity rules) the published page use — so
+   * this really is the finished article, not an approximation. innerHTML is safe:
+   * the function escapes every text node it emits.
+   */
+  function renderAnteprima() {
+    const titolo = root.querySelector('[data-viva-titolo]');
+    if (titolo) titolo.textContent = doc.title || 'Senza titolo';
+
+    const data = root.querySelector('[data-viva-data]');
+    if (data) {
+      const quando = new Date(doc.date);
+      data.textContent = Number.isNaN(quando.getTime()) ? '' : dataFmt.format(quando);
+    }
+
+    const cover = root.querySelector('[data-viva-copertina]') as HTMLElement | null;
+    if (cover) {
+      cover.textContent = '';
+      if (doc.coverPhotoId) {
+        const img = document.createElement('img');
+        img.src = fotoUrl(doc.coverPhotoId);
+        img.alt = doc.title || '';
+        img.className = 'mt-6 aspect-[16/9] w-full rounded-lg object-cover';
+        cover.appendChild(img);
+      }
+    }
+
+    const corpo = root.querySelector('[data-viva-corpo]') as HTMLElement | null;
+    if (corpo) corpo.innerHTML = blocksToPreviewHtml(doc.blocks, (id) => fotoUrl(id));
+  }
+
+  function modo(quale: 'scrivi' | 'vedi') {
+    const scrivi = root.querySelector('[data-pannello="scrivi"]') as HTMLElement | null;
+    const vedi = root.querySelector('[data-pannello="vedi"]') as HTMLElement | null;
+    if (!scrivi || !vedi) return;
+    // Re-render on the way in, so "Vedi" always shows the latest text — there is
+    // no live typing to react to while the editor itself is hidden.
+    if (quale === 'vedi') renderAnteprima();
+    scrivi.hidden = quale !== 'scrivi';
+    vedi.hidden = quale !== 'vedi';
+    (root.querySelectorAll('[data-modo]') as NodeListOf<HTMLElement>).forEach((b) => {
+      const attivo = b.dataset.modo === quale;
+      b.setAttribute('aria-selected', attivo ? 'true' : 'false');
+      b.className = attivo ? MODO_ATTIVO : MODO_INATTIVO;
+    });
+  }
+
+  (root.querySelectorAll('[data-modo]') as NodeListOf<HTMLElement>).forEach((b) => {
+    b.addEventListener('click', () => modo(b.dataset.modo === 'vedi' ? 'vedi' : 'scrivi'));
   });
 
   disegna();

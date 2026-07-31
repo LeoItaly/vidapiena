@@ -13,7 +13,7 @@
  */
 
 import type { Block } from './blocks';
-import { referencedPhotoIds } from './blocks';
+import { isPublishedPhoto, referencedPhotoIds } from './blocks';
 import { slugForTitle } from './slug';
 
 export interface DraftLike {
@@ -86,9 +86,13 @@ export function checkDraft(draft: DraftLike, ctx: CheckContext): CheckResult {
 
   // Every photo must exist in THIS draft, or the committed markdown points at a
   // file that is not in the commit — and `astro:assets` fails the build on a
-  // missing image rather than skipping it.
+  // missing image rather than skipping it. A `pub:` photo is exempt: its file is
+  // already in the repo (the article was opened from a published `.md`), so it is
+  // never in the KV upload index and needs no re-commit.
   const usate = referencedPhotoIds(draft.blocks);
-  const mancanti = usate.filter((id) => id && !ctx.fotoDisponibili.includes(id));
+  const mancanti = usate.filter(
+    (id) => id && !isPublishedPhoto(id) && !ctx.fotoDisponibili.includes(id),
+  );
   if (mancanti.length) {
     errori.push(
       mancanti.length === 1
@@ -116,7 +120,11 @@ export function checkDraft(draft: DraftLike, ctx: CheckContext): CheckResult {
     );
   }
 
-  if (draft.coverPhotoId && !ctx.fotoDisponibili.includes(draft.coverPhotoId)) {
+  if (
+    draft.coverPhotoId &&
+    !isPublishedPhoto(draft.coverPhotoId) &&
+    !ctx.fotoDisponibili.includes(draft.coverPhotoId)
+  ) {
     errori.push('La foto di copertina non c’è più. Scegline un’altra.');
   }
   if (!draft.coverPhotoId) {
