@@ -123,9 +123,26 @@ export const POST: APIRoute = async (context) => {
   const doc = sanitiseDraft(payload.doc, email);
   if (!doc) return fail(ERRORI.malformata, 400);
 
-  // The slug is frozen at first publish and never recomputed, so an edit to the
-  // title of a live article cannot move its URL.
+  /*
+   * Carry forward everything the editor does not own.
+   *
+   * `sanitiseDraft` rebuilds the document from the client's payload and keeps
+   * only the fields the editor sends — which is exactly right for untrusted
+   * input, and exactly wrong for the publish bookkeeping. Without this, the
+   * first autosave after publishing would erase the rollback pointer and the
+   * Annulla button would have nothing to go back to.
+   *
+   * The slug in particular is frozen at first publish and never recomputed, so
+   * editing the title of a live article cannot move its URL.
+   */
   if (existing?.publishedSlug) doc.publishedSlug = existing.publishedSlug;
+  if (existing?.lastCommit) doc.lastCommit = existing.lastCommit;
+  if (existing?.lastParent) doc.lastParent = existing.lastParent;
+  // The translation belongs to the text it was made from. Dropping it when the
+  // Italian changes is what stops a stale English twin being published.
+  if (existing?.en && JSON.stringify(existing.blocks) === JSON.stringify(doc.blocks)) {
+    doc.en = existing.en;
+  }
 
   // Refuse a write that changes nothing. Autosave fires on a timer and on
   // pagehide, so "he opened the editor and closed it" would otherwise cost a

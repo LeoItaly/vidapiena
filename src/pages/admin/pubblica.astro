@@ -1,0 +1,246 @@
+---
+/**
+ * Publishing, and the six minutes afterwards.
+ *
+ * The wait is the real UX problem here, not the mechanics. Three things follow
+ * from that and are the whole design of this page:
+ *
+ * - **Progress must be honest.** A fake bar that reaches 90% and stops is worse
+ *   than a number, because the second time it happens he stops believing the
+ *   screen. Each step reports what actually finished.
+ * - **Closing the phone must be safe, and he must be told so.** Once the commit
+ *   lands the build runs on GitHub whether or not anyone is watching. Saying so
+ *   is what stops him standing over a loading spinner for six minutes.
+ * - **The failure message must distinguish his mistake from ours.** A validation
+ *   error is something he can fix; an expired token is not, and telling him to
+ *   retry would be a lie.
+ *
+ * ⚠️ `prerender = false` is load-bearing — see the note in scrivi.astro.
+ */
+export const prerender = false;
+
+import AdminBase from '../../layouts/AdminBase.astro';
+import { getKV } from '../../lib/admin/runtime';
+import { DRAFT_ID, getDraft, ownership } from '../../lib/admin/draft-store';
+
+const admin = Astro.locals.admin;
+const kv = getKV();
+const draftId = Astro.url.searchParams.get('bozza') ?? '';
+
+let doc = null;
+let negato = false;
+if (kv && DRAFT_ID.test(draftId)) {
+  const salvata = await getDraft(kv, draftId);
+  if (salvata) {
+    if (ownership(salvata.owner, admin?.email ?? '') === 'altrui') negato = true;
+    else doc = salvata;
+  }
+}
+const giaOnline = Boolean(doc?.publishedSlug);
+---
+
+<AdminBase title="Pubblica" user={admin}>
+  {
+    negato || !doc ? (
+      <div class="rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-paper">
+        <p>{negato ? 'Questa bozza è di un altro account.' : 'Questa bozza non esiste più.'}</p>
+        <p class="mt-3">
+          <a href="/admin" class="btn btn-primary">Torna ai tuoi articoli</a>
+        </p>
+      </div>
+    ) : (
+      <div data-pubblica data-bozza={draftId} data-online={giaOnline ? '1' : ''}>
+        <p class="eyebrow text-ouro">{giaOnline ? 'Aggiorna' : 'Pubblica'}</p>
+        <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">{doc.title || 'Senza titolo'}</h1>
+
+        <div data-controllo class="mt-8">
+          <p class="text-paper/60">Controllo l’articolo…</p>
+        </div>
+
+        <div data-passi hidden class="mt-8">
+          <ol class="flex flex-col gap-3">
+            <li data-passo="traduci" class="flex items-start gap-3 text-paper/50">
+              <span data-icona class="w-5 shrink-0 text-center">·</span>
+              <span>Scrivo la versione inglese</span>
+            </li>
+            <li data-passo="commit" class="flex items-start gap-3 text-paper/50">
+              <span data-icona class="w-5 shrink-0 text-center">·</span>
+              <span>Metto l’articolo e le foto sul sito</span>
+            </li>
+            <li data-passo="build" class="flex items-start gap-3 text-paper/50">
+              <span data-icona class="w-5 shrink-0 text-center">·</span>
+              <span>
+                Il sito si aggiorna
+                <span class="text-paper/40">— circa 6 minuti</span>
+              </span>
+            </li>
+          </ol>
+          <p data-messaggio role="status" aria-live="polite" class="mt-6 text-paper/70" />
+        </div>
+
+        <div class="sticky bottom-0 -mx-5 mt-10 flex flex-wrap gap-3 border-t border-paper/10 bg-ink/95 px-5 py-4 backdrop-blur md:-mx-10 md:px-10">
+          <button type="button" data-vai class="btn btn-primary" hidden>
+            {giaOnline ? 'Aggiorna l’articolo' : 'Pubblica adesso'}
+          </button>
+          <a href={`/admin/scrivi?bozza=${draftId}`} class="btn">Torna a scrivere</a>
+          <button type="button" data-annulla class="btn" hidden>Annulla la pubblicazione</button>
+        </div>
+      </div>
+    )
+  }
+
+  <script>
+    const root = document.querySelector('[data-pubblica]') as HTMLElement | null;
+    if (root) {
+      const id = root.dataset.bozza!;
+      const controllo = root.querySelector('[data-controllo]') as HTMLElement;
+      const passi = root.querySelector('[data-passi]') as HTMLElement;
+      const messaggio = root.querySelector('[data-messaggio]') as HTMLElement;
+      const vai = root.querySelector('[data-vai]') as HTMLButtonElement;
+      const annulla = root.querySelector('[data-annulla]') as HTMLButtonElement;
+
+      const chiama = async (fase: string, extra: Record<string, unknown> = {}) => {
+        const res = await fetch('/admin/api/pubblica', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id, fase, ...extra }),
+        });
+        return { status: res.status, data: await res.json().catch(() => ({})) } as {
+          status: number;
+          data: Record<string, unknown>;
+        };
+      };
+
+      const segna = (passo: string, stato: 'corso' | 'fatto' | 'rotto') => {
+        const li = root.querySelector(`[data-passo="${passo}"]`) as HTMLElement | null;
+        if (!li) return;
+        const icona = li.querySelector('[data-icona]') as HTMLElement;
+        icona.textContent = stato === 'fatto' ? '✓' : stato === 'rotto' ? '✕' : '…';
+        li.className =
+          'flex items-start gap-3 ' +
+          (stato === 'fatto' ? 'text-verde' : stato === 'rotto' ? 'text-rosso' : 'text-paper');
+      };
+
+      const blocca = (testo: string) => {
+        messaggio.textContent = testo;
+        messaggio.className = 'mt-6 rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-paper';
+        vai.disabled = false;
+        vai.hidden = false;
+      };
+
+      /* ------------------------------------------------------- pre-flight */
+      const esito = await chiama('controlla');
+      const d = esito.data;
+      if (!d.ok) {
+        controllo.innerHTML = '';
+        blocca(String(d.errore ?? 'Non riesco a controllare l’articolo adesso.'));
+      } else if (!d.valido) {
+        const lista = document.createElement('ul');
+        lista.className = 'mt-3 flex flex-col gap-2';
+        for (const e of (d.errori as string[]) ?? []) {
+          const li = document.createElement('li');
+          li.className = 'rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-paper';
+          li.textContent = e;
+          lista.appendChild(li);
+        }
+        controllo.textContent = 'Prima di pubblicare c’è da sistemare questo:';
+        controllo.className = 'mt-8 text-paper';
+        controllo.appendChild(lista);
+      } else if (!d.attivo) {
+        controllo.textContent =
+          'L’articolo è a posto, ma la pubblicazione non è ancora attiva su questo sito. Scrivi a Leo.';
+        controllo.className =
+          'mt-8 rounded-lg border border-ouro/40 bg-ouro/10 px-4 py-3 text-paper';
+      } else {
+        const avvisi = (d.avvisi as string[]) ?? [];
+        controllo.textContent = '';
+        const ok = document.createElement('p');
+        ok.className = 'text-verde';
+        ok.textContent = `L’articolo è pronto. ${d.foto} foto, indirizzo /blog/${d.slug}/`;
+        controllo.appendChild(ok);
+        for (const a of avvisi) {
+          const p = document.createElement('p');
+          p.className = 'mt-3 rounded-lg border border-ouro/40 bg-ouro/10 px-4 py-3 text-sm text-paper';
+          p.textContent = a;
+          controllo.appendChild(p);
+        }
+        vai.hidden = false;
+      }
+
+      /* ----------------------------------------------------------- publish */
+      vai.addEventListener('click', async () => {
+        vai.disabled = true;
+        passi.hidden = false;
+        messaggio.className = 'mt-6 text-paper/70';
+
+        segna('traduci', 'corso');
+        messaggio.textContent = 'Sto scrivendo la versione inglese. Ci vuole un minuto.';
+        const tr = await chiama('traduci');
+        // A translation failure is deliberately not fatal: the twin ships the
+        // Italian text, the hreflang pair still resolves, and Leo can reword it.
+        segna('traduci', tr.data.ok ? 'fatto' : 'rotto');
+
+        segna('commit', 'corso');
+        messaggio.textContent = 'Sto caricando l’articolo e le foto.';
+        const pub = await chiama('pubblica');
+        if (!pub.data.ok) {
+          segna('commit', 'rotto');
+          const errori = (pub.data.errori as string[]) ?? [String(pub.data.errore ?? '')];
+          blocca(errori.join(' '));
+          vai.textContent = 'Riprova';
+          return;
+        }
+        segna('commit', 'fatto');
+
+        const commit = String(pub.data.commit);
+        segna('build', 'corso');
+        // The commit has landed; from here the build runs on GitHub regardless.
+        // Saying so is the point — otherwise he waits, watching.
+        messaggio.textContent =
+          'Fatto: l’articolo è al sicuro. Adesso il sito si aggiorna da solo, ci mette circa 6 minuti. ' +
+          'Puoi chiudere il telefono — va avanti lo stesso.';
+        annulla.hidden = false;
+
+        const scadenza = Date.now() + 15 * 60 * 1000;
+        while (Date.now() < scadenza) {
+          await new Promise((r) => setTimeout(r, 15000));
+          const st = await chiama('stato', { commit });
+          const fase = st.data.fase;
+          if (fase === 'online') {
+            segna('build', 'fatto');
+            messaggio.className = 'mt-6 rounded-lg border border-verde/40 bg-verde/10 px-4 py-3 text-paper';
+            messaggio.textContent = `È online! Lo trovi su /blog/${d.slug}/`;
+            annulla.hidden = false;
+            return;
+          }
+          if (fase === 'fallito') {
+            segna('build', 'rotto');
+            blocca(
+              'Il sito non è riuscito ad aggiornarsi. Il tuo articolo è salvo e non hai fatto niente di sbagliato: ' +
+                'tocca «Annulla la pubblicazione» e scrivi a Leo.',
+            );
+            vai.hidden = true;
+            return;
+          }
+        }
+        messaggio.textContent =
+          'Ci sta mettendo più del solito. L’articolo è comunque salvo: controlla fra qualche minuto.';
+      });
+
+      /* ------------------------------------------------------------ revert */
+      annulla.addEventListener('click', async () => {
+        if (!window.confirm('Vuoi rimettere il sito com’era prima di questo articolo?')) return;
+        annulla.disabled = true;
+        messaggio.textContent = 'Sto rimettendo il sito com’era…';
+        const r = await chiama('annulla');
+        messaggio.className = r.data.ok
+          ? 'mt-6 rounded-lg border border-verde/40 bg-verde/10 px-4 py-3 text-paper'
+          : 'mt-6 rounded-lg border border-rosso/40 bg-rosso/10 px-4 py-3 text-paper';
+        messaggio.textContent = r.data.ok
+          ? 'Fatto. Fra qualche minuto il sito torna com’era. Il tuo articolo resta salvo qui.'
+          : ((r.data.errori as string[]) ?? ['Non ci sono riuscito. Scrivi a Leo.']).join(' ');
+        annulla.disabled = false;
+      });
+    }
+  </script>
+</AdminBase>

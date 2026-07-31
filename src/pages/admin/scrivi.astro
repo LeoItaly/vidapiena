@@ -174,6 +174,9 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
         >
           <button type="button" data-salva class="btn btn-primary">Salva</button>
           <a href={`/admin/anteprima?bozza=${draftId}`} class="btn">Anteprima</a>
+          <a href={`/admin/pubblica?bozza=${draftId}`} class="btn">
+            {doc.publishedSlug ? 'Aggiorna' : 'Pubblica'}
+          </a>
           <a href="/admin/aiuto" class="eyebrow self-center text-paper/40">Come si fa?</a>
         </div>
       </div>

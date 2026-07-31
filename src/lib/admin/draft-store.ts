@@ -55,6 +55,23 @@ export interface DraftDoc {
    * live URL. Its presence is also what turns "pubblica" into "aggiorna".
    */
   publishedSlug?: string;
+  /**
+   * The machine-translated English twin, produced in its own publish phase.
+   *
+   * Parked here rather than recomputed at commit time because translation is the
+   * slow step — a dropped connection during it should cost the translation, not
+   * the article.
+   */
+  en?: { title: string; description: string; blocks: Block[] };
+  /** The commit this article was published in. */
+  lastCommit?: string;
+  /**
+   * The branch head *before* that commit — the tree a revert restores.
+   *
+   * Kept on the draft so undoing needs nothing but the draft id, and survives
+   * Francesco closing the browser between publishing and regretting it.
+   */
+  lastParent?: string;
   /** Email of the account that created it. Never shown to the other user. */
   owner: string;
   updatedAt: number;

@@ -81,6 +81,20 @@ export default defineConfig({
         access: 'public',
         optional: true,
       }),
+      /**
+       * Fine-grained GitHub PAT, scoped to THIS repository only, with
+       * `Contents: write` (the article commit) and `Actions: read` (progress).
+       *
+       * ⚠️ Because a push to `main` auto-deploys, this is write access to the
+       * live site. A *classic* PAT must never be used here: its `repo` scope
+       * covers every repository on the account, so a Worker compromise would
+       * expose all of them rather than this one public repo. Optional, so the
+       * back office keeps working with publishing disabled if it is unset —
+       * which is also how it degrades when the token expires.
+       */
+      GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      /** `owner/name`. A variable, not a secret — it is in the page footer anyway. */
+      GITHUB_REPO: envField.string({ context: 'server', access: 'public', optional: true }),
     },
   },
 

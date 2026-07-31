@@ -141,6 +141,46 @@ otherwise a flaky mobile connection would lock him out for 15 minutes for a netw
 problem. The rate limiter still locks an IP for 15 quiet minutes after 10 genuinely wrong
 attempts.
 
+## Turning publishing on (stage 5)
+
+Until this is done the back office works completely except for the Pubblica
+button, which says so in Italian rather than failing: *"La pubblicazione non è
+ancora attiva su questo sito. Scrivi a Leo."*
+
+**Create a fine-grained token**, not a classic one: GitHub → Settings →
+Developer settings → Personal access tokens → **Fine-grained tokens**.
+
+| Field | Value |
+|---|---|
+| Repository access | **Only select repositories** → `LeoItaly/vidapiena` |
+| Contents | **Read and write** — the article commit |
+| Actions | **Read** — the build-progress screen |
+| Expiration | as long as allowed |
+
+> ⚠️ **Never use a classic PAT here.** Its `repo` scope covers *every* repository
+> on the account, so a compromise of this Worker would expose all of them instead
+> of one public repo. A fine-grained token scoped to this repository cannot reach
+> anything else.
+>
+> Understand what you are granting either way: **a push to `main` deploys the
+> site**, so write access to this repo is write access to the live site.
+
+```bash
+npx wrangler secret put GITHUB_TOKEN
+```
+
+Then set `GITHUB_REPO` (a plain var, not a secret — it is a public URL) to
+`LeoItaly/vidapiena`, in the Cloudflare dashboard under the Worker's Variables,
+or in `.dev.vars` locally.
+
+**The expiry is the thing that will bite.** When a fine-grained token expires,
+the symptom is Francesco tapping Pubblica and getting *"Il collegamento con il
+sito è scaduto… scrivi a Leo"* — deliberately worded so he stops retrying and
+contacts you. `GET /admin/api/pubblica` returns the remaining days, so check it
+occasionally, or put a reminder in the calendar for a month before it lapses.
+
+To turn publishing back off: `npx wrangler secret delete GITHUB_TOKEN`.
+
 ## Regenerating Cloudflare types
 
 `worker-configuration.d.ts` is generated and committed, because CI runs `astro check` and

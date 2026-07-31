@@ -90,6 +90,18 @@
     { "name": "LOGIN_RL", "namespace_id": "1001", "simple": { "limit": 8, "period": 60 } }
   ],
 
+  // Machine translation of the English twin at publish. Free at this volume
+  // (10,000 neurons/day) and needs no second account, which is the whole reason
+  // it was chosen over a paid API — the site has a 0 €/month budget.
+  //
+  // The binding is optional at runtime: workersAiTranslator returns the Italian
+  // unchanged if it is absent or errors. A half-English article is worse than an
+  // untranslated one, and a missing EN file is worse than both (BaseHead emits
+  // hreflang unconditionally, so it would be a live link to a 404).
+  "ai": {
+    "binding": "AI"
+  },
+
   "observability": {
     "enabled": true
   }

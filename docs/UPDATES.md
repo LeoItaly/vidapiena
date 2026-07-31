@@ -2,6 +2,137 @@
 
 > Newest first. One entry per working session.
 
+## 2026-07-31 (later) — Stage 3 could never have worked · stages 4 and 5 built
+
+### 🔴 The photo upload was 100% broken in production, and every local test passed
+
+`String.fromCharCode(...)` + `btoa` on a 400 KB photo costs **30 ms of CPU in
+workerd**, against the free plan's **10 ms** per request. Every upload would have
+returned error 1102. `wrangler dev` does not enforce the limit, which is why it
+looked perfect — **the identical trap PBKDF2-at-100k fell into on the login.**
+Fixed with the runtime's native `Uint8Array.toBase64()`: **1 ms**, byte-identical
+output, confirmed *inside workerd* (`hasToB64: true, nativeMs: 1, legacyMs: 30`).
+Had the iPhone test run first, all of it would have failed with an English
+Cloudflare error page.
+
+### Stage 3 verified for real, in a browser, on 24 MP originals
+
+Previously only simulated with sharp. Now: EXIF rotation matches `sharp.rotate()`
+at **3.31** mean pixel difference (every wrong orientation scores 71–76); the KV
+round-trip reads back `exif: 0, xmp: 0, orientation: null`; base64 is byte-exact
+(408 399 in, 408 399 out); uploads 201 with a live session. Still untested and
+iPhone-only: **HEIC decoding**.
+
+Ten defects found and fixed, the two worst being client-facing:
+
+- **A dropped connection was reported as a broken photo** — *"Non riesco ad
+  aprire questa foto. Provane un'altra."* Poor signal in Rio is the likeliest
+  failure of all, and the message sent him hunting through his camera roll.
+- **An expired session rendered the raw reason code `non-autenticato`**, beside a
+  thumbnail that made it look saved.
+
+Also: every uploaded photo was unreachable (id discarded, no index, draft id
+regenerated per page load → a reload orphaned everything for 30 days) · a 60×40
+image uploaded as "Pronta" · `larghezza=-99999&altezza=1e9` stored verbatim (now
+read from the JPEG's own SOF marker) · any session could write into any draft ·
+the 24 MP bitmap leaked on every throw path · the quality search did 4 encodes
+and discarded 3 (now ≤3; the 9.7 MB photo went 6.4 s → 4.0 s **and** kept
+1218×1600 instead of dropping to 975×1280).
+
+### Adversarial review — 73 agents, 0 errors
+
+Only 2 findings survived double refutation, both the base64 bug. The five stale
+claims from last session were re-verified:
+
+- **Rate-limiter KV exhaustion: REAL, high.** Worse than claimed — KV's 60 s read
+  cache plus a non-atomic increment meant concurrent attempts all wrote the same
+  value, and the `catch {}` swallowed the over-quota error, so it **failed open
+  exactly when drained** while photo uploads and drafts stopped saving. → moved
+  to the **Rate Limiting binding**: edge-local, zero KV writes, checked *before*
+  PBKDF2, IPs folded to /64. Verified: blocks at 8/60 s, **0 `login-fail:` keys
+  written**.
+- **IPv6 bypass: partly real** — mechanically true, but brute force is refuted by
+  the 62-bit passphrase; the real harm was the write drain, now gone.
+- **`esci` GET: partly real** — cross-site `<img>` and link previews both refuted
+  (SameSite-Lax blocks the cookie *write*), but a same-site prefetch survives →
+  gated on Sec-Fetch metadata.
+- **Cache-Control: partly real** → `no-store, private` on the whole admin area,
+  set beside the guard so a new route cannot ship cacheable.
+- **GitHub's 60-day cron: partly real but worse.** All three triggers shared ONE
+  workflow file, so auto-disabling would have taken `push` down with it — silently
+  killing stage 5's publish path during exactly the quiet period the project
+  timeline predicts. `schedule:` removed (it is a no-op today anyway: no
+  `BEHOLD_FEED_ID`).
+
+Also fixed: **six EXIF-detection bypasses** (a single `0xFF` fill byte made a
+GPS-bearing photo read clean — 18/18 assertions now pass) · Content-Length was
+`Number(header ?? '0')`, so *omitting* it waved an unbounded body through · the
+unauthenticated login POST parsed its body before any check.
+
+### Two new build gates, both negative-tested
+
+`npm run build` now fails if **anything under /admin was prerendered** — that is
+a total auth bypass, since a prerendered page is served by the asset router in
+front of the Worker and `src/middleware.ts` never runs — or if **client personal
+data** appears in tracked source. And `npm run cf:deploy` refuses a build
+carrying the placeholder origin: the config guard only fires under CI, and this
+session's first local deploy was about to publish `https://vidapiena.workers.dev`
+(a hostname nobody owns) into every canonical, hreflang and sitemap entry.
+
+### ⚠️ Client data in the public repo
+
+Francesco's mobile number was live in this file on `main`; redacted and pushed.
+His business email is still reachable in history at `aa85a21` — a rewrite is a
+force-push decision, deliberately deferred.
+
+### Stage 4 — the block editor ✅
+
+Seven block types and nothing else, so an article cannot render unstyled.
+Textareas throughout (contenteditable fights the iOS keyboard); bold and tour
+links wrap the selection and are re-parsed and escaped server-side.
+
+**The preview is provably exact.** `BlogPostPage.astro` cannot render a draft
+(`render()` needs a committed collection entry, and remark in the Worker would
+eat the CPU budget), so the blocks render directly — and a build test drives the
+same blocks down *both* paths and diffs them. The only divergence it found was
+SmartyPants (`dall'alba` → `dall’alba`); with that mirrored the outputs are
+**IDENTICAL** across all twelve blocks.
+
+Autosave is **localStorage first, KV second** — 1,000 writes/day is shared with
+everything else, so a save-on-timer would spend it in an afternoon and then fail
+silently on the one feature whose job is not losing his work. KV gets a push once
+a minute, on `pagehide` via `sendBeacon`, and on demand; a no-op save is refused
+server-side. Verified: `L'alba: Rocinha dall'alto 🌅` round-trips and yields
+`l-alba-rocinha-dall-alto`; unknown block kinds are dropped; oversized input is
+clamped not rejected; `owner` is server-side; `../login-fail:1.2.3.4` as a draft
+id gets a fresh one. Ownership 403s on every surface and leaks no text.
+
+Plus the **in-app Italian help** and the **optional photo caption**
+(figure/figcaption, keeps Astro's asset pipeline) — both Leo's 30/07 decisions.
+
+### Stage 5 — the publish loop ✅ (token not yet wired)
+
+Pre-flight validation → IT→EN via **Workers AI** (free, no second account) → **one
+atomic commit** (blobs→tree→commit→ref, so the IT file, the EN twin and every
+photo land together and trigger exactly one build) → honest progress → revert.
+
+Photos go to GitHub as the base64 already in KV — no decode, no re-encode, which
+is what keeps the commit inside the CPU budget. Phased so that **once the commit
+lands, closing the phone is safe** and the screen says so. A translation failure
+ships the Italian in the twin rather than stranding a half-publish: a missing EN
+file is a live hreflang link to a 404, which is strictly worse.
+
+Verified: an empty article, broken photo references, and a **duplicate of a real
+published slug** are all caught with specific Italian messages; a valid article
+passes; with no token the answer is an honest "not active yet, not your fault".
+
+**Decisions taken with Leo:** fine-grained PAT scoped to this repo only
+(Contents+Actions) — never a classic PAT, whose `repo` scope covers every
+repository on the account · Workers AI to start, switchable.
+
+**Not done:** the iPhone/HEIC test (Leo's, live now at `/admin/foto`) · the
+`GITHUB_TOKEN` secret · merging to `main`.
+
 ## 2026-07-31 — DEPLOYED 🚀 + the review that caught a showstopper
 
 **The site is live on Cloudflare Workers at <https://vidapiena.leonardo-rodo.workers.dev>** and
