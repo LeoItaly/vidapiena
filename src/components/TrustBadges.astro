@@ -1,6 +1,7 @@
 ---
 import OtaLogo from './OtaLogo.astro';
 import { PLATFORMS } from '../lib/platforms';
+import { TOURS } from '../data/tours';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -18,9 +19,14 @@ const dict = t(locale);
  * and Civitatis all publish official reversed/white variants, and Viator — a
  * teal raster with no white master — is whitened by the same filter so the
  * strip stays uniform on the dark background.
- * Deliberately UNLINKED (OTA-LINKS.md rule): per-tour deep links belong on the
- * cards and tour pages; a global badge pointing at one arbitrary tour's listing
- * would mislead.
+ *
+ * Linked (03/08/2026 — supersedes the old "global row stays unlinked" rule in
+ * OTA-LINKS.md). Each mark resolves to the "Un Giorno a Rio" listing on that
+ * platform — the only tour live on all four OTAs — so every chip points at the
+ * same flagship on its own OTA and none misleads about where the visitor lands.
+ * Only the first sequence carries anchors; marquee duplicates stay <span> so we
+ * don't ship 12+ identical outbound links (SSR duplicates are aria-hidden and
+ * the JS-cloned copies get tabindex="-1" via marquees.ts).
  */
 const SIZES: Record<string, string> = {
   viator: 'h-6 md:h-7',
@@ -28,7 +34,13 @@ const SIZES: Record<string, string> = {
   airbnb: 'h-7 md:h-8',
   civitatis: 'h-5 md:h-6',
 };
-const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key] }));
+const flagship = TOURS.find((t) => t.id === 'giorno')!;
+const badges = PLATFORMS.map((p) => ({
+  key: p.key,
+  name: p.name,
+  h: SIZES[p.key],
+  href: flagship.otaLinks[p.key],
+}));
 ---
 
 {/* One continuous ink region with Footer/FinalCta — no seams, no panel. */}
@@ -53,7 +65,19 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
           >
             {badges.map((b) => (
               <li class="flex items-center">
-                <OtaLogo platform={b.key} name={b.name} class={b.h} />
+                {copy === 0 && b.href ? (
+                  <a
+                    href={b.href}
+                    class="badge-link inline-flex items-center"
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    aria-label={`${dict.badges.heading} ${b.name}`}
+                  >
+                    <OtaLogo platform={b.key} name={b.name} class={b.h} />
+                  </a>
+                ) : (
+                  <OtaLogo platform={b.key} name={b.name} class={b.h} />
+                )}
               </li>
             ))}
           </ul>
@@ -74,6 +98,19 @@ const badges = PLATFORMS.map((p) => ({ key: p.key, name: p.name, h: SIZES[p.key]
   .badge-row :global(img) {
     filter: brightness(0) invert(1);
     opacity: 0.82;
+  }
+
+  /* Only the first sequence's marks are anchors; hover lifts them from 0.82 to
+     full white so the pointer affordance is legible without breaking the strip's
+     "one calm off-white row" character. */
+  .badge-row :global(.badge-link) {
+    transition: opacity 0.2s ease;
+  }
+  .badge-row :global(.badge-link:hover .ota-logo),
+  .badge-row :global(.badge-link:hover img),
+  .badge-row :global(.badge-link:focus-visible .ota-logo),
+  .badge-row :global(.badge-link:focus-visible img) {
+    opacity: 1;
   }
 
   /* ---- Static path (default) — the centred, wrapping row ----------------- */

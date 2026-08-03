@@ -59,8 +59,18 @@ const graph = {
         <div class="mt-14 border-t border-ink/15 pt-10 md:mt-16">
           <h2 class="font-display text-2xl font-bold md:text-3xl">{dict.contact.bookingHeading}</h2>
           <p class="mt-3 max-w-prose text-ink-soft">{dict.contact.bookingLead}</p>
-          {/* Trust row only — per-tour deep links live on each tour's page. */}
-          <PlatformBadges class="mt-6" />
+          {/*
+            Global trust row, but now clickable (03/08/2026 — same rule as the
+            hero and the bottom strip). Each mark resolves to the "Un Giorno a
+            Rio" listing on that platform — the only tour live on all four OTAs
+            — so every chip points at the same flagship on its own OTA. Per-tour
+            deep links still live on each tour's own page.
+          */}
+          <PlatformBadges
+            class="mt-6"
+            links={TOURS.find((t) => t.id === 'giorno')!.otaLinks}
+            linkLabel={dict.hero.otaLabel}
+          />
           <ul class="mt-8 max-w-xl divide-y divide-ink/15 border-y border-ink/15">
             {
               TOURS.map((tour) => (

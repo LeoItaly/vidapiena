@@ -4,6 +4,7 @@ import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
 import OtaLogo from './OtaLogo.astro';
 import SprayStroke from './SprayStroke.astro';
 import { PLATFORMS } from '../lib/platforms';
+import { TOURS } from '../data/tours';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
 import { t, pagePath, type Locale } from '../i18n';
 
@@ -21,6 +22,11 @@ const posters = await getHeroPosters();
  * variants, no recoloring, light background), scaled down and set on light
  * chips so they stay legible over the dark hero. Low priority: nothing here
  * may compete with the poster for the LCP.
+ *
+ * Each mark is a booking link (03/08/2026). Global badges resolve to the
+ * "Un Giorno a Rio" listing on that platform — the only tour live on all four
+ * OTAs, so the same flagship anchors every mark and no chip misleads about
+ * where the visitor lands.
  */
 const CHIP_SIZES: Record<string, string> = {
   viator: 'h-3',
@@ -28,7 +34,12 @@ const CHIP_SIZES: Record<string, string> = {
   airbnb: 'h-3.5',
   civitatis: 'h-2.5',
 };
-const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
+const flagship = TOURS.find((t) => t.id === 'giorno')!;
+const badges = PLATFORMS.map((p) => ({
+  ...p,
+  h: CHIP_SIZES[p.key],
+  href: flagship.otaLinks[p.key],
+}));
 ---
 
 {/* `data-hero` (not <header>) — the site header is the fixed Nav now; the
@@ -92,11 +103,25 @@ const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
       <ul class="flex flex-wrap items-center gap-2">
         {
           badges.map((b) => (
-            <li class="flex items-center rounded-full bg-paper/90 px-2.5 py-1">
+            <li>
               {/* Inline SVG / intrinsic-size PNG — either way the chip reserves
                   its width before paint; these sit above the fold, and a reflow
                   here would shift the whole bottom-anchored headline block. */}
-              <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
+              {b.href ? (
+                <a
+                  href={b.href}
+                  class="ota-chip is-link flex items-center rounded-full bg-paper/90 px-2.5 py-1"
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  aria-label={`${dict.hero.otaLabel} ${b.name}`}
+                >
+                  <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
+                </a>
+              ) : (
+                <span class="ota-chip flex items-center rounded-full bg-paper/90 px-2.5 py-1">
+                  <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
+                </span>
+              )}
             </li>
           ))
         }
@@ -111,3 +136,18 @@ const badges = PLATFORMS.map((p) => ({ ...p, h: CHIP_SIZES[p.key] }));
     </p>
   </div>
 </section>
+
+<style>
+  /* Subtle affordance so the chip reads as tappable without repainting the mark
+     itself (trademark rule: no filter on the logo). Kept quiet — the hero row
+     is trust signal, not a CTA. */
+  .ota-chip.is-link {
+    transition:
+      background-color 0.2s ease,
+      transform 0.25s var(--ease-vp-out);
+  }
+  .ota-chip.is-link:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+</style>
