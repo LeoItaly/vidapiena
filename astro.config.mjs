@@ -29,8 +29,8 @@ const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://vidapiena.workers.dev';
 
 // Fail the build rather than deploy wrong canonical URLs. Local builds keep the
 // placeholder (nothing is published from them); CI must be told the real origin
-// via the SITE_ORIGIN repo variable — the account subdomain after the first
-// deploy, then https://vidapiena.com at the cutover.
+// via the SITE_ORIGIN repo variable — set to https://riovidapiena.com at the
+// 2026-08-03 cutover (was the account subdomain before that).
 if (process.env.CI && !process.env.SITE_ORIGIN) {
   throw new Error(
     'SITE_ORIGIN is not set. Add it as a GitHub repo *variable* (Settings → Secrets and ' +

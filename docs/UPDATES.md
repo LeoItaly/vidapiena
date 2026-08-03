@@ -2,6 +2,27 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-03 — Domain cutover: riovidapiena.com is live
+
+Bought and wired the real domain. `vidapiena.com` turned out to be squatted (registered
+2024-03 via GoDaddy, parked) and `vidapiena.tours` was $48/yr, so we took the on-brand
+`.com` modifier **`riovidapiena.com`** on Cloudflare Registrar (~$10.46/yr, auto-renew on).
+
+- Attached `riovidapiena.com` + `www.riovidapiena.com` as Custom Domains on the `vidapiena`
+  Worker; certs provisioned in minutes.
+- Added a Redirect Rule `www.*` → apex (301, preserve query) — verified: `www` 301s to the
+  naked domain keeping path + query.
+- Flipped the `SITE_ORIGIN` repo variable to `https://riovidapiena.com` and re-ran the
+  deploy so every canonical / hreflang / og:url / sitemap / robots.txt / llms.txt emits the
+  new origin.
+- Disabled the `vidapiena.leonardo-rodo.workers.dev` subdomain so the site isn't indexed
+  twice.
+- Refreshed [`HOSTING.md`](HOSTING.md) cutover section (the old "hand-edit robots/llms" step
+  was obsolete — those are generated from `SITE.origin` now).
+
+Ownership: Leo is registrant + payer; Francesco reimburses. No handover of domain / CF
+account / repo yet. Email unchanged — Francesco keeps `vidapiena-riotours@outlook.com`.
+
 ## 2026-07-31 (later) — Back-office: exit navigation + unsaved-changes guard; drop the "no faces" rule
 
 Leo, on Francesco's behalf: once you tap **«Scrivi un articolo»** there is no way

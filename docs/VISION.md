@@ -1,4 +1,8 @@
-# Vision — vidapiena.com (working name)
+# Vision — riovidapiena.com
+
+> Domain bought 2026-08-03: **riovidapiena.com** (Cloudflare Registrar). The plain
+> `vidapiena.com` was already squatted and `vidapiena.tours` cost $48/yr, so we took the
+> on-brand `.com` modifier at wholesale (~$10/yr).
 
 ## One-liner
 
@@ -88,7 +92,7 @@ The cinematic layer (logo video, scroll-scrubbed clips, WebGL) is **progressive 
 
 ## Open questions
 
-- [ ] Domain: `vidapiena.com`? (check availability / who buys it)
+- [x] Domain: **`riovidapiena.com`** bought 2026-08-03 on Cloudflare Registrar (Leo is registrant/payer; `vidapiena.com` was squatted, `.tours` was $48/yr).
 - [ ] Language set at launch: IT+EN confirmed? PT-BR when?
 - [ ] Booking: OTA deep-links + WhatsApp only, or direct booking later (Bokun widget could embed)?
 - [ ] Analytics: GA4 vs privacy-light (Plausible/Umami)?

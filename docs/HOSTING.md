@@ -294,19 +294,30 @@ supports.** The adapter prerenders inside the Workers runtime, so a too-new date
 **build**, not just `wrangler dev`. The error is explicit about the newest supported date.
 Bump it only together with `wrangler`.
 
-## The vidapiena.com cutover
+## The riovidapiena.com cutover — DONE 2026-08-03
 
-The domain is not bought yet. When it lands:
+**Domain: `riovidapiena.com`** (Cloudflare Registrar, ~$10.46/yr, auto-renew on, expires
+2027-08-03). The original working name `vidapiena.com` was already squatted (registered
+2024-03 via GoDaddy, parked, no fixed sale price); `vidapiena.tours` was priced at $48/yr,
+so we picked the on-brand `.com` modifier `riovidapiena.com` at wholesale.
 
-1. Set the `SITE_ORIGIN` repo variable to `https://vidapiena.com`.
-2. Update the absolute URLs in [`public/robots.txt`](../public/robots.txt) and
-   [`public/llms.txt`](../public/llms.txt) — 12 occurrences. These are the GEO /
-   AI-citation surface, so they matter more than they look.
-3. Add the custom domain to the Worker in the Cloudflare dashboard.
+What was done, in order:
 
-That is the whole list. Everything else reads the origin through `SITE.origin`
-(which reads `import.meta.env.SITE`) or `import.meta.env.BASE_URL`, so no component or
-layout needs touching.
+1. Bought `riovidapiena.com` on Cloudflare Registrar (same account as the Worker → zone is
+   auto-created with CF nameservers, no delegation step).
+2. Attached `riovidapiena.com` **and** `www.riovidapiena.com` as Custom Domains on the
+   `vidapiena` Worker (Workers → vidapiena → Domains). Certs provisioned in <5 min.
+3. Added a **Redirect Rule** in the zone (`www.*` → `https://${1}`, 301, preserve query)
+   so `www` 301s to the apex. Deployed as "Redirect from WWW to root", Active.
+4. Set the `SITE_ORIGIN` repo variable to `https://riovidapiena.com` and re-ran the deploy.
+5. (Then) disabled the `vidapiena.leonardo-rodo.workers.dev` subdomain on the Worker so the
+   site isn't indexed twice.
+
+**No code files needed editing** and — note — the old step "hand-edit `public/robots.txt`
+and `public/llms.txt`" is obsolete: those files no longer exist. `robots.txt` and
+`llms.txt` are now generated from `SITE.origin` in [`src/pages/robots.txt.ts`](../src/pages/robots.txt.ts)
+and [`src/pages/llms.txt.ts`](../src/pages/llms.txt.ts). Everything else reads the origin
+through `SITE.origin` (which reads `import.meta.env.SITE`) or `import.meta.env.BASE_URL`.
 
 ## Rollback
 
