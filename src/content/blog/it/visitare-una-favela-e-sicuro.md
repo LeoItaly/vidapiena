@@ -35,7 +35,7 @@ guardarsi negli occhi conta. Il resto è camminare, salutare, ascoltare.
 - **R$270 a persona**: stesso prezzo per tutti i favela tour, mototaxi sempre incluso.
 - **3 lingue**: racconto in italiano, inglese e portoghese.
 
-![Il Vidigal, la favela affacciata sul mare dove vivo](../../../assets/photos/tour-vidigal.jpg)
+![La scalinata dipinta coi colori del Brasile, nel cuore della Rocinha](../../../assets/photos/tour-rocinha.jpg)
 
 Se volete vedere com’è davvero, i tour partono ogni giorno:
 [scoprite il Favela Tour della Rocinha](../../tour/favela-tour-rocinha/) —

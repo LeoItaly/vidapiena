@@ -2,6 +2,19 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-04 — Fix wrong photo in "is it safe to visit a favela" post
+
+Francesco spotted (WhatsApp) that the blog post **`visitare-una-favela-e-sicuro`** showed a
+**Vidigal** photo (`tour-vidigal.jpg`, caption "the favela over the sea where I live")
+directly above the CTA **"discover the Rocinha Favela Tour"** — photo and link contradicted
+each other. Swapped both twins (IT + EN) to `tour-rocinha.jpg` (the Brazil-flag-painted
+staircase in Rocinha — unambiguously Rocinha, not used in any other post) and rewrote the
+alt/caption to match the tour the section links to. Not pushed.
+
+**Rule going forward:** in any blog/tour copy, the inline photo must match the place its CTA
+links to — don't caption a Vidigal shot and then link Rocinha. Faces in photos are fine
+(client confirmed — no "no faces" rule for the public site).
+
 ## 2026-08-03 — Domain cutover: riovidapiena.com is live
 
 Bought and wired the real domain. `vidapiena.com` turned out to be squatted (registered
