@@ -87,8 +87,8 @@ The cinematic layer (logo video, scroll-scrubbed clips, WebGL) is **progressive 
 | **1** | Logo animation (Higgsfield) · visual direction · hero prototype | ✅ 21 Jul 2026 — went further: **full cinematic one-pager LIVE** (IT+EN) at leoitaly.github.io/vidapiena · stack decided: **Astro 7 + GSAP + Tailwind 4** · photo descent with `BackdropRenderer` seam for the clip scrub (see UPDATES 21/07) |
 | **1b** | 5-clip Seedance shoot post Plus renewal (~23 Jul) → `FrameSequenceBackdrop` canvas scrub | |
 | **2** | Full frontend: 4 tour pages, story, contact, SEO/GEO hardening (robots, sitemap, JSON-LD, llms.txt, hreflang — **one-pager already carries all of these**) | |
-| **3** | Custom back office (auth, article editor) | 🚧 30 Jul 2026 — hosting on Cloudflare Workers + `/admin` login done & verified; photo pipeline, block editor and publish loop remain |
-| **4** | Launch: domain, Search Console, analytics, redirects from link-in-bio | |
+| **3** | Custom back office (auth, article editor) | ✅ 05 Aug 2026 — Cloudflare Workers hosting, `/admin` login, phone photo pipeline, block editor and publish loop all done; articles now come out SEO/GEO-ready from one dropdown (audited, see UPDATES 05/08) |
+| **4** | Launch: domain, Search Console, analytics, redirects from link-in-bio | 🚧 domain **riovidapiena.com** live 03 Aug 2026; Search Console / Bing verification hooks in place (`PUBLIC_*_SITE_VERIFICATION` repo vars) — analytics + link-in-bio redirects remain |
 
 ## Open questions
 

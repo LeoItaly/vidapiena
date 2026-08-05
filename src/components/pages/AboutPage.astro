@@ -5,7 +5,7 @@ import PageHero from './PageHero.astro';
 import Footer from '../Footer.astro';
 import JsonLdScript from '../JsonLdScript.astro';
 import { getPhoto } from '../../lib/photos';
-import { SITE } from '../../data/site';
+import { SITE, PERSON_SAMEAS } from '../../data/site';
 import { t, pagePath, localeHref, absoluteUrl, type Locale } from '../../i18n';
 
 interface Props {
@@ -16,6 +16,15 @@ const dict = t(locale);
 const path = 'la-guida/';
 const photo = getPhoto('guide-francesco');
 const operatorId = `${absoluteUrl(localeHref('it'))}#operator`;
+
+// Platform links for the "you'll also find me on …" line. A missing profile URL
+// (still to be collected) renders as plain text, never a dead anchor.
+const platformProfiles = [
+  { name: 'Airbnb', href: SITE.profiles.airbnb },
+  { name: 'Viator', href: SITE.profiles.viator },
+  { name: 'GetYourGuide', href: SITE.profiles.getyourguide },
+  { name: 'Civitatis', href: SITE.profiles.civitatis },
+];
 
 const graph = {
   '@context': 'https://schema.org',
@@ -33,12 +42,16 @@ const graph = {
       description: dict.about.metaDescription,
       knowsLanguage: ['it', 'en', 'pt'],
       workLocation: { '@type': 'City', name: 'Rio de Janeiro' },
-      sameAs: [SITE.instagram],
+      sameAs: PERSON_SAMEAS,
       worksFor: {
         '@type': ['TourOperator', 'LocalBusiness'],
         '@id': operatorId,
         name: SITE.name,
         url: absoluteUrl(localeHref('it')),
+        // NOTE: the raw MEI/CNPJ number is deliberately NOT emitted here. This
+        // repo is public and verify-build.mjs blocks CNPJs in tracked source
+        // (and CLAUDE.md keeps that identifier local). The "registered MEI"
+        // trust signal lives in the About prose (dict.about.trust) as text only.
       },
     },
   ],
@@ -66,6 +79,28 @@ const graph = {
             ))
           }
 
+          <p class="mt-5 max-w-prose text-lg leading-relaxed text-ink-soft">
+            {dict.about.platforms.lead}{' '}
+            {
+              platformProfiles.map((p, i) => (
+                <Fragment>
+                  {i > 0 ? (i === platformProfiles.length - 1 ? ` ${dict.about.platforms.and} ` : ', ') : ''}
+                  {p.href ? (
+                    <a href={p.href} rel="noopener" target="_blank" class="text-verde underline underline-offset-2">
+                      {p.name}
+                    </a>
+                  ) : (
+                    p.name
+                  )}
+                </Fragment>
+              ))
+            }
+            {' — '}{dict.about.platforms.instagramLead}{' '}
+            <a href={SITE.instagram} rel="noopener" target="_blank" class="text-verde underline underline-offset-2">
+              Instagram
+            </a>{dict.about.platforms.tail}
+          </p>
+
           <dl class="mt-10 border-t border-ink/15">
             {
               dict.guide.stats.map((s) => (
@@ -76,6 +111,20 @@ const graph = {
               ))
             }
           </dl>
+
+          <div class="mt-10">
+            <h2 class="eyebrow text-ink/55">{dict.about.trust.heading}</h2>
+            <ul class="mt-4 space-y-2.5">
+              {
+                dict.about.trust.items.map((item) => (
+                  <li class="flex gap-3 leading-relaxed text-ink-soft">
+                    <span class="mt-[0.55em] block h-1.5 w-1.5 flex-none rounded-full bg-ouro" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
 
           <div class="mt-10 flex flex-wrap items-center gap-3">
             <a href={localeHref(locale, '#tour')} class="btn btn-primary">{dict.about.ctaTours}</a>

@@ -52,6 +52,12 @@ export interface ArticleFrontmatter {
   locale: 'it' | 'en';
   /** Photo key, not a path — see src/lib/photos.ts. */
   cover?: string | undefined;
+  /**
+   * Tour id this article is about (one of the four in src/data/tours.ts). Written
+   * identically to both locale twins — it is a locale-invariant id, never
+   * translated. Omitted when the article belongs to no single tour.
+   */
+  relatedTour?: string | undefined;
   draft: boolean;
 }
 
@@ -72,6 +78,10 @@ export function buildArticleFile(front: ArticleFrontmatter, markdown: string): s
     ...(front.updated ? [`updated: ${isoDate(front.updated)}`] : []),
     `locale: ${front.locale}`,
     ...(front.cover ? [`cover: ${bareOrQuoted(front.cover)}`] : []),
+    // A tour id (`[a-z]+`), so it is safe unquoted — but run it through the same
+    // guard as the cover key so a value that is somehow not plain fails loudly
+    // rather than reshaping the document.
+    ...(front.relatedTour ? [`relatedTour: ${bareOrQuoted(front.relatedTour)}`] : []),
     `draft: ${front.draft ? 'true' : 'false'}`,
     '---',
     '',

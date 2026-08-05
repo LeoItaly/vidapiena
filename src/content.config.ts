@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { TOURS, type TourId } from './data/tours';
 
 /**
  * Blog articles — Markdown under src/content/blog/<locale>/<slug>.md.
@@ -27,6 +28,22 @@ const blog = defineCollection({
     locale: z.enum(['it', 'en']),
     /** Optional photo key into src/assets/photos/ (see lib/photos.ts) */
     cover: z.string().optional(),
+    /**
+     * The tour this article is about — the one editorial decision the author makes
+     * (a dropdown in the back office). It drives topical internal linking in both
+     * directions (src/data/related.ts) and, later, article↔tour entity binding, so
+     * a new article is cross-linked automatically instead of needing a code edit.
+     * Optional: the shared "is a favela safe" piece belongs to every favela tour,
+     * not one, so it carries no value and is cross-linked through the override in
+     * related.ts instead.
+     *
+     * Derived from the catalog, not spelled out again. The back office validates a
+     * chosen id against the SAME list (`TOUR_IDS` in lib/admin/draft-store.ts) and
+     * silently drops anything else — so two hand-written copies that drifted apart
+     * would quietly strip the field from a live article on its next publish, with
+     * only a non-blocking warning from verify-build. One source, no drift.
+     */
+    relatedTour: z.enum(TOURS.map((t) => t.id) as [TourId, ...TourId[]]).optional(),
     draft: z.boolean().default(false),
   }),
 });

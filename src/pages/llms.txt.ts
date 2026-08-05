@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { SITE } from '../data/site';
+import { liveArticles } from '../data/related';
 
 /**
  * Generated, not a static file in public/.
@@ -11,15 +12,19 @@ import { SITE } from '../data/site';
  * `https://vidapiena.workers.dev`, which nobody owns. A citation surface full of
  * dead links is worse than no citation surface.
  *
- * Facts here are verified against `Context Knowledge/note tours.md` (parent
+ * Tour facts here are verified against `Context Knowledge/note tours.md` (parent
  * folder, local-only). Keep them in step with src/data/tours.ts by hand — the
  * prose is deliberately hand-written for a reader, not generated from the data.
+ *
+ * The blog list, by contrast, is DERIVED from the content collection (the English
+ * twins), so an article Francesco publishes through the back office appears here
+ * automatically — this citation surface can never fall behind the live blog.
  */
 export const prerender = true;
 
 const o = SITE.origin;
 
-const body = `# Vidapiena
+const render = (articles: { slug: string; title: string }[]) => `# Vidapiena
 
 > Vidapiena is Francesco's tour brand in Rio de Janeiro, Brazil. Francesco is an
 > Italian native speaker who has lived in Rio for 9 years. He leads small-group
@@ -56,6 +61,18 @@ const body = `# Vidapiena
 - Booking: through the tour platforms — Viator, GetYourGuide, Airbnb Experiences and
   Civitatis. Direct contact: Instagram DM (${SITE.instagram}).
 
+## Trust
+
+- Participants are covered by a personal-accident insurance policy (Porto Seguro),
+  valid through 30 June 2027.
+- Vidapiena is a registered Brazilian business (MEI), active since January 2025.
+
+## Blog
+
+${articles.map((a) => `- ${a.title}\n  IT: ${o}/blog/${a.slug}/ · EN: ${o}/en/blog/${a.slug}/`).join('\n')}
+
+Full details, including the FAQ for every tour: ${o}/llms-full.txt
+
 ## Pages
 
 - Home (IT): ${o}/ · EN: ${o}/en/
@@ -65,5 +82,9 @@ const body = `# Vidapiena
 - Tour pages (EN versions under /en/tour/…): see the four tours above.
 `;
 
-export const GET: APIRoute = () =>
-  new Response(body, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+// The English twins: the titles here are the reader-facing English ones, and every
+// article is present because the list comes from the collection (src/data/related.ts).
+export const GET: APIRoute = async () =>
+  new Response(render(await liveArticles('en')), {
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });

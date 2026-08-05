@@ -28,6 +28,10 @@
 import type { KVLike } from './rate-limit';
 import type { Block } from './blocks';
 import { PUB_PREFIX } from './blocks';
+import { TOURS, type TourId } from '../../data/tours';
+
+/** The valid `relatedTour` values, from the one catalog — never trust the phone client. */
+const TOUR_IDS = new Set<string>(TOURS.map((t) => t.id));
 
 /** 90 days. An article abandoned for a season is abandoned. */
 const DRAFT_TTL_SECONDS = 60 * 60 * 24 * 90;
@@ -50,6 +54,11 @@ export interface DraftDoc {
   date: string;
   /** Photo id (not yet a key) of the cover, or '' for none. */
   coverPhotoId: string;
+  /**
+   * The tour this article is about, or undefined for none. Chosen from a dropdown
+   * in the editor; drives topical internal linking once published (related.ts).
+   */
+  relatedTour?: TourId;
   blocks: Block[];
   /**
    * Set once the article has been published, and then never changed: it is the
@@ -221,11 +230,19 @@ export function sanitiseDraft(input: unknown, owner: string): DraftDoc | null {
 
   const date = text(d.date, 10);
 
+  // Only one of the four known tour ids survives; anything else (a stale id, a
+  // typo, an injected value) is dropped to "no tour" rather than stored.
+  const relatedTour =
+    typeof d.relatedTour === 'string' && TOUR_IDS.has(d.relatedTour)
+      ? (d.relatedTour as TourId)
+      : undefined;
+
   return {
     title: text(d.title, 300),
     description: text(d.description, 600),
     date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10),
     coverPhotoId: photoId(d.coverPhotoId),
+    ...(relatedTour ? { relatedTour } : {}),
     blocks,
     ...(text(d.publishedSlug, 120) ? { publishedSlug: text(d.publishedSlug, 120) } : {}),
     owner,

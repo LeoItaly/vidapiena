@@ -4,6 +4,7 @@ description: 'Sopra Catete, a due passi dal centro, c’è una comunità rilassa
 date: 2026-07-01
 locale: it
 cover: tour-tavares
+relatedTour: tavares
 draft: false
 ---
 

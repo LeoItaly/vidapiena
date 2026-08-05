@@ -3,6 +3,7 @@ title: 'Modello di articolo (bozza — non viene pubblicato)'
 description: 'File di riferimento per il formato degli articoli del blog. Resta in bozza: non compare sul sito.'
 date: 2026-07-21
 locale: it
+relatedTour: rocinha
 draft: true
 ---
 

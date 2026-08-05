@@ -4,6 +4,7 @@ description: 'La favela più grande del Brasile si visita dall’alto verso il b
 date: 2026-07-15
 locale: it
 cover: tour-rocinha
+relatedTour: rocinha
 draft: false
 ---
 

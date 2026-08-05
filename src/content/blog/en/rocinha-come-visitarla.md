@@ -4,6 +4,7 @@ description: 'Brazil’s largest favela is visited from the top down: mototaxi t
 date: 2026-07-15
 locale: en
 cover: tour-rocinha
+relatedTour: rocinha
 draft: false
 ---
 

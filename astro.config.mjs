@@ -3,6 +3,11 @@ import { defineConfig, envField } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import { blogLastmod } from './scripts/blog-lastmod.mjs';
+
+// Blog last-modified dates, read from frontmatter at config-eval time and
+// stamped onto each blog URL's <lastmod> in the sitemap (freshness signal).
+const BLOG_LASTMOD = blogLastmod();
 
 // Deployed to Cloudflare Workers. The back office at /admin needs a server
 // runtime (login, sessions, uploads, commits) and GitHub Pages has none —
@@ -82,6 +87,29 @@ export default defineConfig({
         optional: true,
       }),
       /**
+       * Google Search Console ownership token → <meta name="google-site-verification">.
+       * Optional: the tag only renders once set (see BaseHead.astro). A DNS TXT
+       * record verifies just as well and survives HTML changes; this is the code hook.
+       * Like PUBLIC_TURNSTILE_SITE_KEY it is Vite-inlined at build, so it must also be
+       * added to the Build step's env in deploy.yml or it compiles to `undefined`.
+       */
+      PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({
+        context: 'client',
+        access: 'public',
+        optional: true,
+      }),
+      /**
+       * Bing Webmaster Tools token → <meta name="msvalidate.01">. Bing's index
+       * feeds ChatGPT Search and Copilot, so this is a GEO signal, not just an SEO
+       * one. Same build-time inlining caveat as above. (Or "Import from GSC" in
+       * Bing Webmaster Tools, which needs no meta at all.)
+       */
+      PUBLIC_BING_SITE_VERIFICATION: envField.string({
+        context: 'client',
+        access: 'public',
+        optional: true,
+      }),
+      /**
        * Fine-grained GitHub PAT, scoped to THIS repository only, with
        * `Contents: write` (the article commit) and `Actions: read` (progress).
        *
@@ -104,6 +132,14 @@ export default defineConfig({
       // The back office is a login, not content. Keep it out of the sitemap even
       // if a future /admin route is ever accidentally prerendered.
       filter: (page) => !page.includes('/admin'),
+      // Stamp <lastmod> on blog URLs from their frontmatter dates. Compared with
+      // the trailing slash stripped so it matches regardless of trailingSlash.
+      serialize(item) {
+        const key = new URL(item.url).pathname.replace(/\/$/, '');
+        const lastmod = BLOG_LASTMOD[key];
+        if (lastmod) item.lastmod = lastmod;
+        return item;
+      },
     }),
   ],
   vite: {

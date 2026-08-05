@@ -4,6 +4,7 @@ description: 'Il Vidigal è la favela affacciata sul mare, tra Leblon e i Dois I
 date: 2026-07-08
 locale: it
 cover: zone-1-mirante
+relatedTour: vidigal
 draft: false
 ---
 

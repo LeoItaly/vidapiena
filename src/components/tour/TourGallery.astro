@@ -23,8 +23,10 @@ import { getPhoto } from '../../lib/photos';
 interface Props {
   keys: string[];
   heading: string;
-  /** Used to build the photos' alt text and the card captions */
+  /** Used to build the card captions and the fallback alt text */
   tourName: string;
+  /** Optional per-photo alt text, keyed by photo key (current locale). */
+  alts?: Record<string, string>;
   /** dict.tourPage.galleryCount — the static total label ("12 fotografie") */
   countLabel: (n: number) => string;
   /** dict.tourPage.galleryPrev / galleryNext — nav button labels */
@@ -35,9 +37,11 @@ interface Props {
   /** dict.tourPage.galleryHint — the drag affordance line */
   hint: string;
 }
-const { keys, heading, tourName, countLabel, prevLabel, nextLabel, positionLabel, hint } =
+const { keys, heading, tourName, alts, countLabel, prevLabel, nextLabel, positionLabel, hint } =
   Astro.props;
-const photos = keys.map((key) => getPhoto(key)).filter((p) => p !== null);
+// Keep the key alongside each photo so alt text stays aligned even when a key
+// resolves to nothing and is dropped (indices would otherwise drift).
+const photos = keys.map((key) => ({ key, photo: getPhoto(key) })).filter((p) => p.photo !== null);
 const total = String(photos.length).padStart(2, '0');
 const posLabel = (cur: number) =>
   positionLabel.replace('%c', String(cur)).replace('%t', String(photos.length));
@@ -66,16 +70,16 @@ const posLabel = (cur: number) =>
             tabindex="0"
             aria-label={heading}
           >
-            {photos.map((photo, i) => (
+            {photos.map(({ key, photo }, i) => (
               <li class="deck-item" data-deck-item>
                 <figure class="deck-card">
                   <div class="deck-frame relative overflow-hidden rounded-lg">
                     <Picture
-                      src={photo}
+                      src={photo!}
                       formats={['avif', 'webp']}
                       widths={[640, 1080, 1600]}
                       sizes="(min-width: 48rem) 44rem, 90vw"
-                      alt={`${tourName} — ${heading} ${i + 1}`}
+                      alt={alts?.[key] ?? `${tourName} — ${heading}`}
                       class="h-full w-full object-cover"
                       loading={i === 0 ? 'eager' : 'lazy'}
                       decoding="async"

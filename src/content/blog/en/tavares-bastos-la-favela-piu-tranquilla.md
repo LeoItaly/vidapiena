@@ -4,6 +4,7 @@ description: 'Above Catete, steps from downtown, sits a relaxed community with v
 date: 2026-07-01
 locale: en
 cover: tour-tavares
+relatedTour: tavares
 draft: false
 ---
 

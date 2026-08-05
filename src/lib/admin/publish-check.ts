@@ -41,10 +41,12 @@ export interface CheckResult {
   slug: string;
 }
 
-/** Long enough to be a real description, short enough for a search result. */
-const DESCRIPTION_MIN = 50;
-const DESCRIPTION_MAX = 200;
-const TITLE_MIN = 10;
+/** Long enough to be a real description, short enough for a search result.
+ *  Exported so the in-editor coaching checklist (seo-checklist.ts) warns on the
+ *  same thresholds the publish gate does — one source of truth for both. */
+export const DESCRIPTION_MIN = 50;
+export const DESCRIPTION_MAX = 200;
+export const TITLE_MIN = 10;
 
 export function checkDraft(draft: DraftLike, ctx: CheckContext): CheckResult {
   const errori: string[] = [];

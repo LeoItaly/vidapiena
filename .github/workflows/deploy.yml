@@ -118,6 +118,11 @@ jobs:
         env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          # Search-engine ownership tokens (repo *variables*, public URLs/tokens).
+          # Vite-inlined at build like the Turnstile key, so they belong on THIS
+          # step; unset just means the verification <meta> tags are omitted.
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 

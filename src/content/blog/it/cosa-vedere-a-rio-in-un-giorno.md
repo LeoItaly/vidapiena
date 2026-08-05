@@ -4,6 +4,7 @@ description: 'Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucche
 date: 2026-06-24
 locale: it
 cover: tour-giorno
+relatedTour: giorno
 draft: false
 ---
 

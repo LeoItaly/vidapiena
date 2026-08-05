@@ -163,6 +163,20 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
             placeholder="Due righe: è quello che si legge su Google e nella lista del blog."
           />
         </label>
+        {/* One-tap AI help: reads the article and proposes a Riassunto he can edit.
+            Free (Workers AI, already used for the translation). Never overwrites
+            silently — it fills the field for him to accept or change. */}
+        <div class="mt-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            data-suggerisci-riassunto
+            class="rounded-lg border border-ouro/40 px-3 py-1.5 text-sm text-ouro"
+          >
+            ✨ Suggerisci un riassunto
+          </button>
+          <span data-suggerisci-stato class="text-xs text-paper/50" role="status" aria-live="polite"
+          ></span>
+        </div>
 
         <div class="mt-5 grid gap-5 sm:grid-cols-2">
           <label class="flex flex-col gap-1">
@@ -197,6 +211,41 @@ const TIPI: { k: keyof typeof BLOCK_LABELS; aiuto: string }[] = [
         <div data-copertina-carica class="mt-3 max-w-sm"></div>
         {/* The real 16:9 crop, because his photos are mostly vertical. */}
         <div data-copertina-anteprima class="mt-3 max-w-sm" />
+
+        {/* The one editorial choice that wires the article into the rest of the
+            site: which tour it is about. Set it, and the article appears on that
+            tour's page and links back to it — with nothing more to do. Left on
+            "Nessuno in particolare" for a general piece. */}
+        <label class="mt-5 flex flex-col gap-1">
+          <span class="eyebrow text-paper/50">Di quale tour parla?</span>
+          <select
+            data-tour-relativo
+            class="w-full rounded-lg border border-paper/20 bg-paper/5 px-4 py-3 text-base text-paper"
+          >
+            <option value="">Nessuno in particolare</option>
+            {
+              TOURS.map((tr) => (
+                <option value={tr.id} selected={doc.relatedTour === tr.id}>
+                  {it.tours.items[tr.id].name}
+                </option>
+              ))
+            }
+          </select>
+          <span class="mt-1 text-xs text-paper/40">
+            L’articolo comparirà nella pagina di quel tour e lo collegherà. Lascia
+            «Nessuno» se è un racconto generale.
+          </span>
+        </label>
+
+        {/* Live "ready for Google" coaching. Filled and kept current by the editor
+            script (seo-checklist.ts) as he types — advice only, never a block. */}
+        <div
+          data-seo-checklist
+          class="mt-6 rounded-lg border border-paper/15 bg-paper/5 p-4"
+          role="status"
+          aria-live="polite"
+        >
+        </div>
 
         <h2 class="mt-10 font-display text-xl font-bold">L’articolo</h2>
         <ol data-blocchi class="mt-3 flex flex-col gap-3" />

@@ -28,6 +28,7 @@ import type { Block } from '../lib/admin/blocks';
 import { BLOCK_LABELS } from '../lib/admin/blocks';
 import { blocksToPreviewHtml } from '../lib/admin/preview-html';
 import { processAndUpload } from '../lib/admin/upload-client';
+import { seoChecklist } from '../lib/admin/seo-checklist';
 
 const MODO_ATTIVO = 'rounded-md px-3 py-1.5 text-sm font-medium bg-ouro text-ink';
 const MODO_INATTIVO = 'rounded-md px-3 py-1.5 text-sm font-medium text-paper/60';
@@ -37,6 +38,8 @@ interface DraftDoc {
   description: string;
   date: string;
   coverPhotoId: string;
+  /** Tour id this article is about, or '' — chosen from the "Di quale tour parla?" select. */
+  relatedTour?: string;
   blocks: Block[];
   publishedSlug?: string;
   owner?: string;
@@ -59,6 +62,10 @@ interface TourLink {
 const AUTOSAVE_LOCAL_MS = 400;
 /** KV write cadence. Deliberately slow — see the header note on the write budget. */
 const AUTOSAVE_REMOTE_MS = 60_000;
+/** How much of the article the "suggerisci un riassunto" call sends. Matches the
+ *  cap /admin/api/assist applies on arrival — the subject of an article is in its
+ *  opening, and the first paragraphs are what the model needs. */
+const ASSIST_MAX_CHARS = 8000;
 
 export interface EditorOptions {
   root: HTMLElement;
@@ -87,6 +94,7 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
 
   const stato = root.querySelector('[data-stato]') as HTMLElement;
   const elenco = root.querySelector('[data-blocchi]') as HTMLElement;
+  const pannelloSeo = root.querySelector('[data-seo-checklist]') as HTMLElement | null;
 
   /**
    * Photos uploaded in this sitting, kept as object URLs.
@@ -185,6 +193,53 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     doc.updatedAt = Date.now();
     salvaLocale();
     segnala('Non salvato', 'attesa');
+    aggiornaChecklist();
+  }
+
+  /**
+   * The live "Pronto per Google" panel. Recomputed from the whole draft on every
+   * change, so it reflects the title, riassunto, tour choice, subtitles and photo
+   * descriptions as he edits — guidance only, never a gate (the gate is the
+   * publish step). Shares its rules with publish-check via seo-checklist.ts.
+   */
+  function aggiornaChecklist() {
+    if (!pannelloSeo) return;
+    const items = seoChecklist(doc);
+    const fatti = items.filter((i) => i.stato === 'ok').length;
+    pannelloSeo.textContent = '';
+
+    const titolo = document.createElement('p');
+    titolo.className = 'eyebrow text-paper/50';
+    titolo.textContent = `Pronto per Google · ${fatti}/${items.length}`;
+    pannelloSeo.appendChild(titolo);
+
+    const ul = document.createElement('ul');
+    ul.className = 'mt-3 flex flex-col gap-2';
+    for (const item of items) {
+      const li = document.createElement('li');
+      li.className = 'flex gap-2 text-sm';
+
+      const icona = document.createElement('span');
+      icona.setAttribute('aria-hidden', 'true');
+      icona.className = `mt-0.5 flex-none ${item.stato === 'ok' ? 'text-verde' : 'text-ouro'}`;
+      icona.textContent = item.stato === 'ok' ? '✓' : '○';
+      li.appendChild(icona);
+
+      const corpo = document.createElement('div');
+      const et = document.createElement('span');
+      et.className = item.stato === 'ok' ? 'text-paper/70' : 'text-paper';
+      et.textContent = item.etichetta;
+      corpo.appendChild(et);
+      if (item.stato === 'todo' && item.suggerimento) {
+        const sug = document.createElement('p');
+        sug.className = 'mt-0.5 text-xs text-paper/50';
+        sug.textContent = item.suggerimento;
+        corpo.appendChild(sug);
+      }
+      li.appendChild(corpo);
+      ul.appendChild(li);
+    }
+    pannelloSeo.appendChild(ul);
   }
 
   /* -------------------------------------------------------------- exit guard */
@@ -929,6 +984,84 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
     });
   }
 
+  // The tour this article is about. Server-rendered <select> whose value is a tour
+  // id (or '' for none); the empty string is stored as "no tour", so a general
+  // article carries no relatedTour rather than a falsy one.
+  const tourRelativo = root.querySelector('[data-tour-relativo]') as HTMLSelectElement | null;
+  if (tourRelativo) {
+    tourRelativo.value = doc.relatedTour ?? '';
+    tourRelativo.addEventListener('change', () => {
+      doc.relatedTour = tourRelativo.value || undefined;
+      cambiato();
+    });
+  }
+
+  /* --------------------------------------------------- suggest a description */
+
+  /** The article's prose, for the AI to read — photo ids and markup left out. */
+  function prosaArticolo(): string {
+    return doc.blocks
+      .map((b) => (b.k === 'ul' || b.k === 'ol' ? b.voci.join('\n') : b.k === 'foto' ? '' : b.testo))
+      .filter((s) => s.trim())
+      .join('\n\n');
+  }
+
+  const riassuntoArea = root.querySelector('[data-riassunto]') as HTMLTextAreaElement | null;
+  const bottoneSuggerisci = root.querySelector('[data-suggerisci-riassunto]') as HTMLButtonElement | null;
+  const statoSuggerisci = root.querySelector('[data-suggerisci-stato]') as HTMLElement | null;
+
+  const dirSuggerisci = (testo: string) => {
+    if (statoSuggerisci) statoSuggerisci.textContent = testo;
+  };
+
+  async function suggerisciRiassunto() {
+    if (!bottoneSuggerisci) return;
+    const testo = prosaArticolo();
+    if (!testo.trim() && !doc.title.trim()) {
+      dirSuggerisci('Scrivi prima il titolo o qualche riga dell’articolo.');
+      return;
+    }
+    const originale = bottoneSuggerisci.textContent;
+    bottoneSuggerisci.disabled = true;
+    bottoneSuggerisci.textContent = 'Un momento…';
+    dirSuggerisci('');
+    try {
+      const res = await fetch('/admin/api/assist', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        // Truncated here and not only on the server: the endpoint reads at most
+        // 8 000 characters anyway, and the Worker gets 10 ms of CPU per request —
+        // parsing a whole long article only to throw most of it away is how a
+        // request that passes locally returns 1102 in production.
+        body: JSON.stringify({ titolo: doc.title, testo: testo.slice(0, ASSIST_MAX_CHARS) }),
+      });
+      if (res.status === 401 || res.status === 403) {
+        dirSuggerisci('Collegamento scaduto — entra di nuovo.');
+        return;
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        riassunto?: string;
+        errore?: string;
+      };
+      if (data.ok && data.riassunto) {
+        doc.description = data.riassunto;
+        if (riassuntoArea) riassuntoArea.value = data.riassunto;
+        cambiato();
+        dirSuggerisci('Proposta pronta: correggila come vuoi.');
+      } else {
+        dirSuggerisci(data.errore ?? 'Non riesco adesso. Riprova, oppure scrivilo tu.');
+      }
+    } catch {
+      dirSuggerisci('Sei offline: riprova quando torni in linea.');
+    } finally {
+      bottoneSuggerisci.disabled = false;
+      bottoneSuggerisci.textContent = originale;
+    }
+  }
+
+  bottoneSuggerisci?.addEventListener('click', () => void suggerisciRiassunto());
+
   /**
    * The cover list is rendered on the server from the photos that existed when the
    * page loaded, so a photo uploaded since is invisible to it. These two keep it
@@ -1075,6 +1208,7 @@ export function mountEditor({ root, draftId, doc, foto, tours }: EditorOptions) 
   });
 
   disegna();
+  aggiornaChecklist();
   segnala('');
 
   return { doc, salva: () => salvaRemoto('manuale') };

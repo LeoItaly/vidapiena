@@ -21,6 +21,10 @@ interface Props {
   preloadHeroPosters?: boolean;
   /** Nav treatment: 'overlay' (landing hero) or 'solid' (default, subpages). */
   nav?: 'overlay' | 'solid';
+  /** og:type — 'website' (default) or 'article' (blog posts). Forwarded to BaseHead. */
+  ogType?: 'website' | 'article';
+  articlePublishedTime?: string;
+  articleModifiedTime?: string;
 }
 const {
   locale,
@@ -31,6 +35,9 @@ const {
   ogImageAlt,
   preloadHeroPosters = false,
   nav = 'solid',
+  ogType,
+  articlePublishedTime,
+  articleModifiedTime,
 } = Astro.props;
 const dict = t(locale);
 ---
@@ -45,6 +52,9 @@ const dict = t(locale);
       ogImage={ogImage}
       ogImageAlt={ogImageAlt}
       preloadHeroPosters={preloadHeroPosters}
+      ogType={ogType}
+      articlePublishedTime={articlePublishedTime}
+      articleModifiedTime={articleModifiedTime}
     />
     <slot name="head" />
   </head>

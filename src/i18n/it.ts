@@ -132,6 +132,41 @@ export const it = {
       'Le prenotazioni apriranno a breve su Airbnb, Viator, GetYourGuide e Civitatis. Nel frattempo scrivimi in DM su Instagram per date e disponibilità.',
     instagramDm: 'Scrivimi su Instagram',
     otherToursHeading: 'Gli altri tour',
+    fromBlog: 'Dal blog',
+    faqHeading: 'Domande frequenti',
+    /* Q&A condivise da tutti i tour — scritte per essere citate così come sono
+       (da Google e dagli assistenti AI). Le domande specifiche del singolo tour,
+       con i numeri reali, vivono in items[id].faq. */
+    faqCommon: [
+      {
+        q: 'È sicuro visitare una favela?',
+        a: 'Sì, con una guida che conosce la comunità. Cammino queste strade da 9 anni e conosco le persone: entriamo solo dove siamo i benvenuti. Ti dico sempre dove siamo e come comportarci, niente foto alle persone senza chiedere. Gruppi piccoli, ritmo tranquillo.',
+      },
+      {
+        q: 'È un tour etico?',
+        a: 'Non è uno zoo umano. Entriamo con rispetto e parte di quello che paghi resta nella comunità: i mototaxi dei ragazzi locali, la tassa comunitaria, le famiglie e gli artisti che incontriamo. Racconto la vita vera, senza spettacolarizzare la povertà.',
+      },
+      {
+        q: 'Posso fare foto?',
+        a: 'Sì, ma non alle persone senza chiedere prima. Panorami e muri dipinti sempre; persone e case solo con il loro permesso. Te lo indico man mano lungo il percorso.',
+      },
+      {
+        q: 'Va bene per bambini e famiglie?',
+        a: 'Sì, il ritmo si adatta al gruppo. Alla Rocinha i bambini fino a 12 anni pagano R$180; per i più piccoli valutiamo insieme il mototaxi.',
+      },
+      {
+        q: 'Cosa porto e come mi vesto?',
+        a: 'Scarpe comode chiuse (si cammina in discesa su strade e scale irregolari), acqua e un po’ di contanti per un caffè o l’artigianato locale. Vestiti comodi, niente di appariscente; cappello e crema solare nei giorni di sole.',
+      },
+      {
+        q: 'Come prenoto?',
+        a: 'Le prenotazioni si fanno sulle piattaforme — Viator, GetYourGuide, Airbnb e Civitatis, a seconda del tour — con i link su ogni pagina del tour. Per date o domande scrivimi in DM su Instagram (@vidapiena).',
+      },
+      {
+        q: 'E se piove o devo cancellare?',
+        a: 'Con maltempo forte concordiamo insieme un’altra data. Le condizioni di cancellazione e rimborso seguono la piattaforma con cui prenoti; il minimo è 2 persone.',
+      },
+    ],
     items: {
       rocinha: {
         metaTitle: 'Favela Tour Rocinha — 3 ore con guida italiana | Vidapiena',
@@ -157,6 +192,20 @@ export const it = {
           'Guida in italiano, inglese o portoghese',
         ],
         meetingNote: 'Av. Niemeyer 780, São Conrado (Igreja Universal). Il tour inizia e finisce nello stesso punto.',
+        faq: [
+          {
+            q: 'Dove e quando ci incontriamo?',
+            a: 'Ci troviamo in Av. Niemeyer 780, São Conrado, davanti all’Igreja Universal. Il tour inizia e finisce nello stesso punto e dura circa 3 ore. Partenze ogni giorno, minimo 2 persone.',
+          },
+          {
+            q: 'Cosa è incluso nel prezzo?',
+            a: 'R$270 a persona (bambini fino a 12 anni R$180). Include il mototaxi fino in cima, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+          },
+          {
+            q: 'Quanto si cammina?',
+            a: 'Si sale in mototaxi fino in cima e si scende a piedi: circa 3 ore in discesa su strade e scale irregolari. Consigliate scarpe comode chiuse.',
+          },
+        ],
       },
       vidigal: {
         metaTitle: 'Favela Tour Vidigal — 2 ore e 30 con guida italiana | Vidapiena',
@@ -180,6 +229,20 @@ export const it = {
           'Guida in italiano, inglese o portoghese',
         ],
         meetingNote: 'Praça do Vidigal, all’ingresso della comunità.',
+        faq: [
+          {
+            q: 'Dove e quando ci incontriamo?',
+            a: 'Ci troviamo in Praça do Vidigal, all’ingresso della comunità. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
+          },
+          {
+            q: 'Cosa è incluso nel prezzo?',
+            a: 'R$270 a persona. Include il mototaxi fino all’alto Vidigal, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+          },
+          {
+            q: 'Qual è la vista migliore?',
+            a: 'Ci fermiamo in un bar con Leblon, Ipanema e il Pan di Zucchero in un unico sguardo, e chiudiamo su una terrazza panoramica di fronte al Cristo Redentore. È il tour del tramonto per eccellenza.',
+          },
+        ],
       },
       tavares: {
         metaTitle: 'Favela Tour Tavares Bastos — 2 ore e 30 con guida italiana | Vidapiena',
@@ -202,6 +265,20 @@ export const it = {
           'Guida in italiano, inglese o portoghese',
         ],
         meetingNote: 'Rua Bento Lisboa 72, Catete.',
+        faq: [
+          {
+            q: 'Dove e quando ci incontriamo?',
+            a: 'Ci troviamo in Rua Bento Lisboa 72, Catete. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
+          },
+          {
+            q: 'Cosa è incluso nel prezzo?',
+            a: 'R$270 a persona. Include il mototaxi e la guida in italiano, inglese o portoghese. Tavares Bastos è la comunità più tranquilla del centro di Rio.',
+          },
+          {
+            q: 'Si gioca davvero sul campetto di FIFA Street?',
+            a: 'Sì: l’iconico campetto di FIFA Street è qui e una partita è quasi d’obbligo. Intorno, la vita quotidiana della comunità e scorci sul centro e sulla baia.',
+          },
+        ],
       },
       giorno: {
         metaTitle: 'Un Giorno a Rio — city tour con guida italiana | Vidapiena',
@@ -227,6 +304,20 @@ export const it = {
           'Guida in italiano, inglese o portoghese',
         ],
         meetingNote: 'Pick-up direttamente nel tuo hotel, ovunque a Rio. Fatti trovare pronto circa 30 minuti prima.',
+        faq: [
+          {
+            q: 'Dove e quando ci incontriamo?',
+            a: 'Ti vengo a prendere direttamente in hotel, ovunque a Rio. La giornata dura circa 8 ore (9 con il pranzo); fatti trovare pronto circa 30 minuti prima. Partenze ogni giorno, minimo 2 persone.',
+          },
+          {
+            q: 'Quanto costa e come funziona il prezzo?',
+            a: 'Il prezzo è a persona e scende all’aumentare del gruppo: 2–3 persone R$1200, 4–6 persone R$900, 7–15 persone R$780. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
+          },
+          {
+            q: 'Cosa vediamo in una giornata?',
+            a: 'Il Cristo Redentore con il trenino del Corcovado, il quartiere di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia. Tutto organizzato, con pick-up e rientro in hotel.',
+          },
+        ],
       },
     },
   },
@@ -241,8 +332,24 @@ export const it = {
       'Sono Francesco, italiano, e vivo a Rio de Janeiro da 9 anni. Vidapiena — "vita piena" — è il nome che ho dato al mio modo di stare qui: dentro la città, non davanti.',
       'Accompagno persone nelle comunità di Rocinha, Vidigal e Tavares Bastos, e in giro per la città con "Un Giorno a Rio". Tour a piedi, gruppi piccoli, mototaxi incluso: si sale in moto e si scende camminando, fermandosi dove la vita succede.',
       'Guido in italiano — la mia lingua — e in inglese e portoghese quando il gruppo è misto. Le storie che racconto vengono dalle persone che conosco: famiglie, artisti, chi nella comunità ci è nato.',
-      'Mi trovi anche su Airbnb, Viator, GetYourGuide e Civitatis — o su Instagram, dove racconto Rio ogni giorno.',
     ],
+    /* Frase "mi trovi anche su …" — resa con link reali alle piattaforme in
+       AboutPage.astro (i nomi non ancora collegati restano testo semplice). */
+    platforms: {
+      lead: 'Mi trovi anche su',
+      and: 'e',
+      instagramLead: 'o su',
+      tail: ', dove racconto Rio ogni giorno.',
+    },
+    /* Solo nella sezione "La guida", mai in home: sono informazioni specifiche.
+       "Polizza infortuni" (copertura dei partecipanti), NON responsabilità civile. */
+    trust: {
+      heading: 'Garanzie',
+      items: [
+        'I partecipanti sono coperti da una polizza infortuni (Porto Seguro).',
+        'Attività registrata come MEI, l’impresa individuale brasiliana (CNPJ).',
+      ],
+    },
     ctaTours: 'Scopri i tour',
     ctaContact: 'Contatti',
   },
@@ -278,6 +385,11 @@ export const it = {
     readMore: 'Leggi',
     backToBlog: '← Tutti gli articoli',
     updatedOn: 'Aggiornato il',
+    related: 'Continua a leggere',
+    relatedTour: 'Il tour di questo racconto',
+    /** Plural form: an article that belongs to more than one tour (see
+     *  EXTRA_TOUR_POSTS in src/data/related.ts) heads its block with this. */
+    relatedTours: 'I tour di questo racconto',
   },
 
   instagram: {

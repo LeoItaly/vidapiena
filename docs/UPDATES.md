@@ -2,6 +2,76 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-05 (later) — Second-pass audit of the SEO/GEO article feature
+
+Independent review of the entry below. The `relatedTour` flow itself came back clean —
+traced set / cleared / re-opened / published, confirmed the id is never translated, and
+checked the cross-links against the built HTML. Seven fixes, all inside that surface:
+
+- **`/admin/api/assist` parsed an unbounded body.** Every cap (8 000 / 4 000 chars) ran
+  *after* `request.json()` while the client sent the whole article — on 10 ms of CPU that
+  is an error 1102 `wrangler dev` can never reproduce. Capped client-side + a
+  `content-length` 413, as in `bozza.ts`.
+- **verify-build §4 never compared `relatedTour` across twins** — a one-locale hand-edit
+  shipped two pages linking to different tours. Now fatal. Added warnings for an
+  `EXTRA_TOUR_POSTS` slug matching no file, and for the EN description length.
+- **The tour-id list lived in three places.** `content.config.ts`'s enum is now derived
+  from `TOURS`; drift would have silently stripped the field on the next publish
+  (`sanitiseDraft` drops an unknown id, and the missing-value check only warns).
+- **`unchanged()` in `bozza.ts` was key-order sensitive** — `en` and the two shas are
+  re-added in the opposite order after a publish, so a no-op autosave spent a KV write.
+  Now a fixed-order tuple (*not* a `JSON.stringify` replacer array, which would also
+  filter nested block keys).
+- **`visitare-una-favela-e-sicuro` was an internal-link dead end:** pointed at by three
+  tour pages, pointing back at nothing. New `toursForPost()` + a `BlogPostPage` fallback;
+  it now heads «I tour di questo racconto» with all three favela tours (new plural i18n
+  key `blog.relatedTours`).
+- **Housekeeping:** `postsForTour` capped at 4; `liveArticles()`, duplicated verbatim in
+  both llms surfaces, moved into `related.ts`.
+
+**Verified:** `astro check` 0/0/0 (123 files), build + verify-build clean with no soft
+warnings. Publish simulation with a temp `zzz-test` twin pair → both llms files, top of
+"Dal blog" on the Rocinha page, back-links in both locales; temp files removed and
+rebuilt clean. Negative tests: divergent twin fails, missing EN twin still fails, both new
+warnings fire. Editor client chunk still 21 KB, no `slugForTitle` / `checkDraft` leakage,
+no `dist/client/admin`.
+
+## 2026-08-05 — Back-office articles are SEO/GEO-ready on publish
+
+Closed the gap where an article Francesco writes in `/admin` renders + gets sitemapped fine
+but is **invisible to the AI-citation files** and **orphaned from tour internal-linking**
+until code is hand-edited. Principle: SEO/GEO-readiness is now **structural, not authorial** —
+he supplies one dropdown choice; the system manufactures the rest.
+
+- **New `relatedTour` frontmatter field** (enum of the 4 tour ids), threaded through the whole
+  publish pipeline: schema (`content.config.ts`), serializer (`frontmatter.ts`), draft model +
+  sanitiser (`draft-store.ts`, validated against `TOURS`), the editor `<select>`
+  (`scrivi.astro` + `admin-editor.ts`), the publish commit (`pubblica.ts` → **both** it+en
+  twins, never translated), and the re-open path (`parse-markdown.ts` + `articolo.ts`).
+- **Internal linking now DERIVES from frontmatter.** `src/data/related.ts` rewritten from the
+  hand-maintained `TOUR_TO_POSTS`/`POST_TO_TOUR` maps into `getCollection`-backed helpers
+  (`postsForTour`, `tourLink`) + a small `EXTRA_TOUR_POSTS` override for the cross-cutting
+  safety post. `BlogPostPage.astro` reads the tour from the post's own `data.relatedTour`
+  (works in either locale, one fewer query); `TourPage.astro` uses `postsForTour`. Backfilled
+  `relatedTour` into the 5 existing twins so cross-links are byte-identical to before.
+- **AI-citation files self-maintain.** `llms.txt` + `llms-full.txt` blog lists now derive from
+  the EN-twin collection (async GET) instead of a hard-coded 5-item array.
+- **Build guard** (`verify-build.mjs` §4): FATAL if a live article's twin is missing/`draft:true`
+  or a live twin has an empty description — checked **both directions** (it⇄en); WARNS on
+  SEO-softness (no `relatedTour`, description outside 50–200).
+- **In-editor coaching** — a live "Pronto per Google" checklist (`seo-checklist.ts`, sharing
+  thresholds with `publish-check.ts`) grades title/description/subtitle/tour-link/cover/alt as
+  he types; guidance only, never a block.
+- **AI-assist** — a "✨ Suggerisci un riassunto" button (`assist.ts` + `api/assist.ts`) drafts a
+  meta description from the article via the free Workers AI binding, for him to accept/edit.
+
+Verified: full `npm run build` green; a temp article proved end-to-end auto-wiring (appears in
+`llms.txt` + on its tour page, links back) with zero code edits; backfill parity exact. A
+4-dimension adversarial review flagged 2 latent bugs (the internal-link lookup + the build
+guard were both one-directional on the it/en twin) — **both fixed** and the guard fix
+confirmed with a negative test. **Not committed / not pushed** (push = deploy). Open prereqs
+from the 04/08 sprint still stand (OTA profile URLs, GSC/Bing vars, IndexNow toggle).
+
 ## 2026-08-04 — Fix wrong photo in "is it safe to visit a favela" post
 
 Francesco spotted (WhatsApp) that the blog post **`visitare-una-favela-e-sicuro`** showed a

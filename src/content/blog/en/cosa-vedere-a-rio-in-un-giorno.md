@@ -4,6 +4,7 @@ description: 'Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloa
 date: 2026-06-24
 locale: en
 cover: tour-giorno
+relatedTour: giorno
 draft: false
 ---
 

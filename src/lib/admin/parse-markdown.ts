@@ -172,6 +172,8 @@ export interface ArticleFront {
   date: string;
   cover: string;
   updated: string;
+  /** Tour id this article is about, or '' — carried back so re-editing preserves it. */
+  relatedTour: string;
   draft: boolean;
 }
 
@@ -205,6 +207,7 @@ export function parseFrontmatter(frontmatter: string): ArticleFront {
     date: scalar(frontmatter, 'date').slice(0, 10),
     cover: scalar(frontmatter, 'cover'),
     updated: scalar(frontmatter, 'updated').slice(0, 10),
+    relatedTour: scalar(frontmatter, 'relatedTour'),
     draft: scalar(frontmatter, 'draft') === 'true',
   };
 }

@@ -9,11 +9,15 @@ import Base from '../../layouts/Base.astro';
 import Footer from '../Footer.astro';
 import Breadcrumbs from '../Breadcrumbs.astro';
 import JsonLdScript from '../JsonLdScript.astro';
+import RelatedLinks from '../RelatedLinks.astro';
 import TourGallery from './TourGallery.astro';
 import TourBooking from './TourBooking.astro';
+import TourFaq from './TourFaq.astro';
 import { getPhoto } from '../../lib/photos';
 import { SITE } from '../../data/site';
 import { TOURS, type Tour } from '../../data/tours';
+import { postsForTour } from '../../data/related';
+import { GALLERY_ALT } from '../../data/gallery-alt';
 import { t, pagePath, localeHref, absoluteUrl, type Locale } from '../../i18n';
 
 interface Props {
@@ -23,12 +27,26 @@ interface Props {
 const { locale, tour } = Astro.props;
 const dict = t(locale);
 const copy = dict.tourPage.items[tour.id];
+// Tour-specific questions first (they carry this tour's real numbers), then the
+// shared block. One array drives both the visible accordion and the FAQPage JSON-LD.
+const faqItems = [...copy.faq, ...dict.tourPage.faqCommon];
 const card = dict.tours.items[tour.id];
 const path = `tour/${tour.slug}/`;
 const pageUrl = absoluteUrl(pagePath(locale, path));
 const heroPhoto = getPhoto(tour.galleryKeys[0] ?? tour.image);
+// Per-photo alt text for the deck, keyed by photo key (partial — see gallery-alt.ts).
+const galleryAlts: Record<string, string> = Object.fromEntries(
+  tour.galleryKeys.filter((k) => GALLERY_ALT[k]).map((k) => [k, GALLERY_ALT[k][locale]]),
+);
 const otherTours = TOURS.filter((other) => other.id !== tour.id);
 const operatorId = `${absoluteUrl(localeHref('it'))}#operator`;
+
+// Related blog posts for this tour — topical internal links, derived from each
+// article's `relatedTour` frontmatter (src/data/related.ts). Titles come from the
+// collection so they always match the live articles; a post with no matching
+// locale twin is skipped, never a dead link. A newly published article about this
+// tour appears here on its own, with no code change.
+const relatedPosts = await postsForTour(tour.id, locale);
 
 // Same transform BaseHead runs for og:image — the asset pipeline dedupes it.
 const jsonImage = heroPhoto ? await getImage({ src: heroPhoto, format: 'jpeg', width: 1200 }) : null;
@@ -65,7 +83,7 @@ const graph = {
         url: absoluteUrl(localeHref('it')),
         sameAs: [SITE.instagram, ...Object.values(tour.otaLinks).filter(Boolean)],
       },
-      inLanguage: ['it', 'en', 'pt'],
+      inLanguage: locale,
       itinerary: {
         '@type': 'Place',
         name: tour.meetingPoint,
@@ -93,6 +111,16 @@ const graph = {
         '@type': 'CreativeWork',
         abstract: `Duration ${tour.isoDuration}, max ${tour.maxGroup} participants`,
       },
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${pageUrl}#faq`,
+      inLanguage: locale,
+      mainEntity: faqItems.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
     },
   ],
 };
@@ -203,6 +231,7 @@ const graph = {
       keys={tour.galleryKeys.slice(1)}
       heading={dict.tourPage.galleryHeading}
       tourName={card.name}
+      alts={galleryAlts}
       countLabel={dict.tourPage.galleryCount}
       prevLabel={dict.tourPage.galleryPrev}
       nextLabel={dict.tourPage.galleryNext}
@@ -281,6 +310,8 @@ const graph = {
 
     <TourBooking tour={tour} locale={locale} />
 
+    <TourFaq items={faqItems} heading={dict.tourPage.faqHeading} />
+
     <section class="bg-paper text-ink">
       <div class="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-16">
         <h2 class="eyebrow text-ink/55" data-scramble>{dict.tourPage.otherToursHeading}</h2>
@@ -306,6 +337,8 @@ const graph = {
         </ul>
       </div>
     </section>
+
+    <RelatedLinks heading={dict.tourPage.fromBlog} items={relatedPosts} />
   </main>
 
   <Footer locale={locale} path={path} />

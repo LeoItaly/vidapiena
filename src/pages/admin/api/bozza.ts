@@ -198,8 +198,30 @@ export const DELETE: APIRoute = async (context) => {
 /**
  * Content equality, ignoring `updatedAt` — which changes on every serialise and
  * would otherwise make every draft look modified.
+ *
+ * A tuple in a fixed order, not `JSON.stringify` of the object: object key order
+ * is insertion order, and the two sides genuinely differ in it. The stored copy
+ * gains `en` in the translate phase and `lastCommit`/`lastParent` in the publish
+ * phase, in that order; a later autosave rebuilds the document through
+ * `sanitiseDraft` (which drops all three) and the carry-forward above re-adds them
+ * in the opposite order. Comparing the serialised objects therefore reported "not
+ * equal" for a document that had not changed, and spent one of the day's 1,000 KV
+ * writes on it after every publish.
  */
 function unchanged(a: DraftDoc, b: DraftDoc): boolean {
-  const strip = (d: DraftDoc) => JSON.stringify({ ...d, updatedAt: 0 });
+  const strip = (d: DraftDoc) =>
+    JSON.stringify([
+      d.title,
+      d.description,
+      d.date,
+      d.coverPhotoId,
+      d.relatedTour ?? null,
+      d.blocks,
+      d.publishedSlug ?? null,
+      d.en ?? null,
+      d.lastCommit ?? null,
+      d.lastParent ?? null,
+      d.owner,
+    ]);
   return strip(a) === strip(b);
 }

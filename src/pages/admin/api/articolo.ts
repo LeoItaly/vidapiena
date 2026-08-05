@@ -131,6 +131,7 @@ export const POST: APIRoute = async (context) => {
         date: entry.data.date.toISOString().slice(0, 10),
         cover: entry.data.cover ?? '',
         updated: entry.data.updated ? entry.data.updated.toISOString().slice(0, 10) : '',
+        relatedTour: entry.data.relatedTour ?? '',
         draft: entry.data.draft,
       };
     } else {
@@ -157,6 +158,7 @@ export const POST: APIRoute = async (context) => {
         description: front.description,
         date: front.date,
         coverPhotoId: front.cover ? `${PUB_PREFIX}${front.cover}` : '',
+        relatedTour: front.relatedTour,
         blocks: markdownToBlocks(markdown),
         publishedSlug: slug,
       },

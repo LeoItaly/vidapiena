@@ -208,6 +208,9 @@ export const POST: APIRoute = async (context) => {
         date: new Date(draft.date),
         ...(draft.publishedSlug ? { updated: new Date() } : {}),
         cover: draft.coverPhotoId ? chiavi.get(draft.coverPhotoId) : undefined,
+        // The tour this article is about — an id, so it goes to both twins
+        // verbatim (never translated). Drives internal linking once live.
+        ...(draft.relatedTour ? { relatedTour: draft.relatedTour } : {}),
         draft: false,
       };
 

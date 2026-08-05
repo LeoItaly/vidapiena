@@ -4,6 +4,7 @@ description: 'Vidigal is the favela over the sea, between Leblon and the Dois Ir
 date: 2026-07-08
 locale: en
 cover: zone-1-mirante
+relatedTour: vidigal
 draft: false
 ---
 
