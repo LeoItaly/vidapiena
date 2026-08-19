@@ -36,7 +36,7 @@ finale è una terrazza panoramica con vista sul Cristo Redentore.
 
 - **2 ore e 30** di tour, in discesa.
 - **Min 2 · max 19 persone.**
-- **R$270 a persona**, mototaxi e tassa di visita inclusi.
+- **R$360 a persona**, mototaxi e tassa di visita inclusi.
 - **Lun–ven 09:00 e 15:30 · sab–dom 09:00 e 14:00.**
 - **Punto d’incontro:** Praça do Vidigal.
 

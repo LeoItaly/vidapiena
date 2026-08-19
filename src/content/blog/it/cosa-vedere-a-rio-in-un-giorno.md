@@ -36,7 +36,7 @@ pranzo la giornata arriva a 9 ore.
 ## I numeri
 
 - **8 ore** di tour (9 con il pranzo), tutti i giorni dalle 08:00.
-- **Da 2 a 15 persone**: da R$780 a persona in base al gruppo.
+- **Da 2 a 15 persone**: R$1200 a persona, tutto incluso.
 - **Inclusi:** auto o van privato con autista, trenino del Corcovado, funivia
   del Pan di Zucchero, pranzo a buffet.
 - **Pick-up in hotel**, ovunque a Rio.

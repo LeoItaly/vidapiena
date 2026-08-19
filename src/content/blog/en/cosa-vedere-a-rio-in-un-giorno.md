@@ -37,7 +37,7 @@ the day comes to 9 hours.
 ## The numbers
 
 - **8 hours** of tour (9 with lunch), every day from 08:00.
-- **From 2 to 15 people**: from R$780 per person depending on group size.
+- **From 2 to 15 people**: R$1200 per person, everything included.
 - **Included:** private car or van with driver, Corcovado rack railway,
   Sugarloaf cable car, buffet lunch.
 - **Hotel pick-up**, anywhere in Rio.

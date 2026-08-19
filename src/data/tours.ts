@@ -16,7 +16,7 @@ export interface Tour {
   durationHours: number;
   minPax: number;
   maxGroup: number;
-  /** Adult retail price per person, BRL. For `giorno` this is the lowest tier ("from"). */
+  /** Adult retail price per person, BRL — aligned to the OTA displayed price (rate parity, 19/08/2026). */
   priceBRL: number;
   /**
    * Adult retail price per person, EUR — a FIXED authored display value (not a
@@ -65,11 +65,11 @@ export const TOURS: Tour[] = [
     durationHours: 3,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 270,
-    priceEUR: 45,
+    priceBRL: 360,
+    priceEUR: 62,
     priceIsFrom: false,
     childPriceBRL: 180,
-    childPriceEUR: 30,
+    childPriceEUR: 31,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
     image: 'tour-rocinha',
     galleryKeys: [
@@ -100,8 +100,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 270,
-    priceEUR: 45,
+    priceBRL: 360,
+    priceEUR: 62,
     priceIsFrom: false,
     meetingPoint: 'Praça do Vidigal',
     image: 'tour-vidigal',
@@ -139,8 +139,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 20,
-    priceBRL: 270,
-    priceEUR: 45,
+    priceBRL: 360,
+    priceEUR: 62,
     priceIsFrom: false,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
     image: 'tour-tavares',
@@ -169,14 +169,9 @@ export const TOURS: Tour[] = [
     durationHours: 8,
     minPax: 2,
     maxGroup: 15,
-    priceBRL: 780,
-    priceEUR: 130,
-    priceIsFrom: true,
-    priceTiers: [
-      { minPax: 2, maxPax: 3, priceBRL: 1200, priceEUR: 200 },
-      { minPax: 4, maxPax: 6, priceBRL: 900, priceEUR: 150 },
-      { minPax: 7, maxPax: 15, priceBRL: 780, priceEUR: 130 },
-    ],
+    priceBRL: 1200,
+    priceEUR: 207,
+    priceIsFrom: false,
     meetingPoint: 'Hotel pick-up',
     image: 'tour-giorno',
     galleryKeys: [

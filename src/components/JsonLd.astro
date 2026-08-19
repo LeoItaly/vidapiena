@@ -16,8 +16,8 @@ const dict = t(locale);
  */
 const otaSameAs = TOURS.flatMap((tour) => Object.values(tour.otaLinks)).filter(Boolean);
 
-/* priceRange for the LocalBusiness node — the real span across all tours and
-   tiers (R$270 … R$1200), read from tours.ts so it can't drift from the pages. */
+/* priceRange for the LocalBusiness node — the real span across all tours
+   (R$360 … R$1200), read from tours.ts so it can't drift from the pages. */
 const allPrices = TOURS.flatMap((tour) => [
   tour.priceBRL,
   ...(tour.priceTiers?.map((tier) => tier.priceBRL) ?? []),

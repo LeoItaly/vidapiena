@@ -8,7 +8,7 @@ export const it = {
   meta: {
     title: 'Favela tour a Rio de Janeiro in italiano — Vidapiena',
     description:
-      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio" con Francesco, guida italiana a Rio de Janeiro da 9 anni. Gruppi piccoli, mototaxi incluso, da R$270 a persona.',
+      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio" con Francesco, guida italiana a Rio de Janeiro da 9 anni. Gruppi piccoli, mototaxi incluso, da R$360 a persona.',
     ogAlt: 'Il logo Vidapiena dipinto con lo spray su un muro di Rio',
   },
 
@@ -47,7 +47,7 @@ export const it = {
   hero: {
     kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
     h1: ['Favela tour a Rio de Janeiro,', 'in italiano.'],
-    sub: 'Sono Francesco, guida italiana a Rio de Janeiro da 9 anni: ti porto a piedi dentro la vita vera della comunità. Gruppi piccoli, mototaxi incluso, da R$270 a persona.',
+    sub: 'Sono Francesco, guida italiana a Rio de Janeiro da 9 anni: ti porto a piedi dentro la vita vera della comunità. Gruppi piccoli, mototaxi incluso, da R$360 a persona.',
     ctaTours: 'Scopri i tour',
     otaLabel: 'Mi trovi anche su',
     scrollCue: 'Scorri per esplorare',
@@ -100,7 +100,7 @@ export const it = {
       giorno: {
         name: 'Un Giorno a Rio',
         hook: 'Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero in una sola giornata: auto o van privato con autista, pick-up in hotel, pranzo a buffet incluso.',
-        note: 'Giornata intera · prezzo a scaglioni per gruppo',
+        note: 'Giornata intera · tutto incluso',
       },
     },
   },
@@ -169,7 +169,7 @@ export const it = {
       rocinha: {
         metaTitle: 'Favela Tour Rocinha — 3 ore con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 3 ore nella Rocinha, la favela più grande del Brasile, con Francesco, guida italiana a Rio: mototaxi fino in cima, vista panoramica, la galleria di un artista di graffiti e una onlus italiana. R$270 a persona.',
+          'Tour a piedi di 3 ore nella Rocinha, la favela più grande del Brasile, con Francesco, guida italiana a Rio: mototaxi fino in cima, vista panoramica, la galleria di un artista di graffiti e una onlus italiana. R$360 a persona.',
         kicker: 'Favela tour · 3 ore',
         longDesc: [
           'La Rocinha è la favela più grande del Brasile: una città nella città, appoggiata alla montagna sopra São Conrado. Il tour comincia in sella ai mototaxi dei ragazzi locali, che ci portano fin sulla cima — da lì si scende a piedi, dentro la vita vera della comunità.',
@@ -197,7 +197,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$270 a persona (bambini fino a 12 anni R$180). Include il mototaxi fino in cima, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+            a: 'R$360 a persona (bambini fino a 12 anni R$180). Include il mototaxi fino in cima, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
           },
           {
             q: 'Quanto si cammina?',
@@ -208,7 +208,7 @@ export const it = {
       vidigal: {
         metaTitle: 'Favela Tour Vidigal — 2 ore e 30 con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 2 ore e 30 nel Vidigal con Francesco, guida italiana a Rio: salita in mototaxi, la vista su Leblon e Ipanema, la discesa tra i vicoli e la terrazza panoramica di fronte al Cristo Redentore. R$270 a persona.',
+          'Tour a piedi di 2 ore e 30 nel Vidigal con Francesco, guida italiana a Rio: salita in mototaxi, la vista su Leblon e Ipanema, la discesa tra i vicoli e la terrazza panoramica di fronte al Cristo Redentore. R$360 a persona.',
         kicker: 'Favela tour · 2 ore e 30',
         longDesc: [
           'Il Vidigal è la favela affacciata sul mare, tra Leblon e la pietra dei Dois Irmãos. Si sale in mototaxi fino alla parte alta — riqualificata, con il campetto e il parco — e poi si scende a piedi, vicolo per vicolo.',
@@ -234,7 +234,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$270 a persona. Include il mototaxi fino all’alto Vidigal, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+            a: 'R$360 a persona. Include il mototaxi fino all’alto Vidigal, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
           },
           {
             q: 'Qual è la vista migliore?',
@@ -245,7 +245,7 @@ export const it = {
       tavares: {
         metaTitle: 'Favela Tour Tavares Bastos — 2 ore e 30 con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 2 ore e 30 a Tavares Bastos, la comunità più tranquilla del centro di Rio, con Francesco, guida italiana: vicoli, vita quotidiana e una partita sull’iconico campetto di FIFA Street. R$270 a persona.',
+          'Tour a piedi di 2 ore e 30 a Tavares Bastos, la comunità più tranquilla del centro di Rio, con Francesco, guida italiana: vicoli, vita quotidiana e una partita sull’iconico campetto di FIFA Street. R$360 a persona.',
         kicker: 'Favela tour · 2 ore e 30',
         longDesc: [
           'Tavares Bastos è la comunità più tranquilla del centro di Rio, arrampicata sopra il quartiere di Catete. Si sale in mototaxi e si scende a piedi, tra vicoli, botteghe e storie di quotidianità.',
@@ -270,7 +270,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$270 a persona. Include il mototaxi e la guida in italiano, inglese o portoghese. Tavares Bastos è la comunità più tranquilla del centro di Rio.',
+            a: 'R$360 a persona. Include il mototaxi e la guida in italiano, inglese o portoghese. Tavares Bastos è la comunità più tranquilla del centro di Rio.',
           },
           {
             q: 'Si gioca davvero sul campetto di FIFA Street?',
@@ -281,11 +281,11 @@ export const it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — city tour con guida italiana | Vidapiena',
         metaDescription:
-          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. Da R$780 a persona.',
+          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. R$1200 a persona.',
         kicker: 'City tour · giornata intera',
         longDesc: [
           'Il meglio di Rio in una sola giornata, senza pensieri: ti vengo a prendere in hotel con auto o van privato con autista, e da lì si parte — il Cristo Redentore con il trenino del Corcovado, il quartiere bohémien di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia.',
-          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. Il prezzo a persona scende all’aumentare del gruppo.',
+          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. R$1200 a persona, tutto incluso.',
         ],
         highlights: [
           'Il Cristo Redentore con il trenino del Corcovado',
@@ -309,7 +309,7 @@ export const it = {
           },
           {
             q: 'Quanto costa e come funziona il prezzo?',
-            a: 'Il prezzo è a persona e scende all’aumentare del gruppo: 2–3 persone R$1200, 4–6 persone R$900, 7–15 persone R$780. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
+            a: 'R$1200 a persona. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
           },
           {
             q: 'Cosa vediamo in una giornata?',
@@ -366,7 +366,7 @@ export const it = {
       'Prenoti direttamente con me, senza commissioni: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Mi trovi anche sulle piattaforme qui sotto.',
     logisticsHeading: 'Buono a sapersi',
     logisticsItems: [
-      'Partenze ogni giorno · minimo 2 persone ("Un Giorno a Rio": prezzo a scaglioni per gruppo).',
+      'Partenze ogni giorno · minimo 2 persone.',
       'Ogni favela tour parte dal punto d’incontro ai piedi della comunità; "Un Giorno a Rio" prevede il pick-up in hotel.',
       'Mototaxi e tassa di visita alla comunità sono inclusi nei favela tour.',
     ],
