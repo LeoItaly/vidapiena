@@ -81,7 +81,9 @@ export const en: typeof it = {
       rocinha: {
         name: 'Favela Tour Rocinha',
         hook: 'Brazil’s largest favela: the gallery of a graffiti artist born here, the pitch rebuilt by a footballer from Rocinha, and an Italian NGO working in the community for over 20 years.',
-        note: 'Children up to 12: R$180',
+        /* Label only — the child price (childPrice*) is rendered by Price.astro
+           next to this note, so it follows the geo-located currency. */
+        note: 'Children up to 12',
       },
       vidigal: {
         name: 'Favela Tour Vidigal',
@@ -124,10 +126,6 @@ export const en: typeof it = {
     priceHeading: 'Prices',
     tierLabel: (min: number, max: number) => `${min}–${max} people`,
     bookingHeading: 'Book this tour',
-    bookingLive: 'Book on one of these platforms:',
-    bookingSoon: 'Online booking coming soon.',
-    bookingSoonSub:
-      'Bookings are opening shortly on Airbnb, Viator, GetYourGuide and Civitatis. In the meantime, DM me on Instagram for dates and availability.',
     instagramDm: 'Message me on Instagram',
     otherToursHeading: 'The other tours',
     fromBlog: 'From the blog',
@@ -158,11 +156,11 @@ export const en: typeof it = {
       },
       {
         q: 'How do I book?',
-        a: 'Bookings are made on the platforms — Viator, GetYourGuide, Airbnb and Civitatis, depending on the tour — with the links on each tour page. For dates or questions, DM me on Instagram (@vidapiena).',
+        a: 'You book directly with me, no middleman: message me on WhatsApp or DM me on Instagram (@vidapiena) and we sort out the date and availability together. You’ll also find me on Viator, GetYourGuide, Airbnb and Civitatis, but booking direct saves the commission.',
       },
       {
         q: 'What if it rains or I need to cancel?',
-        a: 'In heavy weather we agree on another date together. Cancellation and refund terms follow the platform you book with; the minimum is 2 people.',
+        a: 'In heavy weather we agree on another date together. For dates, changes or cancellations just message me directly on WhatsApp or Instagram; the minimum is 2 people.',
       },
     ],
     items: {
@@ -355,14 +353,15 @@ export const en: typeof it = {
   contact: {
     metaTitle: 'Contact — Francesco, Italian guide in Rio | Vidapiena',
     metaDescription:
-      'Get in touch with Francesco of Vidapiena: DM him on Instagram for dates and availability, or book the tours on Airbnb, Viator, GetYourGuide and Civitatis.',
+      'Get in touch with Francesco of Vidapiena: book the tours directly on WhatsApp or by DM on Instagram — no middleman, no commission. You’ll also find him on Viator, GetYourGuide, Airbnb and Civitatis.',
     kicker: 'Contact',
-    heading: 'Let’s talk on Instagram.',
+    heading: 'Book directly with me.',
     instagramLead:
-      'The most direct way to reach me is a DM on Instagram: I reply in English, Italian or Portuguese.',
+      'The most direct way to book or ask me anything is a message on WhatsApp or a DM on Instagram: I reply in English, Italian or Portuguese.',
     instagramCta: 'Message me on Instagram',
     bookingHeading: 'Bookings',
-    bookingLead: 'The tours are booked online on the platforms:',
+    bookingLead:
+      'Book directly with me, no commission: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability. You’ll also find me on the platforms below.',
     logisticsHeading: 'Good to know',
     logisticsItems: [
       'Departing daily · minimum 2 people ("Un Giorno a Rio": tiered pricing by group size).',
@@ -402,8 +401,19 @@ export const en: typeof it = {
     instagramLabel: 'Follow me on Instagram',
   },
 
+  /* Direct booking (client decision 19 Aug 2026): WhatsApp + Instagram, no
+     commission. waPrefillTour is a function — its shape must match it.ts exactly
+     (the `typeof it` contract). */
+  booking: {
+    lead: 'Book directly with me, no middleman and no commission: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability. The platforms are here just as a showcase.',
+    waCta: 'Book on WhatsApp',
+    waPrefillTour: (name: string) =>
+      `Hi Francesco! I'd like to book the "${name}" tour. Could you share dates and availability?`,
+    waPrefillGeneric: `Hi Francesco! I'd like some info about your Rio tours.`,
+  },
+
   badges: {
-    heading: 'Book Vidapiena also on',
+    heading: 'Also on',
   },
 
   /* The descent route — the side rail's waypoints (304 m → 0 m). */

@@ -3,12 +3,20 @@
  * components, copy dictionaries and JSON-LD. Verified against
  * `Context Knowledge/note tours.md` (parent folder, local-only) on 21 Jul 2026.
  *
- * Booking is OTA-platform-only by client decision (21 Jul 2026) — WhatsApp is
- * deliberately absent; Instagram is the one direct-contact channel.
+ * Booking channel (client decision 19 Aug 2026 — reverses the 21 Jul "no
+ * WhatsApp" decision): DIRECT via WhatsApp + Instagram. The OTA badges stay on
+ * the site as unlinked "also on these platforms" proof, never booking links, so
+ * website traffic converts to commission-free direct bookings. The WhatsApp
+ * number below is Francesco's business line and is deliberately published (it is
+ * the customer-facing booking channel) — allow-listed in scripts/verify-build.mjs.
  */
 
 export const SITE = {
   name: 'Vidapiena',
+  /** wa.me digits (country+area+number, no + or spaces) — the booking channel. */
+  whatsapp: '5521981481718',
+  /** Human-readable form for display next to the WhatsApp CTA. */
+  whatsappDisplay: '+55 21 98148-1718',
   /**
    * Production origin. Read from the `site` value in astro.config.mjs rather
    * than repeated here, so the custom-domain cutover is a one-place change and

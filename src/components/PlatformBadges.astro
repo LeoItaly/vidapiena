@@ -1,48 +1,32 @@
 ---
 /**
- * OTA logo chips, two modes (rules from Context Knowledge/OTA-LINKS.md):
- * - With `links` (a tour's otaLinks): one chip per LIVE platform, each a deep
- *   link to that tour's own booking page. Never a placeholder for a missing
- *   platform — two badges honestly reads "bookable on these two".
- * - Without `links`: all four marks, unlinked — a trust row, not navigation
- *   (a global badge deep-linking one arbitrary tour would mislead).
- * `sponsored` is the correct rel for commercial OTA outbound links.
+ * OTA logo chips — UNLINKED proof only. The four marks say "Vidapiena is also on
+ * these platforms" as trust / showcase; they are never booking links (client
+ * decision 19 Aug 2026 — booking is direct via WhatsApp + Instagram so Francesco
+ * keeps the full price with no commission, and the public site never advertises a
+ * cheaper-direct link that Viator's lowest-price clause could act on).
+ *
+ * The link path was removed on purpose: "no OTA booking link on the marketing
+ * site" is now a STRUCTURAL invariant — this component can no longer emit one.
+ * Per-tour otaLinks stay in tours.ts only for JSON-LD `sameAs` (entity graph).
+ * The marks render through OtaLogo.astro (three inlined SVGs + the Viator PNG).
  */
 import OtaLogo from './OtaLogo.astro';
-import { PLATFORMS, type PlatformKey } from '../lib/platforms';
+import { PLATFORMS } from '../lib/platforms';
 
 interface Props {
-  links?: Partial<Record<PlatformKey, string>>;
-  /** aria-label prefix for linked chips, e.g. "Prenota su" */
-  linkLabel?: string;
   class?: string;
 }
-const { links, linkLabel = '', class: className = '' } = Astro.props;
-
-const rows = links
-  ? PLATFORMS.filter((p) => links[p.key]).map((p) => ({ ...p, url: links[p.key] }))
-  : PLATFORMS.map((p) => ({ ...p, url: undefined as string | undefined }));
+const { class: className = '' } = Astro.props;
 ---
 
 <ul class={`flex flex-wrap items-center gap-2.5 ${className}`}>
   {
-    rows.map((p) => (
+    PLATFORMS.map((p) => (
       <li>
-        {p.url ? (
-          <a
-            href={p.url}
-            class="badge-chip is-link"
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            aria-label={`${linkLabel} ${p.name}`.trim()}
-          >
-            <OtaLogo platform={p.key} name={p.name} class="h-[1.15rem]" />
-          </a>
-        ) : (
-          <span class="badge-chip">
-            <OtaLogo platform={p.key} name={p.name} class="h-[1.15rem]" />
-          </span>
-        )}
+        <span class="badge-chip">
+          <OtaLogo platform={p.key} name={p.name} class="h-[1.15rem]" />
+        </span>
       </li>
     ))
   }
@@ -57,14 +41,5 @@ const rows = links
     border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
     background: #fff;
     padding: 0.55rem 1.05rem;
-  }
-  a.badge-chip {
-    transition:
-      border-color 0.2s ease,
-      transform 0.25s var(--ease-vp-out);
-  }
-  a.badge-chip:hover {
-    border-color: color-mix(in srgb, var(--color-ink) 40%, transparent);
-    transform: translateY(-2px);
   }
 </style>

@@ -83,7 +83,9 @@ export const it = {
       rocinha: {
         name: 'Favela Tour Rocinha',
         hook: 'La favela più grande del Brasile: la galleria di un artista di graffiti nato qui, il campetto ristrutturato da un calciatore di Rocinha e una onlus italiana attiva nella comunità da oltre 20 anni.',
-        note: 'Bambini fino a 12 anni: R$180',
+        /* Etichetta soltanto — il prezzo bambini (childPrice*) è reso da Price.astro
+           accanto a questa nota, così segue la valuta geolocalizzata. */
+        note: 'Bambini fino a 12 anni',
       },
       vidigal: {
         name: 'Favela Tour Vidigal',
@@ -126,10 +128,6 @@ export const it = {
     priceHeading: 'Prezzi',
     tierLabel: (min: number, max: number) => `${min}–${max} persone`,
     bookingHeading: 'Prenota questo tour',
-    bookingLive: 'Prenota su una di queste piattaforme:',
-    bookingSoon: 'Prenotazione online in arrivo.',
-    bookingSoonSub:
-      'Le prenotazioni apriranno a breve su Airbnb, Viator, GetYourGuide e Civitatis. Nel frattempo scrivimi in DM su Instagram per date e disponibilità.',
     instagramDm: 'Scrivimi su Instagram',
     otherToursHeading: 'Gli altri tour',
     fromBlog: 'Dal blog',
@@ -160,11 +158,11 @@ export const it = {
       },
       {
         q: 'Come prenoto?',
-        a: 'Le prenotazioni si fanno sulle piattaforme — Viator, GetYourGuide, Airbnb e Civitatis, a seconda del tour — con i link su ogni pagina del tour. Per date o domande scrivimi in DM su Instagram (@vidapiena).',
+        a: 'Prenoti direttamente con me, senza intermediari: scrivimi su WhatsApp o in DM su Instagram (@vidapiena) e sistemiamo insieme data e disponibilità. Mi trovi anche su Viator, GetYourGuide, Airbnb e Civitatis, ma prenotando diretto eviti le commissioni.',
       },
       {
         q: 'E se piove o devo cancellare?',
-        a: 'Con maltempo forte concordiamo insieme un’altra data. Le condizioni di cancellazione e rimborso seguono la piattaforma con cui prenoti; il minimo è 2 persone.',
+        a: 'Con maltempo forte concordiamo insieme un’altra data. Per date, modifiche o cancellazioni scrivimi direttamente su WhatsApp o Instagram; il minimo è 2 persone.',
       },
     ],
     items: {
@@ -357,14 +355,15 @@ export const it = {
   contact: {
     metaTitle: 'Contatti — Francesco, guida italiana a Rio | Vidapiena',
     metaDescription:
-      'Contatta Francesco di Vidapiena: scrivigli in DM su Instagram per date e disponibilità, oppure prenota i tour su Airbnb, Viator, GetYourGuide e Civitatis.',
+      'Contatta Francesco di Vidapiena: prenota i tour direttamente su WhatsApp o in DM su Instagram, senza intermediari e senza commissioni. Lo trovi anche su Viator, GetYourGuide, Airbnb e Civitatis.',
     kicker: 'Contatti',
-    heading: 'Parliamone su Instagram.',
+    heading: 'Prenota direttamente con me.',
     instagramLead:
-      'Il modo più diretto per scrivermi è un DM su Instagram: rispondo in italiano, inglese o portoghese.',
+      'Il modo più diretto per prenotare o chiedermi informazioni è scrivermi su WhatsApp o in DM su Instagram: rispondo in italiano, inglese o portoghese.',
     instagramCta: 'Scrivimi su Instagram',
     bookingHeading: 'Prenotazioni',
-    bookingLead: 'I tour si prenotano online sulle piattaforme:',
+    bookingLead:
+      'Prenoti direttamente con me, senza commissioni: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Mi trovi anche sulle piattaforme qui sotto.',
     logisticsHeading: 'Buono a sapersi',
     logisticsItems: [
       'Partenze ogni giorno · minimo 2 persone ("Un Giorno a Rio": prezzo a scaglioni per gruppo).',
@@ -406,8 +405,19 @@ export const it = {
     instagramLabel: 'Seguimi su Instagram',
   },
 
+  /* Prenotazione diretta (decisione cliente 19/08/2026): WhatsApp + Instagram,
+     niente commissioni. waPrefillTour è una funzione: la forma dev'essere
+     identica in en.ts (contratto `typeof it`). */
+  booking: {
+    lead: 'Prenoti direttamente con me, senza intermediari e senza commissioni: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Le piattaforme restano solo come vetrina.',
+    waCta: 'Prenota su WhatsApp',
+    waPrefillTour: (name: string) =>
+      `Ciao Francesco! Vorrei prenotare il tour "${name}". Mi dici date e disponibilità?`,
+    waPrefillGeneric: 'Ciao Francesco! Vorrei qualche informazione sui tuoi tour a Rio.',
+  },
+
   badges: {
-    heading: 'Prenota Vidapiena anche su',
+    heading: 'Mi trovi anche su',
   },
 
   /* La rotta della discesa — i waypoint del binario laterale (304 m → 0 m). */

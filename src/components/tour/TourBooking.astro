@@ -1,11 +1,13 @@
 ---
 /**
- * The booking section — entirely data-driven from `tour.otaLinks`. While the
- * map is empty it shows the four badges unlinked with the "coming soon" note
- * and an Instagram DM fallback; the moment Leo pastes live listing URLs into
- * tours.ts, the same markup renders real deep-link buttons. No WhatsApp.
+ * The booking section — direct booking (client decision 19 Aug 2026). WhatsApp is
+ * the primary CTA (website traffic converts here, so Francesco keeps the full
+ * price with no OTA commission), Instagram the secondary direct channel. The OTA
+ * badges below are unlinked "also on these platforms" proof, never booking links
+ * — nothing here reads tour.otaLinks anymore.
  */
 import PlatformBadges from '../PlatformBadges.astro';
+import WhatsAppButton from '../WhatsAppButton.astro';
 import { SITE } from '../../data/site';
 import { t, type Locale } from '../../i18n';
 import type { Tour } from '../../data/tours';
@@ -16,7 +18,6 @@ interface Props {
 }
 const { tour, locale } = Astro.props;
 const dict = t(locale);
-const hasLive = Object.values(tour.otaLinks).some(Boolean);
 ---
 
 <section id="prenota" class="bg-ink text-paper">
@@ -25,29 +26,16 @@ const hasLive = Object.values(tour.otaLinks).some(Boolean);
       {dict.tourPage.bookingHeading}
     </h2>
 
-    {
-      hasLive ? (
-        <p class="mt-4 max-w-prose text-paper/85">{dict.tourPage.bookingLive}</p>
-      ) : (
-        <>
-          <p class="mt-4 font-mono text-sm tracking-wide text-ouro">{dict.tourPage.bookingSoon}</p>
-          <p class="mt-2 max-w-prose leading-relaxed text-paper/75">{dict.tourPage.bookingSoonSub}</p>
-        </>
-      )
-    }
+    <p class="mt-4 max-w-prose leading-relaxed text-paper/85">{dict.booking.lead}</p>
 
-    <PlatformBadges
-      links={hasLive ? tour.otaLinks : undefined}
-      linkLabel={dict.tourPage.bookingLive}
-      class="mt-7"
-    />
+    <div class="mt-8 flex flex-wrap items-center gap-4">
+      <WhatsAppButton locale={locale} tour={tour} />
+      <a href={SITE.instagram} class="btn btn-ghost" rel="noopener" target="_blank">
+        {dict.tourPage.instagramDm} · {SITE.instagramHandle}
+      </a>
+    </div>
 
-    {
-      !hasLive && (
-        <a href={SITE.instagram} class="btn btn-ghost mt-8" rel="noopener" target="_blank">
-          {dict.tourPage.instagramDm} · {SITE.instagramHandle}
-        </a>
-      )
-    }
+    <p class="eyebrow mt-12 text-paper/55">{dict.badges.heading}</p>
+    <PlatformBadges class="mt-4" />
   </div>
 </section>

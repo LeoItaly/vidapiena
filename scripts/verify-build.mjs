@@ -72,9 +72,22 @@ if (existsSync(adminDir)) {
 /**
  * Patterns, not literal values — writing the number here to check for the number
  * would put it in the public repo, which is the thing being prevented.
+ *
+ * ONE Brazilian mobile is deliberately public: Francesco's business WhatsApp — the
+ * site's booking channel (client decision 19 Aug 2026; the value lives only in
+ * src/data/site.ts). It is allow-listed by its digits, stored split across an
+ * array so THIS line never trips the scan below, while every OTHER Brazilian
+ * number still fails. CPF/CNPJ/IBAN stay strict — no exceptions.
  */
+const PUBLISHED_BR_MOBILE = new Set([['55', '21', '98148', '1718'].join('')]);
+const onlyDigits = (s) => s.replace(/\D/g, '');
+
 const FORBIDDEN = [
-  { name: 'a Brazilian mobile number', re: /\+?55[\s-]?\(?\d{2}\)?[\s-]?9\d{4}[\s-]?\d{4}/ },
+  {
+    name: 'a Brazilian mobile number',
+    re: /\+?55[\s-]?\(?\d{2}\)?[\s-]?9\d{4}[\s-]?\d{4}/g,
+    allow: PUBLISHED_BR_MOBILE,
+  },
   { name: 'a CPF', re: /\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/ },
   { name: 'a CNPJ', re: /\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/ },
   { name: 'an IBAN', re: /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/ },
@@ -94,15 +107,22 @@ const scan = (dir) => {
     }
     if (!SCAN_EXT.test(entry)) continue;
     const text = readFileSync(full, 'utf8');
-    for (const { name, re } of FORBIDDEN) {
-      const hit = text.match(re);
-      if (hit) {
+    for (const { name, re, allow } of FORBIDDEN) {
+      const report = () =>
         fail(
           `${full.replace(/\\/g, '/')} contains what looks like ${name}.\n` +
             `    This repo is PUBLIC. Client personal data belongs in the local-only\n` +
             `    client profile, never here. Redact it, or narrow the pattern in\n` +
             `    scripts/verify-build.mjs if this is a false positive.`,
         );
+      if (allow) {
+        // Allow-listed pattern (global): every hit fails EXCEPT the one whose
+        // digits are the deliberately-published value.
+        for (const m of text.matchAll(re)) {
+          if (!allow.has(onlyDigits(m[0]))) report();
+        }
+      } else if (re.test(text)) {
+        report();
       }
     }
   }

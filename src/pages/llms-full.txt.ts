@@ -62,7 +62,7 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena —
 
 - Participants are covered by a personal-accident insurance policy (Porto Seguro), valid through 30 June 2027.
 - Vidapiena is a registered Brazilian business (MEI), active since January 2025.
-- Booking is on the tour platforms (Viator, GetYourGuide, Airbnb Experiences, Civitatis); direct contact via Instagram DM (${SITE.instagram}).
+- Booking is direct: WhatsApp (https://wa.me/${SITE.whatsapp}) or Instagram DM (${SITE.instagram}), no intermediary and no commission. Also listed on Viator, GetYourGuide, Airbnb Experiences and Civitatis.
 
 ## Tours
 

@@ -1,0 +1,30 @@
+---
+/**
+ * A single price, authored in BOTH currencies so the choice is a static CSS
+ * toggle — no per-request server work (the marketing pages stay static assets,
+ * in front of the Worker, so the CPU budget can never bite here).
+ *
+ * BRL is the base/default: it renders for everyone. The EUR span is hidden by a
+ * normal CSS class rule (`.cur--eur { display:none }` in global.css), NOT the
+ * HTML `hidden` attribute — Tailwind v4's preflight ships
+ * `[hidden]{display:none!important}` in `@layer base`, and because `!important`
+ * inverts cascade-layer order, that layered rule beats any unlayered reveal rule,
+ * so a `hidden` EUR span can never be un-hidden. The inline script in BaseHead
+ * adds `html.cur-eur` for European visitors (from Cloudflare's /cdn-cgi/trace);
+ * global.css then flips which span shows. BRL stays the real transaction currency
+ * everywhere else (JSON-LD offers, prose, the on-the-ground charge).
+ *
+ * `class` styles the numeric run as a whole (font-size/weight/tabular-nums);
+ * both inner spans inherit it. Surrounding wording ("from" / "per person") stays
+ * in the dictionaries around this component.
+ */
+interface Props {
+  brl: number;
+  eur: number;
+  class?: string;
+}
+const { brl, eur, class: className = '' } = Astro.props;
+---
+<span class:list={['vp-price', className]}
+  ><span class="cur cur--brl">R$ {brl}</span><span class="cur cur--eur">€ {eur}</span></span
+>

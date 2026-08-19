@@ -3,10 +3,10 @@ import video16Url from '../assets/video/logo-reveal-16x9.mp4?url';
 import video9Url from '../assets/video/logo-reveal-9x16.mp4?url';
 import OtaLogo from './OtaLogo.astro';
 import SprayStroke from './SprayStroke.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import { PLATFORMS } from '../lib/platforms';
-import { TOURS } from '../data/tours';
 import { getHeroPosters, POSTER_MEDIA } from '../lib/posters';
-import { t, pagePath, type Locale } from '../i18n';
+import { t, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -23,10 +23,9 @@ const posters = await getHeroPosters();
  * chips so they stay legible over the dark hero. Low priority: nothing here
  * may compete with the poster for the LCP.
  *
- * Each mark is a booking link (03/08/2026). Global badges resolve to the
- * "Un Giorno a Rio" listing on that platform — the only tour live on all four
- * OTAs, so the same flagship anchors every mark and no chip misleads about
- * where the visitor lands.
+ * Unlinked proof only (client decision 19 Aug 2026): the marks say "also on
+ * these platforms", they are not booking links — booking is direct via the
+ * WhatsApp CTA above and Instagram.
  */
 const CHIP_SIZES: Record<string, string> = {
   viator: 'h-3',
@@ -34,11 +33,9 @@ const CHIP_SIZES: Record<string, string> = {
   airbnb: 'h-3.5',
   civitatis: 'h-2.5',
 };
-const flagship = TOURS.find((t) => t.id === 'giorno')!;
 const badges = PLATFORMS.map((p) => ({
   ...p,
   h: CHIP_SIZES[p.key],
-  href: flagship.otaLinks[p.key],
 }));
 ---
 
@@ -95,7 +92,7 @@ const badges = PLATFORMS.map((p) => ({
 
     <div class="mt-6 flex flex-wrap items-center gap-3">
       <a href="#tour" class="btn btn-primary">{dict.hero.ctaTours}</a>
-      <a href={pagePath(locale, 'contatti/')} class="btn btn-ghost">{dict.nav.contact}</a>
+      <WhatsAppButton locale={locale} variant="ghost" />
     </div>
 
     <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -104,24 +101,12 @@ const badges = PLATFORMS.map((p) => ({
         {
           badges.map((b) => (
             <li>
-              {/* Inline SVG / intrinsic-size PNG — either way the chip reserves
-                  its width before paint; these sit above the fold, and a reflow
-                  here would shift the whole bottom-anchored headline block. */}
-              {b.href ? (
-                <a
-                  href={b.href}
-                  class="ota-chip is-link flex items-center rounded-full bg-paper/90 px-2.5 py-1"
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  aria-label={`${dict.hero.otaLabel} ${b.name}`}
-                >
-                  <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
-                </a>
-              ) : (
-                <span class="ota-chip flex items-center rounded-full bg-paper/90 px-2.5 py-1">
-                  <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
-                </span>
-              )}
+              {/* Intrinsic-size mark on a light chip; reserves its width before
+                  paint (above the fold — a reflow here would shift the whole
+                  bottom-anchored headline block). Unlinked: proof, not a CTA. */}
+              <span class="ota-chip flex items-center rounded-full bg-paper/90 px-2.5 py-1">
+                <OtaLogo platform={b.key} name={b.name} class={b.h} loading="eager" />
+              </span>
             </li>
           ))
         }
@@ -136,18 +121,3 @@ const badges = PLATFORMS.map((p) => ({
     </p>
   </div>
 </section>
-
-<style>
-  /* Subtle affordance so the chip reads as tappable without repainting the mark
-     itself (trademark rule: no filter on the logo). Kept quiet — the hero row
-     is trust signal, not a CTA. */
-  .ota-chip.is-link {
-    transition:
-      background-color 0.2s ease,
-      transform 0.25s var(--ease-vp-out);
-  }
-  .ota-chip.is-link:hover {
-    background: #fff;
-    transform: translateY(-1px);
-  }
-</style>

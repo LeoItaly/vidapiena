@@ -58,8 +58,9 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena
 - Favela tours open with an included mototaxi ride to the top of the hill; the tour
   walks back down through the community.
 - Languages: Italian (native guide), English, Portuguese.
-- Booking: through the tour platforms — Viator, GetYourGuide, Airbnb Experiences and
-  Civitatis. Direct contact: Instagram DM (${SITE.instagram}).
+- Booking: directly with Francesco via WhatsApp (https://wa.me/${SITE.whatsapp}) or
+  Instagram DM (${SITE.instagram}) — no intermediary, no commission. Also listed on
+  Viator, GetYourGuide, Airbnb Experiences and Civitatis.
 
 ## Trust
 

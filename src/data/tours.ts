@@ -18,11 +18,20 @@ export interface Tour {
   maxGroup: number;
   /** Adult retail price per person, BRL. For `giorno` this is the lowest tier ("from"). */
   priceBRL: number;
+  /**
+   * Adult retail price per person, EUR — a FIXED authored display value (not a
+   * live conversion), shown to European visitors instead of the BRL figure. BRL
+   * stays the real transaction currency (JSON-LD, prose, on-the-ground charge);
+   * see the geo-currency toggle in BaseHead + src/components/Price.astro.
+   */
+  priceEUR: number;
   priceIsFrom: boolean;
   /** Confirmed only for Rocinha (≤12 years) */
   childPriceBRL?: number;
-  /** Per-person BRL price by group size — `giorno` only. */
-  priceTiers?: { minPax: number; maxPax: number; priceBRL: number }[];
+  /** EUR twin of childPriceBRL (fixed display value). */
+  childPriceEUR?: number;
+  /** Per-person price by group size — `giorno` only. BRL + fixed EUR display twin. */
+  priceTiers?: { minPax: number; maxPax: number; priceBRL: number; priceEUR: number }[];
   meetingPoint: string;
   /** Photo key into src/assets/photos/ (filled by the M1 manifest) */
   image: string;
@@ -57,8 +66,10 @@ export const TOURS: Tour[] = [
     minPax: 2,
     maxGroup: 19,
     priceBRL: 270,
+    priceEUR: 45,
     priceIsFrom: false,
     childPriceBRL: 180,
+    childPriceEUR: 30,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
     image: 'tour-rocinha',
     galleryKeys: [
@@ -90,6 +101,7 @@ export const TOURS: Tour[] = [
     minPax: 2,
     maxGroup: 19,
     priceBRL: 270,
+    priceEUR: 45,
     priceIsFrom: false,
     meetingPoint: 'Praça do Vidigal',
     image: 'tour-vidigal',
@@ -128,6 +140,7 @@ export const TOURS: Tour[] = [
     minPax: 2,
     maxGroup: 20,
     priceBRL: 270,
+    priceEUR: 45,
     priceIsFrom: false,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
     image: 'tour-tavares',
@@ -157,11 +170,12 @@ export const TOURS: Tour[] = [
     minPax: 2,
     maxGroup: 15,
     priceBRL: 780,
+    priceEUR: 130,
     priceIsFrom: true,
     priceTiers: [
-      { minPax: 2, maxPax: 3, priceBRL: 1200 },
-      { minPax: 4, maxPax: 6, priceBRL: 900 },
-      { minPax: 7, maxPax: 15, priceBRL: 780 },
+      { minPax: 2, maxPax: 3, priceBRL: 1200, priceEUR: 200 },
+      { minPax: 4, maxPax: 6, priceBRL: 900, priceEUR: 150 },
+      { minPax: 7, maxPax: 15, priceBRL: 780, priceEUR: 130 },
     ],
     meetingPoint: 'Hotel pick-up',
     image: 'tour-giorno',

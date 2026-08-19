@@ -4,6 +4,7 @@
  * The sea-level/altitude framing retired with the descent.
  */
 import RouteMark from './RouteMark.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import { SITE } from '../data/site';
 import { t, localeHref, type Locale } from '../i18n';
 
@@ -31,6 +32,7 @@ const dict = t(locale);
     </p>
     <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
       <a href={localeHref(locale, '#tour')} class="btn btn-primary">{dict.finalCta.ctaTours}</a>
+      <WhatsAppButton locale={locale} variant="ghost" />
       <a href={SITE.instagram} class="btn btn-ghost" rel="noopener" target="_blank">
         {dict.finalCta.instagramLabel} · {SITE.instagramHandle}
       </a>

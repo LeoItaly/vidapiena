@@ -13,6 +13,7 @@ import RelatedLinks from '../RelatedLinks.astro';
 import TourGallery from './TourGallery.astro';
 import TourBooking from './TourBooking.astro';
 import TourFaq from './TourFaq.astro';
+import Price from '../Price.astro';
 import { getPhoto } from '../../lib/photos';
 import { SITE } from '../../data/site';
 import { TOURS, type Tour } from '../../data/tours';
@@ -51,13 +52,17 @@ const relatedPosts = await postsForTour(tour.id, locale);
 // Same transform BaseHead runs for og:image — the asset pipeline dedupes it.
 const jsonImage = heroPhoto ? await getImage({ src: heroPhoto, format: 'jpeg', width: 1200 }) : null;
 
-const facts = [
+// The price fact carries a `price` object (rendered via <Price> so it follows the
+// geo currency); the other three are plain strings. The practical section reads
+// only facts.slice(0,3), so the price entry appears in the top strip alone.
+type Fact = { k: string; v?: string; price?: { brl: number; eur: number; from: boolean } };
+const facts: Fact[] = [
   { k: dict.tourPage.factsDuration, v: dict.tours.hours(tour.durationHours) },
   { k: dict.tourPage.factsGroup, v: dict.tourPage.groupValue(tour.minPax, tour.maxGroup) },
   { k: dict.tourPage.factsLanguages, v: dict.tourPage.languagesValue },
   {
     k: dict.tourPage.factsPrice,
-    v: `${tour.priceIsFrom ? `${dict.tours.from} ` : ''}R$ ${tour.priceBRL} ${dict.tours.perPerson}`,
+    price: { brl: tour.priceBRL, eur: tour.priceEUR, from: tour.priceIsFrom },
   },
 ];
 
@@ -190,7 +195,16 @@ const graph = {
         facts.map((f) => (
           <div>
             <dt class="eyebrow text-paper/55">{f.k}</dt>
-            <dd class="mt-1.5 font-mono text-sm tabular-nums">{f.v}</dd>
+            <dd class="mt-1.5 font-mono text-sm tabular-nums">
+              {f.price ? (
+                <>
+                  {f.price.from && <>{dict.tours.from} </>}
+                  <Price brl={f.price.brl} eur={f.price.eur} /> {dict.tours.perPerson}
+                </>
+              ) : (
+                f.v
+              )}
+            </dd>
           </div>
         ))
       }
@@ -280,10 +294,21 @@ const graph = {
           <h2 class="font-display text-2xl font-bold md:text-3xl">{dict.tourPage.priceHeading}</h2>
           <p class="mt-6 font-mono">
             {tour.priceIsFrom && <span class="text-ink/60">{dict.tours.from} </span>}
-            <span class="text-3xl font-medium tabular-nums">R$ {tour.priceBRL}</span>
+            <Price class="text-3xl font-medium tabular-nums" brl={tour.priceBRL} eur={tour.priceEUR} />
             <span class="text-ink/60"> {dict.tours.perPerson}</span>
           </p>
-          {card.note && <p class="mt-2 font-mono text-xs text-ink/55">{card.note}</p>}
+          {
+            card.note && (
+              <p class="mt-2 font-mono text-xs text-ink/55">
+                {card.note}
+                {tour.childPriceBRL && tour.childPriceEUR && (
+                  <>
+                    : <Price brl={tour.childPriceBRL} eur={tour.childPriceEUR} />
+                  </>
+                )}
+              </p>
+            )
+          }
           {
             tour.priceTiers && (
               <table class="mt-6 w-full max-w-sm font-mono text-sm tabular-nums">
@@ -294,7 +319,7 @@ const graph = {
                         {dict.tourPage.tierLabel(tier.minPax, tier.maxPax)}
                       </td>
                       <td class="py-2.5 text-right font-medium">
-                        R$ {tier.priceBRL}{' '}
+                        <Price brl={tier.priceBRL} eur={tier.priceEUR} />{' '}
                         <span class="font-normal text-ink/55">{dict.tours.perPerson}</span>
                       </td>
                     </tr>
@@ -328,7 +353,8 @@ const graph = {
                   </span>
                   <span class="font-mono text-sm text-ink/60 tabular-nums">
                     {dict.tours.hours(other.durationHours)} ·{' '}
-                    {other.priceIsFrom ? `${dict.tours.from} ` : ''}R$ {other.priceBRL}
+                    {other.priceIsFrom ? `${dict.tours.from} ` : ''}
+                    <Price brl={other.priceBRL} eur={other.priceEUR} />
                   </span>
                 </a>
               </li>

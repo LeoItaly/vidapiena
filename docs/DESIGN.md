@@ -354,12 +354,26 @@ ship a light scrollbar on the ink page again.
 
 ### Booking
 
-- OTA-platform-only, by client decision (21 Jul): **no WhatsApp anywhere**.
-  Instagram DM is the one direct channel.
-- Per-tour badges render **only live platforms** from `otaLinks` (never a
-  placeholder); outbound OTA links carry
-  `rel="noopener noreferrer sponsored" target="_blank"`. The global TrustBadges
-  row stays unlinked. Full link matrix: `Context Knowledge/OTA-LINKS.md`.
+- **Direct booking** by client decision (19 Aug 2026 — reverses the 21 Jul
+  "no WhatsApp" rule). **WhatsApp is the primary CTA** (`WhatsAppButton.astro`,
+  `SITE.whatsapp`, per-tour + per-locale prefill), **Instagram** the secondary
+  direct channel. Website traffic converts to commission-free direct bookings.
+- **OTA badges are unlinked proof only** — "also on these platforms", never
+  booking links. `PlatformBadges.astro` has no link path at all (structural
+  invariant); Hero + TrustBadges + Contact render plain marks. `otaLinks` stays
+  in `tours.ts` solely for JSON-LD `sameAs`. Rationale: don't hand OTAs a
+  commission on our own traffic, and don't advertise a cheaper-direct outbound
+  link that Viator's lowest-price clause could act on (GetYourGuide is permissive;
+  Viator is strict). If we ever reward direct bookers, do it with *added value*
+  (a drink, the drone shot), not a publicly-advertised lower price.
+- **Geo currency.** Prices render in BOTH R$ and € (`Price.astro`); a static CSS
+  class toggle (`html.cur-eur`) picks which shows, set by an inline `BaseHead`
+  script from Cloudflare's `/cdn-cgi/trace` — **R$ for everyone by default and for
+  every Brazilian (loc=BR), € only for European visitors**. Zero Worker CPU (pages
+  stay static assets). JSON-LD `offers`/`priceRange` and all prose stay **BRL**
+  (the real transaction currency). Do NOT use the `hidden` attribute for the
+  default-hidden span: Tailwind's layered `[hidden]{display:none!important}` beats
+  any unlayered reveal rule — hide via the `.cur--eur` class instead.
 
 ### Pages
 

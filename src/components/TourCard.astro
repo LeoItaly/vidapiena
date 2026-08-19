@@ -1,8 +1,8 @@
 ---
 import { Picture } from 'astro:assets';
-import OtaLogo from './OtaLogo.astro';
+import Price from './Price.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import { getPhoto } from '../lib/photos';
-import { PLATFORMS } from '../lib/platforms';
 import type { Tour } from '../data/tours';
 import { t, pagePath, type Locale } from '../i18n';
 
@@ -14,10 +14,7 @@ const { tour, locale } = Astro.props;
 const dict = t(locale);
 const copy = dict.tours.items[tour.id];
 const photo = getPhoto(tour.image);
-const price = `R$ ${tour.priceBRL}`;
 const detailHref = pagePath(locale, `tour/${tour.slug}/`);
-// Platform icons appear per-card only once that platform's listing is live.
-const livePlatforms = PLATFORMS.filter((p) => tour.otaLinks[p.key]);
 ---
 
 {/* `text-ink` is load-bearing: the card declares its own light background, so it
@@ -57,32 +54,25 @@ const livePlatforms = PLATFORMS.filter((p) => tour.otaLinks[p.key]);
 
     <p class="mt-6 font-mono text-sm">
       {tour.priceIsFrom && <span class="text-ink/60">{dict.tours.from} </span>}
-      <span class="text-lg font-medium">{price}</span>
+      <Price class="text-lg font-medium" brl={tour.priceBRL} eur={tour.priceEUR} />
       <span class="text-ink/60"> {dict.tours.perPerson}</span>
     </p>
-    {copy.note && <p class="mt-1 font-mono text-xs text-ink/55">{copy.note}</p>}
+    {
+      copy.note && (
+        <p class="mt-1 font-mono text-xs text-ink/55">
+          {copy.note}
+          {tour.childPriceBRL && tour.childPriceEUR && (
+            <>
+              : <Price brl={tour.childPriceBRL} eur={tour.childPriceEUR} />
+            </>
+          )}
+        </p>
+      )
+    }
 
     <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
       <a href={detailHref} class="btn btn-primary text-sm">{dict.tours.ctaDetail}</a>
-      {
-        livePlatforms.length > 0 && (
-          <ul class="flex items-center gap-1.5">
-            {livePlatforms.map((p) => (
-              <li>
-                <a
-                  href={tour.otaLinks[p.key]}
-                  class="flex items-center rounded-full border border-ink/15 bg-white px-2.5 py-1.5 transition-colors hover:border-ink/40"
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  aria-label={`${copy.name} — ${p.name}`}
-                >
-                  <OtaLogo platform={p.key} name={p.name} class="h-3" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      <WhatsAppButton locale={locale} tour={tour} variant="ghost-ink" class="text-sm" />
     </div>
   </div>
 </article>

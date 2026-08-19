@@ -2,6 +2,49 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-19 — Direct-booking pivot: OTA links out, WhatsApp in, geo currency 💬
+
+A customer found the site, was quoted R$270, then bounced to GetYourGuide showing
+~€64 and got confused. Root cause is two-fold (currency: R$270≈€43; and the OTA
+bakes its ~25-30% commission into the retail price). Client decision: convert the
+site's own traffic to **commission-free direct booking**, and fix the currency
+confusion for European visitors. This reverses the 21 Jul "no WhatsApp" decision.
+
+- **All OTA booking links removed from the marketing surface.** `PlatformBadges.astro`
+  lost its link path entirely (now a structural invariant — it can only render
+  unlinked proof). TourCard, TourBooking, Hero, TrustBadges, Contact all render the
+  four marks as unlinked "also on these platforms" proof. `otaLinks` stays in
+  `tours.ts` only for JSON-LD `sameAs`. Result (built HTML): **0** OTA `<a href>`,
+  **0** `sponsored`; OTA URLs survive only inside `ld+json` (44).
+- **WhatsApp is the primary booking channel** (`WhatsAppButton.astro`, `SITE.whatsapp`,
+  per-tour + per-locale prefill), Instagram secondary. CTAs on TourBooking, TourCard,
+  Hero, FinalCta, Contact (24 `wa.me` links built; IT prefill on IT pages, EN on the
+  twins). The number is Francesco's business line — deliberately published; the raw
+  digits live only in `site.ts`.
+- **`verify-build.mjs` allow-lists that one number** (stored split so the file can't
+  trip its own scan) while every *other* Brazilian number still fails. Negative-tested:
+  a different fake BR number still fails the guard.
+- **Geo currency** (`Price.astro` + `global.css` + inline `BaseHead` script): prices
+  carry BOTH R$ and €; a CSS class toggle (`html.cur-eur`) set from Cloudflare
+  `/cdn-cgi/trace` shows **R$ by default and for every Brazilian, € only for European
+  visitors**. Zero Worker CPU (pages stay static). JSON-LD + prose stay BRL. EUR values
+  authored fixed in `tours.ts` (favelas €45, child €30, giorno tiers €200/150/130 —
+  confirm with Francesco).
+  - ⚠️ **CSS trap learned:** the EUR span must NOT use the HTML `hidden` attribute.
+    Tailwind v4 preflight ships `[hidden]{display:none!important}` in `@layer base`,
+    and because `!important` *inverts* cascade-layer order, that layered rule beats any
+    unlayered reveal — the price rendered blank for EU visitors until switched to a
+    class-only (`.cur--eur`) hide. Caught in the browser, not the build.
+- **Copy:** "how do I book" FAQ, contact page, `badges.heading` ("Mi trovi anche su" /
+  "Also on"), and both `llms*.txt` booking lines rewritten to WhatsApp + Instagram
+  (OTAs = "also listed on").
+
+**Verified:** `astro check` 0/0/0, `astro build` + `verify-build` clean (guard passes
+with the number in `site.ts`; PLACEHOLDER-origin is the usual local-only warning).
+Browser (dev): EU mode → € shown, R$ hidden; BR/default → R$ shown, **0 euro signs on
+the page**; JSON-LD still BRL; booking section = WhatsApp + Instagram + 4 unlinked
+badge spans; homepage 0 OTA anchors, 6 `wa.me` links. **Not pushed** (push = deploy).
+
 ## 2026-08-05 (later) — Second-pass audit of the SEO/GEO article feature
 
 Independent review of the entry below. The `relatedTour` flow itself came back clean —

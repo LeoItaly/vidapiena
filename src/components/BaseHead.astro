@@ -67,6 +67,41 @@ const posters = preloadHeroPosters ? await getHeroPosters() : null;
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+{
+  /* Geo currency, set before first paint (no flash). Synchronous localStorage
+     read decides now; first-ever visit defaults to BRL then corrects to EUR
+     asynchronously from Cloudflare's edge /cdn-cgi/trace ONLY for European
+     visitors, caching the choice. A Brazilian (loc=BR) is never in the set, so
+     they stay R$ permanently. Zero Worker CPU — the trace is edge-served and the
+     page is a static asset. Prices carry both currencies (Price.astro); this
+     just flips which one CSS shows (global.css `.cur-eur`). */
+}
+<script is:inline>
+  (function () {
+    try {
+      var eu =
+        'AD AL AT AX BA BE BG BY CH CY CZ DE DK EE ES FI FO FR GB GG GI GR HR HU IE IM IS IT JE LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS SE SI SK SM UA VA XK'.split(
+          ' ',
+        );
+      var cur = localStorage.getItem('vp-cur');
+      if (cur === 'eur') {
+        document.documentElement.classList.add('cur-eur');
+      } else if (cur === null) {
+        fetch('/cdn-cgi/trace')
+          .then(function (r) {
+            return r.text();
+          })
+          .then(function (txt) {
+            var m = /(?:^|\n)loc=([A-Z]{2})/.exec(txt);
+            var isEu = !!(m && eu.indexOf(m[1]) !== -1);
+            document.documentElement.classList.toggle('cur-eur', isEu);
+            localStorage.setItem('vp-cur', isEu ? 'eur' : 'brl');
+          })
+          .catch(function () {});
+      }
+    } catch (e) {}
+  })();
+</script>
 <title>{title}</title>
 <meta name="description" content={description} />
 <meta name="robots" content={robots} />
