@@ -2,6 +2,35 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-22 — Testimonials band: real Google reviews as social proof ⭐
+
+Francesco's Google Business Profile (VIDAPIENA) has **5.0★ over 209 reviews**; Leo asked to
+surface them on the site. Chose the **curated static "Layer 1"** (no third-party runtime
+script, no API dependency — fits the self-contained Cloudflare Workers site and ships today).
+
+- **New `Testimonials.astro`** homepage band, slotted in `Landing.astro` **between
+  `InstagramBand` and `FinalCta`** (proof right before the final ask). Ink band
+  (`bg-ink` + `band-tint-verde`), `id="recensioni"`, no `RouteMark` so the 60m→0m descent
+  sequence is untouched. Reveals are the declarative hooks (`data-scramble` eyebrow,
+  `data-reveal-heading` h2, `data-stagger` cards) — no new JS.
+- **6 hand-picked, VERBATIM 5★ reviews** live in new `src/data/reviews.ts` (locale-independent —
+  real customers' words, first name + initial, not translated). `GOOGLE_REVIEWS` holds the
+  aggregate (5.0 / **209**, snapshot 22 Aug) + a stable Maps link (`?cid=18401636343902061049`).
+  The count is a **manual snapshot** — bump it in `reviews.ts` as reviews grow.
+- **i18n chrome** added as `testimonials` in `it.ts` + `en.ts` (eyebrow/heading/sub/`rated(n)`/
+  source/cta) — the review array itself is NOT in the dicts, so no it⇄en duplication.
+  `astro check` (the `typeof it` contract) passes.
+- **Deliberately NO Review/AggregateRating JSON-LD.** Google treats a business's own review
+  markup as "self-serving" — ineligible for star rich-results and a spam-flag risk — so the
+  signal is the visible quotes + the outbound link to the live Google profile (the
+  authoritative source), not schema.
+- **Verified:** `npm run build` green (only the expected local placeholder-origin warning);
+  both `/` and `/en/` built HTML carry the heading, aggregate, CTA, quotes and the cid link;
+  `.bg-paper/5` + `.border-paper/10` card utilities compiled. **NOT pushed / NOT deployed**
+  (push = deploy). Optional future **Layer 2**: Featurable's free JSON API fetched at build
+  time (like the Instagram feed) to auto-refresh the set — needs Francesco to connect the GBP
+  + a `FEATURABLE` CI secret.
+
 ## 2026-08-22 — Prices matched to the platforms (rate parity), then R$-only 💱
 
 Follow-up to the 19 Aug pivot. Two client decisions (Francesco + Leo):

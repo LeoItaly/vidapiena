@@ -7,6 +7,7 @@ import Community from './Community.astro';
 import Guide from './Guide.astro';
 import ToursGrid from './ToursGrid.astro';
 import InstagramBand from './InstagramBand.astro';
+import Testimonials from './Testimonials.astro';
 import FinalCta from './FinalCta.astro';
 import TrustBadges from './TrustBadges.astro';
 import Footer from './Footer.astro';
@@ -57,6 +58,8 @@ const dict = t(locale);
     <Guide locale={locale} />
     <MorroDivider from="paper" to="ink" accent="verde" flip />
     <InstagramBand locale={locale} />
+    {/* Social proof right before the final ask: real 5.0 Google reviews. */}
+    <Testimonials locale={locale} />
     <FinalCta locale={locale} />
     <TrustBadges locale={locale} />
   </main>

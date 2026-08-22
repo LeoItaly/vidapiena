@@ -401,6 +401,18 @@ export const en: typeof it = {
     instagramLabel: 'Follow me on Instagram',
   },
 
+  /* Real Google reviews as social proof (curated static layer). The review text
+     lives in src/data/reviews.ts — locale-independent: real customers' words, not
+     translated. Only the chrome is localized. Shape must match it.ts. */
+  testimonials: {
+    eyebrow: 'Reviews',
+    heading: 'What travelers say.',
+    sub: 'The words of people who have already walked Rio’s communities with me.',
+    rated: (n: number) => `5.0 out of 5 · ${n} reviews on Google`,
+    source: 'via Google',
+    cta: 'Read all reviews on Google →',
+  },
+
   /* Direct booking (client decision 19 Aug 2026): WhatsApp + Instagram, no
      commission. waPrefillTour is a function — its shape must match it.ts exactly
      (the `typeof it` contract). */

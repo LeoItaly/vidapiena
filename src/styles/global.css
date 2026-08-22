@@ -95,7 +95,8 @@ html {
 
 /* In-page anchors stop under the fixed nav instead of behind it. */
 #tour,
-#guida {
+#guida,
+#recensioni {
   scroll-margin-top: calc(var(--nav-h) + 0.75rem);
 }
 

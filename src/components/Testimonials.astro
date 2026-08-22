@@ -1,0 +1,71 @@
+---
+/**
+ * Testimonials — real Google reviews as on-page social proof. Static "Layer 1":
+ * a hand-picked, verbatim subset of Francesco's 5.0 / 200+ Google profile,
+ * curated in src/data/reviews.ts, shown with the aggregate and a link out to the
+ * live profile (the authoritative source).
+ *
+ * Deliberately NO Review/AggregateRating JSON-LD: Google treats a business's own
+ * review markup as "self-serving" — ineligible for star rich results and a spam
+ * risk — so the trust signal here is the visible quotes plus the link to Google,
+ * not schema. No third-party runtime script either (self-contained, like the rest
+ * of the site).
+ *
+ * Ink band, slotted into the seamless ink region between InstagramBand and
+ * FinalCta — proof right before the final ask. Reveals are declarative:
+ * data-scramble (eyebrow), data-reveal-heading (h2) and data-stagger (cards) are
+ * picked up document-wide by the reveal scripts, so no wiring is needed here.
+ */
+import { t, type Locale } from '../i18n';
+import { REVIEWS, GOOGLE_REVIEWS } from '../data/reviews';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const stars = '★★★★★';
+---
+
+<section id="recensioni" class="band-tint-verde relative bg-ink text-paper">
+  <div class="mx-auto w-full max-w-6xl px-5 pt-12 pb-16 md:px-10 md:pt-16 md:pb-24">
+    <p class="eyebrow text-ouro" data-scramble>{dict.testimonials.eyebrow}</p>
+    <h2 class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl" data-reveal-heading>
+      {dict.testimonials.heading}
+    </h2>
+    <p class="mt-4 max-w-xl leading-relaxed text-paper/80">{dict.testimonials.sub}</p>
+
+    {/* Aggregate proof — the real figure, mirrored from the live profile. */}
+    <p class="mt-6 flex items-center gap-2.5 text-paper/85">
+      <span class="text-ouro text-lg tracking-wide" aria-hidden="true">{stars}</span>
+      <span class="font-semibold">{dict.testimonials.rated(GOOGLE_REVIEWS.count)}</span>
+    </p>
+
+    <ul class="mt-9 grid gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-5" data-stagger>
+      {
+        REVIEWS.map((r) => (
+          <li class="h-full">
+            <figure class="flex h-full flex-col rounded-lg border border-paper/10 bg-paper/5 p-6">
+              <span class="text-ouro text-sm tracking-wide" aria-hidden="true">
+                {stars}
+              </span>
+              <blockquote class="mt-3 grow leading-relaxed text-paper/85">{r.quote}</blockquote>
+              <figcaption class="eyebrow mt-5 text-paper/55">
+                {r.author} · {dict.testimonials.source}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a
+      href={GOOGLE_REVIEWS.url}
+      target="_blank"
+      rel="noopener"
+      class="link-sweep eyebrow mt-9 inline-block text-ouro"
+    >
+      {dict.testimonials.cta}
+    </a>
+  </div>
+</section>

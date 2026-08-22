@@ -405,6 +405,18 @@ export const it = {
     instagramLabel: 'Seguimi su Instagram',
   },
 
+  /* Recensioni Google reali come prova sociale (layer statico curato). Il testo
+     delle recensioni vive in src/data/reviews.ts — indipendente dalla lingua:
+     sono parole vere dei clienti, non si traducono. Qui solo la cornice. */
+  testimonials: {
+    eyebrow: 'Recensioni',
+    heading: 'Cosa dicono i viaggiatori.',
+    sub: 'Le parole di chi ha già camminato con me nelle comunità di Rio.',
+    rated: (n: number) => `5,0 su 5 · ${n} recensioni su Google`,
+    source: 'da Google',
+    cta: 'Leggi tutte le recensioni su Google →',
+  },
+
   /* Prenotazione diretta (decisione cliente 19/08/2026): WhatsApp + Instagram,
      niente commissioni. waPrefillTour è una funzione: la forma dev'essere
      identica in en.ts (contratto `typeof it`). */
