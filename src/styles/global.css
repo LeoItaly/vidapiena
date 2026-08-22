@@ -115,32 +115,6 @@ html {
   outline-offset: 2px;
 }
 
-/* ---- Geo currency toggle --------------------------------------------------
-   Prices render in BOTH currencies (Price.astro); which one shows is a pure CSS
-   switch, so the marketing pages stay static assets served in front of the
-   Worker (no per-request CPU — the 1102 trap can't reach here). BRL is the base:
-   shown to everyone by default, and to every Brazilian visitor, forever. The
-   inline script in BaseHead adds `html.cur-eur` for European visitors (from
-   Cloudflare's /cdn-cgi/trace). BRL stays the real transaction currency.
-
-   These rules are UNLAYERED normal declarations, which is what makes the toggle
-   work: unlayered normal wins over Tailwind's layered base. (We deliberately do
-   NOT use the HTML `hidden` attribute on the EUR span — Tailwind's preflight
-   `[hidden]{display:none!important}` sits in `@layer base`, and because
-   `!important` inverts layer order, a layered important rule beats any unlayered
-   one, so a `hidden` span could never be revealed. Class-driven display avoids
-   that trap entirely.) Floor: if CSS fails completely, both currencies show —
-   an acceptable degradation of an already-broken page. */
-.cur--eur {
-  display: none;
-}
-html.cur-eur .cur--brl {
-  display: none;
-}
-html.cur-eur .cur--eur {
-  display: inline;
-}
-
 @layer components {
   .eyebrow {
     font-family: var(--font-mono);

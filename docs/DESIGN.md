@@ -366,14 +366,14 @@ ship a light scrollbar on the ink page again.
   link that Viator's lowest-price clause could act on (GetYourGuide is permissive;
   Viator is strict). If we ever reward direct bookers, do it with *added value*
   (a drink, the drone shot), not a publicly-advertised lower price.
-- **Geo currency.** Prices render in BOTH R$ and € (`Price.astro`); a static CSS
-  class toggle (`html.cur-eur`) picks which shows, set by an inline `BaseHead`
-  script from Cloudflare's `/cdn-cgi/trace` — **R$ for everyone by default and for
-  every Brazilian (loc=BR), € only for European visitors**. Zero Worker CPU (pages
-  stay static assets). JSON-LD `offers`/`priceRange` and all prose stay **BRL**
-  (the real transaction currency). Do NOT use the `hidden` attribute for the
-  default-hidden span: Tailwind's layered `[hidden]{display:none!important}` beats
-  any unlayered reveal rule — hide via the `.cur--eur` class instead.
+- **Currency — R$ only (updated 22/08/2026).** Prices render in Brazilian Real for
+  every visitor (`Price.astro`). R$ is the real transaction currency (JSON-LD
+  `offers`/`priceRange`, prose, the on-the-ground charge); showing one currency keeps
+  the pages fully static (zero Worker CPU) and rate-parity-safe — a *fixed* euro figure
+  could drift below the platforms' *live* conversion as FX moves and silently undercut
+  them. The earlier geo euro toggle was removed (BaseHead `/cdn-cgi/trace` script and
+  the `global.css .cur--*` rules deleted); `tour.priceEUR` stays in `tours.ts` as
+  dormant data so a dual render can be switched back on if ever wanted.
 
 ### Pages
 

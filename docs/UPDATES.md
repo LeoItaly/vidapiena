@@ -2,6 +2,31 @@
 
 > Newest first. One entry per working session.
 
+## 2026-08-22 — Prices matched to the platforms (rate parity), then R$-only 💱
+
+Follow-up to the 19 Aug pivot. Two client decisions (Francesco + Leo):
+
+**1. Site prices = platform prices (commit `ac466f8`).** A customer had seen the site
+cheaper than GetYourGuide and got confused; and a publicly cheaper-than-Viator price
+breaches Viator's lowest-price clause. Read the live platform prices (GYG/Viator/Airbnb,
+all 4 tours) and set the site **at/above the lowest platform** (Viator is the binding floor):
+
+- Favelas: R$270 → **R$360** (verified live: GYG €62/R$360, Viator €61.23, Airbnb €60).
+  Rocinha child R$180 kept (= GYG's exact child rate €30.99), €30→€31.
+- Un Giorno: was "from R$780" tiered → **flat R$1200** (GYG €207/R$1200, Viator €204.09).
+  The group-discount tiers (R$900/R$780) were **removed from the public site** — they
+  undercut Viator. Francesco can still reward large direct groups privately on WhatsApp.
+- Touched `tours.ts` + it/en dictionaries + 10 blog posts + `llms.txt`; JSON-LD and
+  `llms-full` derive from `tours.ts`. Built HTML verified: 0 stale R$270/R$780.
+
+**2. Currency: R$ for everyone — euro display removed (this commit).** The geo toggle
+(BaseHead `/cdn-cgi/trace` script + `global.css .cur--*` rules) is deleted; `Price.astro`
+renders R$ only. Rationale: R$ is the real charge currency, one currency keeps the pages
+static, and a *fixed* euro figure could drift *below* the platforms' *live* euro as FX
+moves and silently undercut them (re-creating the very problem we just fixed). `tour.priceEUR`
+stays in `tours.ts` as dormant data so the € display can be switched back on trivially.
+Built HTML: 0 `€` (only binary image bytes), 0 `/cdn-cgi/trace`.
+
 ## 2026-08-19 — Direct-booking pivot: OTA links out, WhatsApp in, geo currency 💬
 
 A customer found the site, was quoted R$270, then bounced to GetYourGuide showing

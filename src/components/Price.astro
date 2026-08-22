@@ -1,30 +1,24 @@
 ---
 /**
- * A single price, authored in BOTH currencies so the choice is a static CSS
- * toggle — no per-request server work (the marketing pages stay static assets,
- * in front of the Worker, so the CPU budget can never bite here).
+ * A single price, in Brazilian Real (R$) only. R$ is the real transaction
+ * currency everywhere (JSON-LD offers, prose, the on-the-ground charge), and
+ * showing one currency keeps the marketing pages fully static — no per-request
+ * Worker CPU, and no fixed euro figure that could drift below the platforms'
+ * live conversion (so rate parity stays safe). Client decision 19/08/2026:
+ * prices display in R$ for every visitor (the earlier geo euro toggle was
+ * removed — its BaseHead script and the global.css `.cur--*` rules are gone).
  *
- * BRL is the base/default: it renders for everyone. The EUR span is hidden by a
- * normal CSS class rule (`.cur--eur { display:none }` in global.css), NOT the
- * HTML `hidden` attribute — Tailwind v4's preflight ships
- * `[hidden]{display:none!important}` in `@layer base`, and because `!important`
- * inverts cascade-layer order, that layered rule beats any unlayered reveal rule,
- * so a `hidden` EUR span can never be un-hidden. The inline script in BaseHead
- * adds `html.cur-eur` for European visitors (from Cloudflare's /cdn-cgi/trace);
- * global.css then flips which span shows. BRL stays the real transaction currency
- * everywhere else (JSON-LD offers, prose, the on-the-ground charge).
- *
- * `class` styles the numeric run as a whole (font-size/weight/tabular-nums);
- * both inner spans inherit it. Surrounding wording ("from" / "per person") stays
- * in the dictionaries around this component.
+ * `eur` is retained as an optional prop so callers can keep passing
+ * `tour.priceEUR` and the €-equivalent stays recorded in tours.ts; it is not
+ * rendered. Flip this back to a dual render if the euro display is ever wanted
+ * again. `class` styles the numeric run (font-size/weight/tabular-nums);
+ * surrounding wording ("from" / "per person") lives in the dictionaries.
  */
 interface Props {
   brl: number;
-  eur: number;
+  eur?: number;
   class?: string;
 }
-const { brl, eur, class: className = '' } = Astro.props;
+const { brl, class: className = '' } = Astro.props;
 ---
-<span class:list={['vp-price', className]}
-  ><span class="cur cur--brl">R$ {brl}</span><span class="cur cur--eur">€ {eur}</span></span
->
+<span class:list={['vp-price', className]}>R$ {brl}</span>
