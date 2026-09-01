@@ -36,7 +36,7 @@ terrace facing Christ the Redeemer.
 
 - **2 hours 30** of tour, downhill.
 - **Min 2 · max 19 people.**
-- **R$360 per person**, mototaxi and visitation fee included.
+- **€52 per person**, mototaxi and visitation fee included.
 - **Mon–Fri 09:00 and 15:30 · Sat–Sun 09:00 and 14:00.**
 - **Meeting point:** Praça do Vidigal.
 

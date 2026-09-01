@@ -24,12 +24,12 @@ const durationText = (tour: Tour) =>
 
 const priceText = (tour: Tour) => {
   if (tour.priceTiers) {
-    return `from R$${tour.priceBRL} per person (${tour.priceTiers
-      .map((x) => `${x.minPax}–${x.maxPax} people: R$${x.priceBRL}`)
+    return `from €${tour.priceEUR} per person (${tour.priceTiers
+      .map((x) => `${x.minPax}–${x.maxPax} people: €${x.priceEUR}`)
       .join('; ')})`;
   }
-  const child = tour.childPriceBRL ? ` (children up to 12: R$${tour.childPriceBRL})` : '';
-  return `R$${tour.priceBRL} per person${child}`;
+  const child = tour.childPriceEUR ? ` (children up to 12: €${tour.childPriceEUR})` : '';
+  return `€${tour.priceEUR} per person${child}`;
 };
 
 const tourBlocks = TOURS.map((tour) => {
@@ -62,7 +62,7 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena —
 
 - Participants are covered by a personal-accident insurance policy (Porto Seguro), valid through 30 June 2027.
 - Vidapiena is a registered Brazilian business (MEI), active since January 2025.
-- Booking is direct: WhatsApp (https://wa.me/${SITE.whatsapp}) or Instagram DM (${SITE.instagram}), no intermediary and no commission. Also listed on Viator, GetYourGuide, Airbnb Experiences and Civitatis.
+- Booking is direct with Francesco: WhatsApp (https://wa.me/${SITE.whatsapp}) or Instagram DM (${SITE.instagram}), for a personalised, made-to-measure service. Also listed on Viator, GetYourGuide, Airbnb Experiences and Civitatis.
 
 ## Tours
 

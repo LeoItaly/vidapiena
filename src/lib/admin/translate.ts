@@ -73,7 +73,11 @@ export function workersAiTranslator(ai: WorkersAI | null): Translator {
       })) as { response?: string };
       const english = (out?.response ?? '').trim();
       return english ? restoreBrandWords(english, testo) : italian;
-    } catch {
+    } catch (err) {
+      // Log the real Workers AI error (same binding/model as the summary helper)
+      // instead of swallowing it; still returns the Italian so a publish never
+      // strands half-way.
+      console.error('[translate] workersAiTranslator failed:', err);
       return italian;
     }
   };

@@ -9,7 +9,7 @@ export const en: typeof it = {
   meta: {
     title: 'Favela tours in Rio de Janeiro with an Italian guide — Vidapiena',
     description:
-      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour with Francesco, Italian guide in Rio de Janeiro for 9 years. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from R$360 per person.',
+      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour with Francesco, Italian guide in Rio de Janeiro for 9 years. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from €52 per person.',
     ogAlt: 'The Vidapiena logo spray-painted on a wall in Rio',
   },
 
@@ -45,7 +45,7 @@ export const en: typeof it = {
   hero: {
     kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
     h1: ['Favela tours in Rio de Janeiro,', 'with an Italian guide.'],
-    sub: 'I’m Francesco — Italian, 9 years in Rio. I take you on foot through the real life of the community: small groups, mototaxi included, in English, Italian or Portuguese, from R$360 per person.',
+    sub: 'I’m Francesco — Italian, 9 years in Rio. I take you on foot through the real life of the community: small groups, mototaxi included, in English, Italian or Portuguese, from €52 per person.',
     ctaTours: 'See the tours',
     otaLabel: 'Also on',
     scrollCue: 'Scroll to explore',
@@ -58,7 +58,7 @@ export const en: typeof it = {
     heading: 'The guide',
     intro:
       'I’m Francesco: Italian, carioca by adoption for 9 years. Vidapiena is how I live this city — and how I take you through it, not just past it.',
-    photoAlt: 'Francesco, Italian tour guide in Rio de Janeiro',
+    photoAlt: 'Francesco, Italian tour guide in Rio de Janeiro, in front of Christ the Redeemer',
     stats: [
       { k: 'Guide', v: 'Italian native speaker' },
       { k: 'In Rio for', v: '9 years' },
@@ -81,9 +81,8 @@ export const en: typeof it = {
       rocinha: {
         name: 'Favela Tour Rocinha',
         hook: 'Brazil’s largest favela: the gallery of a graffiti artist born here, the pitch rebuilt by a footballer from Rocinha, and an Italian NGO working in the community for over 20 years.',
-        /* Label only — the child price (childPrice*) is rendered by Price.astro
-           next to this note, so it follows the geo-located currency. */
-        note: 'Children up to 12',
+        /* No child price on Rocinha (removed 01/09/2026) → empty note. */
+        note: '',
       },
       vidigal: {
         name: 'Favela Tour Vidigal',
@@ -148,7 +147,7 @@ export const en: typeof it = {
       },
       {
         q: 'Is it suitable for kids and families?',
-        a: 'Yes, the pace adapts to the group. On the Rocinha tour, children up to 12 pay R$180; for very young kids we will figure out the mototaxi together.',
+        a: 'Yes, the pace adapts to the group; for very young kids we will figure out the mototaxi together.',
       },
       {
         q: 'What should I bring and wear?',
@@ -156,7 +155,7 @@ export const en: typeof it = {
       },
       {
         q: 'How do I book?',
-        a: 'You book directly with me, no middleman: message me on WhatsApp or DM me on Instagram (@vidapiena) and we sort out the date and availability together. You’ll also find me on Viator, GetYourGuide, Airbnb and Civitatis, but booking direct saves the commission.',
+        a: 'You book with me: message me on WhatsApp or DM me on Instagram (@vidapiena) and we sort out the date and availability together, tailored to you. You’ll also find me on Viator, GetYourGuide, Airbnb and Civitatis.',
       },
       {
         q: 'What if it rains or I need to cancel?',
@@ -167,7 +166,7 @@ export const en: typeof it = {
       rocinha: {
         metaTitle: 'Rocinha Favela Tour — 3 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '3-hour walking tour of Rocinha, Brazil’s largest favela, with Francesco, Italian guide in Rio: mototaxi to the top, panoramic views, a graffiti artist’s gallery and an Italian NGO. R$360 per person. Tours in English, Italian and Portuguese.',
+          '3-hour walking tour of Rocinha, Brazil’s largest favela, with Francesco, Italian guide in Rio: mototaxi to the top, panoramic views, a graffiti artist’s gallery and an Italian NGO. €52 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 3 hours',
         longDesc: [
           'Rocinha is Brazil’s largest favela: a city within the city, leaning on the mountain above São Conrado. The tour opens riding local mototaxis to the very top — from there we walk down, into the real life of the community.',
@@ -195,7 +194,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: 'R$360 per person (children up to 12: R$180). It includes the mototaxi to the top, the community visitation fee and the guide in English, Italian or Portuguese.',
+            a: '€52 per person. It includes the mototaxi to the top, the community visitation fee and the guide in English, Italian or Portuguese.',
           },
           {
             q: 'How much walking is there?',
@@ -206,7 +205,7 @@ export const en: typeof it = {
       vidigal: {
         metaTitle: 'Vidigal Favela Tour — 2.5 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '2.5-hour walking tour of Vidigal with Francesco, Italian guide in Rio: mototaxi to the top, views over Leblon and Ipanema, the alleys, and a terrace bar facing Christ the Redeemer. R$360 per person. Tours in English, Italian and Portuguese.',
+          '2.5-hour walking tour of Vidigal with Francesco, Italian guide in Rio: mototaxi to the top, views over Leblon and Ipanema, the alleys, and a terrace bar facing Christ the Redeemer. €52 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 2.5 hours',
         longDesc: [
           'Vidigal is the favela over the sea, between Leblon and the Dois Irmãos peaks. We ride mototaxis to the upper part — revitalized, with its pitch and park — then walk down, alley by alley.',
@@ -232,7 +231,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: 'R$360 per person. It includes the mototaxi up to upper Vidigal, the community visitation fee and the guide in English, Italian or Portuguese.',
+            a: '€52 per person. It includes the mototaxi up to upper Vidigal, the community visitation fee and the guide in English, Italian or Portuguese.',
           },
           {
             q: 'What is the best view?',
@@ -243,7 +242,7 @@ export const en: typeof it = {
       tavares: {
         metaTitle: 'Tavares Bastos Favela Tour — 2.5 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '2.5-hour walking tour of Tavares Bastos, downtown Rio’s most laid-back community, with Francesco, Italian guide: alleys, everyday life and a game on the iconic FIFA Street pitch. R$360 per person. Tours in English, Italian and Portuguese.',
+          '2.5-hour walking tour of Tavares Bastos, downtown Rio’s most laid-back community, with Francesco, Italian guide: alleys, everyday life and a game on the iconic FIFA Street pitch. €52 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 2.5 hours',
         longDesc: [
           'Tavares Bastos is downtown Rio’s most laid-back community, perched above the Catete neighborhood. We ride mototaxis up and walk down, through alleys, small shops and everyday stories.',
@@ -268,7 +267,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: 'R$360 per person. It includes the mototaxi and the guide in English, Italian or Portuguese. Tavares Bastos is downtown Rio’s most laid-back community.',
+            a: '€52 per person. It includes the mototaxi and the guide in English, Italian or Portuguese. Tavares Bastos is downtown Rio’s most laid-back community.',
           },
           {
             q: 'Do we really play on the FIFA Street pitch?',
@@ -279,11 +278,11 @@ export const en: typeof it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — full-day city tour with an Italian guide | Vidapiena',
         metaDescription:
-          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. R$1200 per person.',
+          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. €207 per person.',
         kicker: 'City tour · full day',
         longDesc: [
           'The best of Rio in a single day, with nothing to organize: I pick you up at your hotel with a private car or van with driver, and off we go — Christ the Redeemer by the Corcovado cog train, the bohemian streets of Santa Teresa, the Selarón Steps, and Sugarloaf by cable car.',
-          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. R$1200 per person, everything included.',
+          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. €207 per person, everything included.',
         ],
         highlights: [
           'Christ the Redeemer by the Corcovado cog train',
@@ -307,7 +306,7 @@ export const en: typeof it = {
           },
           {
             q: 'How much does it cost and how does pricing work?',
-            a: 'R$1200 per person. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
+            a: '€207 per person. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
           },
           {
             q: 'What do we see in one day?',
@@ -353,7 +352,7 @@ export const en: typeof it = {
   contact: {
     metaTitle: 'Contact — Francesco, Italian guide in Rio | Vidapiena',
     metaDescription:
-      'Get in touch with Francesco of Vidapiena: book the tours directly on WhatsApp or by DM on Instagram — no middleman, no commission. You’ll also find him on Viator, GetYourGuide, Airbnb and Civitatis.',
+      'Get in touch with Francesco of Vidapiena: book the tours with him on WhatsApp or by DM on Instagram, for a personalised, made-to-measure service. You’ll also find him on Viator, GetYourGuide, Airbnb and Civitatis.',
     kicker: 'Contact',
     heading: 'Book directly with me.',
     instagramLead:
@@ -361,7 +360,7 @@ export const en: typeof it = {
     instagramCta: 'Message me on Instagram',
     bookingHeading: 'Bookings',
     bookingLead:
-      'Book directly with me, no commission: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability. You’ll also find me on the platforms below.',
+      'Book with me: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability, tailored to you. You’ll also find me on the platforms below.',
     logisticsHeading: 'Good to know',
     logisticsItems: [
       'Departing daily · minimum 2 people.',
@@ -394,6 +393,18 @@ export const en: typeof it = {
     cta: 'Follow me on', // brand word rendered as the Instagram glyph in InstagramBand's CTA
   },
 
+  /* Press mention: Voglio Vivere Così interview (April 2026). Third-party
+     authority proof, in the dark cluster between Instagram and the reviews. The
+     URL lives in SITE.press (single source); only the localized chrome is here. */
+  press: {
+    eyebrow: 'In the press',
+    quote: 'In Brazil, there’s a love for life.',
+    outlet: 'Voglio Vivere Così',
+    date: 'April 2026',
+    lead: 'Voglio Vivere Così — the Italian magazine for people dreaming of changing their life and moving abroad — told my story: why I left Milan for Rio, and how I live in Vidigal today.',
+    cta: 'Read the full interview →',
+  },
+
   finalCta: {
     heading: 'Ready to see the real Rio?',
     sub: 'Four tours, daily departures, guided in English, Italian or Portuguese. Pick yours — see you in Rio.',
@@ -417,7 +428,7 @@ export const en: typeof it = {
      commission. waPrefillTour is a function — its shape must match it.ts exactly
      (the `typeof it` contract). */
   booking: {
-    lead: 'Book directly with me, no middleman and no commission: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability. The platforms are here just as a showcase.',
+    lead: 'Book with me, for a personalised, made-to-measure service: message me on WhatsApp or DM me on Instagram and we’ll sort out the date and availability. The platforms are here just as a showcase.',
     waCta: 'Book on WhatsApp',
     waPrefillTour: (name: string) =>
       `Hi Francesco! I'd like to book the "${name}" tour. Could you share dates and availability?`,

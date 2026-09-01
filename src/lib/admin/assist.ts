@@ -62,7 +62,12 @@ export async function suggestDescription(
     if (!s) return null;
     if (s.length > MAX) s = s.slice(0, MAX).replace(/\s+\S*$/, '').trim();
     return s || null;
-  } catch {
+  } catch (err) {
+    // Was silently swallowed — which is why the "Non riesco a proporre un
+    // riassunto" failure was undiagnosable. Log so the real Workers AI error
+    // (deprecated model id, neuron budget, etc.) shows in `wrangler tail` /
+    // observability. Still returns null: a miss must not throw for the author.
+    console.error('[assist] suggestDescription failed:', err);
     return null;
   }
 }

@@ -33,7 +33,7 @@ in the community for more than 20 years.
 
 - **3 hours**, from the top down.
 - **Max 19 people** — small groups, human pace.
-- **R$360 per person** (children up to 12: R$180), mototaxi and visitation fee included.
+- **€52 per person**, mototaxi and visitation fee included.
 - **Mon–Fri 11:00 and 15:30 · Sat–Sun 09:00 and 14:00.**
 - **Meeting point:** Av. Niemeyer 780, São Conrado.
 

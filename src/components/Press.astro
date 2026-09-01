@@ -1,0 +1,55 @@
+---
+/**
+ * Press — a third-party press mention as authority proof. Francesco was
+ * interviewed by the Italian magazine "Voglio Vivere Così" (April 2026); the
+ * band features the interview's headline as a pull-quote and links out to the
+ * full piece — an "as featured in" signal a self-published page cannot give.
+ *
+ * Ink band, slotted into the seamless dark region between InstagramBand and
+ * Testimonials: the proof ladder before the final ask is follow → featured-in →
+ * reviews → book. The interview URL is the single source in SITE.press; only the
+ * localized chrome lives in dict.press. Reveals are declarative (data-scramble on
+ * the eyebrow, data-reveal-heading on the quote), picked up document-wide by the
+ * reveal scripts, so no wiring is needed here.
+ */
+import { SITE } from '../data/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<section id="stampa" class="relative bg-ink text-paper">
+  <div class="mx-auto w-full max-w-6xl px-5 pt-12 pb-16 md:px-10 md:pt-16 md:pb-24">
+    <p class="eyebrow text-ouro" data-scramble>{dict.press.eyebrow}</p>
+
+    <figure class="mt-6 max-w-4xl">
+      <blockquote
+        class="font-display text-3xl font-bold leading-tight text-balance md:text-5xl"
+        data-reveal-heading
+      >
+        <span class="text-ouro" aria-hidden="true">“</span>{dict.press.quote}<span
+          class="text-ouro"
+          aria-hidden="true">”</span
+        >
+      </blockquote>
+      <figcaption class="eyebrow mt-5 text-paper/55">
+        {dict.press.outlet} · {dict.press.date}
+      </figcaption>
+    </figure>
+
+    <p class="mt-8 max-w-2xl leading-relaxed text-paper/80">{dict.press.lead}</p>
+
+    <a
+      href={SITE.press.voglioVivereCosi}
+      target="_blank"
+      rel="noopener"
+      class="link-sweep eyebrow mt-8 inline-block text-ouro"
+    >
+      {dict.press.cta}
+    </a>
+  </div>
+</section>

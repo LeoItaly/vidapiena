@@ -32,7 +32,7 @@ un’angolazione che quasi nessun turista conosce.
 
 - **2 ore e 30** di tour.
 - **Min 2 · max 20 persone.**
-- **R$360 a persona**, mototaxi incluso.
+- **€52 a persona**, mototaxi incluso.
 - **Tutti i giorni, 10:00 e 14:00.**
 - **Punto d’incontro:** Rua Bento Lisboa 72, Catete.
 

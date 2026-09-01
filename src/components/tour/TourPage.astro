@@ -100,15 +100,17 @@ const graph = {
       },
       offers: {
         '@type': 'Offer',
-        price: tour.priceBRL,
-        priceCurrency: 'BRL',
+        // EUR is what the site shows every visitor (01/09/2026); R$ stays the
+        // real on-the-ground charge. Schema matches the visible page price.
+        price: tour.priceEUR,
+        priceCurrency: 'EUR',
         availability: 'https://schema.org/InStock',
         url: pageUrl,
         ...(tour.priceIsFrom && {
           priceSpecification: {
             '@type': 'PriceSpecification',
-            minPrice: tour.priceBRL,
-            priceCurrency: 'BRL',
+            minPrice: tour.priceEUR,
+            priceCurrency: 'EUR',
           },
         }),
       },

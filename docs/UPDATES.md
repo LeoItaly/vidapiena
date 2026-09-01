@@ -2,6 +2,37 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-01 — Press feature (Voglio Vivere Così) + guide photo → Christ 📰
+
+Francesco was interviewed by the Italian magazine **Voglio Vivere Così** (voglioviverecosi.com,
+"francesco-brasile.html", April 2026) about leaving Milan for a life in Rio. Leo asked to (1)
+surface it on the homepage, (2) add a blog post with a CTA, and (3) swap the guide photo.
+
+- **Guide photo → Christ the Redeemer.** Overwrote `src/assets/photos/guide-francesco.jpg`
+  (was the Dois Irmãos / Ipanema selfie) with `media/…/Francesco-christ.jpeg` (2316×2794).
+  One asset key drives both the homepage `Guide.astro` section AND the `AboutPage` (`/la-guida/`),
+  so the single file swap updates both. `guide.photoAlt` (it+en) now names the Cristo Redentore.
+  Old photo recoverable from git history.
+- **New `Press.astro` homepage band** — ink `bg-ink`, `id="stampa"`, slotted in `Landing.astro`
+  **between `InstagramBand` and `Testimonials`** (proof ladder: follow → featured-in → reviews →
+  book). No `RouteMark` (descent sequence untouched); declarative reveals (`data-scramble`
+  eyebrow, `data-reveal-heading` pull-quote). Features the interview headline as a pull-quote,
+  outlet + date caption, and a `target=_blank` CTA to the article.
+- **i18n:** new `press` block in `it.ts` + `en.ts` (eyebrow/quote/outlet/date/lead/cta) — EN shows
+  the quote translated. `astro check` (`typeof it` contract) passes. Interview URL lives once in
+  `SITE.press.voglioVivereCosi` (site.ts) — third-party coverage, deliberately NOT in
+  `PERSON_SAMEAS`.
+- **New bilingual blog post** `intervista-voglio-vivere-cosi` (it+en, both non-draft → passes the
+  hreflang-parity guard). First-person recap of the interview (Francesco IS the subject, so his own
+  anecdotes are his to retell), `relatedTour: vidigal` (auto-wires the "Dal blog" block + sibling
+  Vidigal posts), `cover: marquee-5`, inline `giorno-01`, links to the external interview + the
+  Vidigal tour + Instagram. No price stated (stays clear of the R$/€ question).
+- **Verified:** `npm run build` green — 552 image variants, all guards pass incl. *"every published
+  article is twinned it⇄en"*. Dev-server DOM checks: homepage press band + both guide photos =
+  2316×2794 Christ; blog index lists the post newest-first; EN tour link resolves to `/en/tour/…`.
+  **NOT pushed / NOT deployed** (push = deploy). Note: working tree already had the prior session's
+  R$→€ price switch (site now shows "€52"); untouched here.
+
 ## 2026-08-22 — Testimonials band: real Google reviews as social proof ⭐
 
 Francesco's Google Business Profile (VIDAPIENA) has **5.0★ over 209 reviews**; Leo asked to

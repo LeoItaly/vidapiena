@@ -49,10 +49,10 @@ const photo = getPhoto('guide-francesco');
       </a>
     </div>
 
-    {/* Clipping frame: the portrait is over-scaled and drifts inside it, so the
-        parallax never exposes an edge. On md it rises across the morro seam
-        into the dark band above — the person straddles the boundary. */}
-    <div class="order-first overflow-hidden rounded-lg md:order-none md:relative md:z-10 md:-mt-24">
+    {/* Clipping frame: the portrait is over-scaled and object-cover'd so no edge
+        ever shows. Vertically centered against the taller text column
+        (md:self-center) so it sits in the middle of the section. */}
+    <div class="order-first overflow-hidden rounded-lg md:order-none md:self-center">
       {
         photo ? (
           <Picture

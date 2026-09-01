@@ -32,7 +32,7 @@ guardarsi negli occhi conta. Il resto è camminare, salutare, ascoltare.
 
 - **9 anni**: da quanto vivo a Rio de Janeiro.
 - **Max 19–20 persone**: i gruppi restano piccoli, sempre.
-- **R$360 a persona**: stesso prezzo per tutti i favela tour, mototaxi sempre incluso.
+- **€52 a persona**: stesso prezzo per tutti i favela tour, mototaxi sempre incluso.
 - **3 lingue**: racconto in italiano, inglese e portoghese.
 
 ![La scalinata dipinta coi colori del Brasile, nel cuore della Rocinha](../../../assets/photos/tour-rocinha.jpg)

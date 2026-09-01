@@ -8,7 +8,7 @@ export const it = {
   meta: {
     title: 'Favela tour a Rio de Janeiro in italiano — Vidapiena',
     description:
-      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio" con Francesco, guida italiana a Rio de Janeiro da 9 anni. Gruppi piccoli, mototaxi incluso, da R$360 a persona.',
+      'Tour a piedi nelle favelas di Rio — Rocinha, Vidigal, Tavares Bastos — e il city tour "Un Giorno a Rio" con Francesco, guida italiana a Rio de Janeiro da 9 anni. Gruppi piccoli, mototaxi incluso, da €52 a persona.',
     ogAlt: 'Il logo Vidapiena dipinto con lo spray su un muro di Rio',
   },
 
@@ -47,7 +47,7 @@ export const it = {
   hero: {
     kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
     h1: ['Favela tour a Rio de Janeiro,', 'in italiano.'],
-    sub: 'Sono Francesco, guida italiana a Rio de Janeiro da 9 anni: ti porto a piedi dentro la vita vera della comunità. Gruppi piccoli, mototaxi incluso, da R$360 a persona.',
+    sub: 'Sono Francesco, guida italiana a Rio de Janeiro da 9 anni: ti porto a piedi dentro la vita vera della comunità. Gruppi piccoli, mototaxi incluso, da €52 a persona.',
     ctaTours: 'Scopri i tour',
     otaLabel: 'Mi trovi anche su',
     scrollCue: 'Scorri per esplorare',
@@ -60,7 +60,7 @@ export const it = {
     heading: 'La guida',
     intro:
       'Sono Francesco: italiano, carioca d’adozione da 9 anni. Vidapiena è il mio modo di vivere questa città — e di fartela attraversare davvero, non solo guardare.',
-    photoAlt: 'Francesco, guida italiana a Rio de Janeiro',
+    photoAlt: 'Francesco, guida italiana a Rio de Janeiro, davanti al Cristo Redentore',
     stats: [
       { k: 'Guida', v: 'Italiano madrelingua' },
       { k: 'A Rio da', v: '9 anni' },
@@ -83,9 +83,8 @@ export const it = {
       rocinha: {
         name: 'Favela Tour Rocinha',
         hook: 'La favela più grande del Brasile: la galleria di un artista di graffiti nato qui, il campetto ristrutturato da un calciatore di Rocinha e una onlus italiana attiva nella comunità da oltre 20 anni.',
-        /* Etichetta soltanto — il prezzo bambini (childPrice*) è reso da Price.astro
-           accanto a questa nota, così segue la valuta geolocalizzata. */
-        note: 'Bambini fino a 12 anni',
+        /* Nessun prezzo bambini alla Rocinha (rimosso 01/09/2026) → nota vuota. */
+        note: '',
       },
       vidigal: {
         name: 'Favela Tour Vidigal',
@@ -150,7 +149,7 @@ export const it = {
       },
       {
         q: 'Va bene per bambini e famiglie?',
-        a: 'Sì, il ritmo si adatta al gruppo. Alla Rocinha i bambini fino a 12 anni pagano R$180; per i più piccoli valutiamo insieme il mototaxi.',
+        a: 'Sì, il ritmo si adatta al gruppo; per i più piccoli valutiamo insieme il mototaxi.',
       },
       {
         q: 'Cosa porto e come mi vesto?',
@@ -158,7 +157,7 @@ export const it = {
       },
       {
         q: 'Come prenoto?',
-        a: 'Prenoti direttamente con me, senza intermediari: scrivimi su WhatsApp o in DM su Instagram (@vidapiena) e sistemiamo insieme data e disponibilità. Mi trovi anche su Viator, GetYourGuide, Airbnb e Civitatis, ma prenotando diretto eviti le commissioni.',
+        a: 'Prenoti con me: scrivimi su WhatsApp o in DM su Instagram (@vidapiena) e sistemiamo insieme data e disponibilità, su misura per te. Mi trovi anche su Viator, GetYourGuide, Airbnb e Civitatis.',
       },
       {
         q: 'E se piove o devo cancellare?',
@@ -169,7 +168,7 @@ export const it = {
       rocinha: {
         metaTitle: 'Favela Tour Rocinha — 3 ore con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 3 ore nella Rocinha, la favela più grande del Brasile, con Francesco, guida italiana a Rio: mototaxi fino in cima, vista panoramica, la galleria di un artista di graffiti e una onlus italiana. R$360 a persona.',
+          'Tour a piedi di 3 ore nella Rocinha, la favela più grande del Brasile, con Francesco, guida italiana a Rio: mototaxi fino in cima, vista panoramica, la galleria di un artista di graffiti e una onlus italiana. €52 a persona.',
         kicker: 'Favela tour · 3 ore',
         longDesc: [
           'La Rocinha è la favela più grande del Brasile: una città nella città, appoggiata alla montagna sopra São Conrado. Il tour comincia in sella ai mototaxi dei ragazzi locali, che ci portano fin sulla cima — da lì si scende a piedi, dentro la vita vera della comunità.',
@@ -197,7 +196,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$360 a persona (bambini fino a 12 anni R$180). Include il mototaxi fino in cima, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+            a: '€52 a persona. Include il mototaxi fino in cima, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
           },
           {
             q: 'Quanto si cammina?',
@@ -208,7 +207,7 @@ export const it = {
       vidigal: {
         metaTitle: 'Favela Tour Vidigal — 2 ore e 30 con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 2 ore e 30 nel Vidigal con Francesco, guida italiana a Rio: salita in mototaxi, la vista su Leblon e Ipanema, la discesa tra i vicoli e la terrazza panoramica di fronte al Cristo Redentore. R$360 a persona.',
+          'Tour a piedi di 2 ore e 30 nel Vidigal con Francesco, guida italiana a Rio: salita in mototaxi, la vista su Leblon e Ipanema, la discesa tra i vicoli e la terrazza panoramica di fronte al Cristo Redentore. €52 a persona.',
         kicker: 'Favela tour · 2 ore e 30',
         longDesc: [
           'Il Vidigal è la favela affacciata sul mare, tra Leblon e la pietra dei Dois Irmãos. Si sale in mototaxi fino alla parte alta — riqualificata, con il campetto e il parco — e poi si scende a piedi, vicolo per vicolo.',
@@ -234,7 +233,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$360 a persona. Include il mototaxi fino all’alto Vidigal, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
+            a: '€52 a persona. Include il mototaxi fino all’alto Vidigal, la tassa di visita alla comunità e la guida in italiano, inglese o portoghese.',
           },
           {
             q: 'Qual è la vista migliore?',
@@ -245,7 +244,7 @@ export const it = {
       tavares: {
         metaTitle: 'Favela Tour Tavares Bastos — 2 ore e 30 con guida italiana | Vidapiena',
         metaDescription:
-          'Tour a piedi di 2 ore e 30 a Tavares Bastos, la comunità più tranquilla del centro di Rio, con Francesco, guida italiana: vicoli, vita quotidiana e una partita sull’iconico campetto di FIFA Street. R$360 a persona.',
+          'Tour a piedi di 2 ore e 30 a Tavares Bastos, la comunità più tranquilla del centro di Rio, con Francesco, guida italiana: vicoli, vita quotidiana e una partita sull’iconico campetto di FIFA Street. €52 a persona.',
         kicker: 'Favela tour · 2 ore e 30',
         longDesc: [
           'Tavares Bastos è la comunità più tranquilla del centro di Rio, arrampicata sopra il quartiere di Catete. Si sale in mototaxi e si scende a piedi, tra vicoli, botteghe e storie di quotidianità.',
@@ -270,7 +269,7 @@ export const it = {
           },
           {
             q: 'Cosa è incluso nel prezzo?',
-            a: 'R$360 a persona. Include il mototaxi e la guida in italiano, inglese o portoghese. Tavares Bastos è la comunità più tranquilla del centro di Rio.',
+            a: '€52 a persona. Include il mototaxi e la guida in italiano, inglese o portoghese. Tavares Bastos è la comunità più tranquilla del centro di Rio.',
           },
           {
             q: 'Si gioca davvero sul campetto di FIFA Street?',
@@ -281,11 +280,11 @@ export const it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — city tour con guida italiana | Vidapiena',
         metaDescription:
-          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. R$1200 a persona.',
+          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. €207 a persona.',
         kicker: 'City tour · giornata intera',
         longDesc: [
           'Il meglio di Rio in una sola giornata, senza pensieri: ti vengo a prendere in hotel con auto o van privato con autista, e da lì si parte — il Cristo Redentore con il trenino del Corcovado, il quartiere bohémien di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia.',
-          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. R$1200 a persona, tutto incluso.',
+          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. €207 a persona, tutto incluso.',
         ],
         highlights: [
           'Il Cristo Redentore con il trenino del Corcovado',
@@ -309,7 +308,7 @@ export const it = {
           },
           {
             q: 'Quanto costa e come funziona il prezzo?',
-            a: 'R$1200 a persona. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
+            a: '€207 a persona. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
           },
           {
             q: 'Cosa vediamo in una giornata?',
@@ -355,7 +354,7 @@ export const it = {
   contact: {
     metaTitle: 'Contatti — Francesco, guida italiana a Rio | Vidapiena',
     metaDescription:
-      'Contatta Francesco di Vidapiena: prenota i tour direttamente su WhatsApp o in DM su Instagram, senza intermediari e senza commissioni. Lo trovi anche su Viator, GetYourGuide, Airbnb e Civitatis.',
+      'Contatta Francesco di Vidapiena: prenota i tour con lui su WhatsApp o in DM su Instagram, per un servizio personalizzato e su misura. Lo trovi anche su Viator, GetYourGuide, Airbnb e Civitatis.',
     kicker: 'Contatti',
     heading: 'Prenota direttamente con me.',
     instagramLead:
@@ -363,7 +362,7 @@ export const it = {
     instagramCta: 'Scrivimi su Instagram',
     bookingHeading: 'Prenotazioni',
     bookingLead:
-      'Prenoti direttamente con me, senza commissioni: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Mi trovi anche sulle piattaforme qui sotto.',
+      'Prenoti con me: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità, su misura per te. Mi trovi anche sulle piattaforme qui sotto.',
     logisticsHeading: 'Buono a sapersi',
     logisticsItems: [
       'Partenze ogni giorno · minimo 2 persone.',
@@ -398,6 +397,18 @@ export const it = {
     cta: 'Seguimi su', // brand word rendered as the Instagram glyph in InstagramBand's CTA
   },
 
+  /* Menzione stampa: intervista di Voglio Vivere Così (aprile 2026). Prova di
+     autorità di terza parte, nel gruppo scuro tra Instagram e le recensioni.
+     L'URL vive in SITE.press (fonte unica); qui solo la cornice localizzata. */
+  press: {
+    eyebrow: 'Sulla stampa',
+    quote: 'In Brasile c’è amore per la vita.',
+    outlet: 'Voglio Vivere Così',
+    date: 'aprile 2026',
+    lead: 'Il magazine italiano Voglio Vivere Così — dedicato a chi sogna di cambiare vita e trasferirsi all’estero — ha raccontato la mia storia: perché ho lasciato Milano per Rio e come vivo oggi nel Vidigal.',
+    cta: 'Leggi l’intervista completa →',
+  },
+
   finalCta: {
     heading: 'Pronti a scoprire la vera Rio?',
     sub: 'Quattro tour, partenze ogni giorno, racconto in italiano. Scegli il tuo e ci vediamo a Rio.',
@@ -421,7 +432,7 @@ export const it = {
      niente commissioni. waPrefillTour è una funzione: la forma dev'essere
      identica in en.ts (contratto `typeof it`). */
   booking: {
-    lead: 'Prenoti direttamente con me, senza intermediari e senza commissioni: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Le piattaforme restano solo come vetrina.',
+    lead: 'Prenoti con me, per un servizio personalizzato e su misura: scrivimi su WhatsApp o in DM su Instagram e sistemiamo data e disponibilità. Le piattaforme restano solo come vetrina.',
     waCta: 'Prenota su WhatsApp',
     waPrefillTour: (name: string) =>
       `Ciao Francesco! Vorrei prenotare il tour "${name}". Mi dici date e disponibilità?`,

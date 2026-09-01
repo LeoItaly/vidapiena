@@ -1,7 +1,9 @@
 /**
  * The 4-tour catalog — operational facts only (no copy; copy lives in src/i18n/).
  * Source of truth: `Context Knowledge/note tours.md` (verified 21 Jul 2026).
- * Prices are the guide's published retail prices in BRL.
+ * Prices: BRL is the real on-the-ground settlement currency; the site DISPLAYS
+ * the EUR twin for every visitor (client decision 01/09/2026 — reverses the
+ * 19/08 R$-only display, and drops the three favela tours from R$360 to R$300).
  */
 
 export type TourId = 'rocinha' | 'vidigal' | 'tavares' | 'giorno';
@@ -20,9 +22,11 @@ export interface Tour {
   priceBRL: number;
   /**
    * Adult retail price per person, EUR — a FIXED authored display value (not a
-   * live conversion), shown to European visitors instead of the BRL figure. BRL
-   * stays the real transaction currency (JSON-LD, prose, on-the-ground charge);
-   * see the geo-currency toggle in BaseHead + src/components/Price.astro.
+   * live conversion). Since 01/09/2026 this is what the site shows EVERY visitor
+   * (prices, prose, JSON-LD Offer, llms.txt). BRL stays the real on-the-ground
+   * settlement currency (Francesco charges R$); see src/components/Price.astro.
+   * ⚠ Fixed twin → keep it AT/ABOVE the platforms' live €-conversion of the BRL
+   * price so the site never undercuts the OTAs (rate parity).
    */
   priceEUR: number;
   priceIsFrom: boolean;
@@ -65,11 +69,9 @@ export const TOURS: Tour[] = [
     durationHours: 3,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 360,
-    priceEUR: 62,
+    priceBRL: 300,
+    priceEUR: 52,
     priceIsFrom: false,
-    childPriceBRL: 180,
-    childPriceEUR: 31,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
     image: 'tour-rocinha',
     galleryKeys: [
@@ -100,8 +102,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 360,
-    priceEUR: 62,
+    priceBRL: 300,
+    priceEUR: 52,
     priceIsFrom: false,
     meetingPoint: 'Praça do Vidigal',
     image: 'tour-vidigal',
@@ -139,8 +141,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 20,
-    priceBRL: 360,
-    priceEUR: 62,
+    priceBRL: 300,
+    priceEUR: 52,
     priceIsFrom: false,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
     image: 'tour-tavares',

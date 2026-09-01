@@ -33,7 +33,7 @@ the eye matters. The rest is walking, greeting, listening.
 
 - **9 years**: how long I have lived in Rio de Janeiro.
 - **Max 19–20 people**: groups stay small, always.
-- **R$360 per person**: the same price for every favela tour, mototaxi always included.
+- **€52 per person**: the same price for every favela tour, mototaxi always included.
 - **3 languages**: I tell the story in English, Italian and Portuguese.
 
 ![The staircase painted in Brazil's colours, in the heart of Rocinha](../../../assets/photos/tour-rocinha.jpg)

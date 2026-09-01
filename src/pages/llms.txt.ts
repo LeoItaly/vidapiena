@@ -33,20 +33,20 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena
 
 ## The four tours
 
-- **Favela Tour Rocinha** — 3 hours, max 19 people, R$360 per person (children up to 12: R$180).
+- **Favela Tour Rocinha** — 3 hours, max 19 people, €52 per person.
   Meeting point: Av. Niemeyer 780, São Conrado, Rio de Janeiro. Includes mototaxi ride,
   community visitation fee and viewpoint entries. Brazil's largest favela: graffiti artist's
   gallery, the football pitch rebuilt by a local player, an Italian NGO active for 20+ years.
   Page: ${o}/tour/favela-tour-rocinha/
-- **Favela Tour Vidigal** — 2.5 hours, max 19 people, R$360 per person.
+- **Favela Tour Vidigal** — 2.5 hours, max 19 people, €52 per person.
   Meeting point: Praça do Vidigal, Rio de Janeiro. Includes mototaxi and community fee.
   Ends at a panoramic terrace bar facing Christ the Redeemer.
   Page: ${o}/tour/favela-tour-vidigal/
-- **Favela Tour Tavares Bastos** — 2.5 hours, max 20 people, R$360 per person.
+- **Favela Tour Tavares Bastos** — 2.5 hours, max 20 people, €52 per person.
   Meeting point: Rua Bento Lisboa 72, Catete, Rio de Janeiro. Includes mototaxi.
   Features the iconic FIFA Street football pitch.
   Page: ${o}/tour/favela-tour-tavares-bastos/
-- **Un Giorno a Rio** — full-day (8–9 h) premium city tour, R$1200 per person, daily with hotel
+- **Un Giorno a Rio** — full-day (8–9 h) premium city tour, €207 per person, daily with hotel
   pick-up anywhere in Rio. Christ the Redeemer (Corcovado rack train), Santa Teresa,
   Selarón Steps, Sugarloaf cable car, private car/van with driver, buffet lunch included.
   Page: ${o}/tour/un-giorno-a-rio/
@@ -58,7 +58,7 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena
   walks back down through the community.
 - Languages: Italian (native guide), English, Portuguese.
 - Booking: directly with Francesco via WhatsApp (https://wa.me/${SITE.whatsapp}) or
-  Instagram DM (${SITE.instagram}) — no intermediary, no commission. Also listed on
+  Instagram DM (${SITE.instagram}) — a personalised, made-to-measure service. Also listed on
   Viator, GetYourGuide, Airbnb Experiences and Civitatis.
 
 ## Trust

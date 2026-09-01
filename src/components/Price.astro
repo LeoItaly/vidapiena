@@ -1,24 +1,20 @@
 ---
 /**
- * A single price, in Brazilian Real (R$) only. R$ is the real transaction
- * currency everywhere (JSON-LD offers, prose, the on-the-ground charge), and
- * showing one currency keeps the marketing pages fully static — no per-request
- * Worker CPU, and no fixed euro figure that could drift below the platforms'
- * live conversion (so rate parity stays safe). Client decision 19/08/2026:
- * prices display in R$ for every visitor (the earlier geo euro toggle was
- * removed — its BaseHead script and the global.css `.cur--*` rules are gone).
+ * A single price, displayed in euro (€). Client decision 01/09/2026 (reverses
+ * the 19/08 R$-only display): the site shows the fixed EUR twin from tours.ts to
+ * every visitor. Still one currency, so the marketing pages stay fully static —
+ * no per-request Worker CPU, no live FX. R$ remains the real on-the-ground
+ * settlement currency (Francesco charges in reais); `brl` is kept as an optional
+ * prop so the figure stays recorded and callers need not change their call sites.
  *
- * `eur` is retained as an optional prop so callers can keep passing
- * `tour.priceEUR` and the €-equivalent stays recorded in tours.ts; it is not
- * rendered. Flip this back to a dual render if the euro display is ever wanted
- * again. `class` styles the numeric run (font-size/weight/tabular-nums);
- * surrounding wording ("from" / "per person") lives in the dictionaries.
+ * `class` styles the numeric run (font-size/weight/tabular-nums); surrounding
+ * wording ("from" / "per person") lives in the dictionaries.
  */
 interface Props {
-  brl: number;
-  eur?: number;
+  eur: number;
+  brl?: number;
   class?: string;
 }
-const { brl, class: className = '' } = Astro.props;
+const { eur, class: className = '' } = Astro.props;
 ---
-<span class:list={['vp-price', className]}>R$ {brl}</span>
+<span class:list={['vp-price', className]}>€{eur}</span>

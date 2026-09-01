@@ -27,6 +27,17 @@ export const SITE = {
   instagram: 'https://www.instagram.com/vidapiena/',
   instagramHandle: '@vidapiena',
   /**
+   * Press features — third-party articles about Francesco/Vidapiena, used by the
+   * homepage Press band (Press.astro) as authority proof. Single source of truth
+   * for each URL; the localized chrome lives in dict.press. Third-party coverage,
+   * not an owned profile, so deliberately NOT part of PERSON_SAMEAS.
+   */
+  press: {
+    voglioVivereCosi: 'https://www.voglioviverecosi.com/francesco-brasile.html',
+  },
+  tiktok: 'https://www.tiktok.com/@vidapiena',
+  tiktokHandle: '@vidapiena',
+  /**
    * Public OTA *profile* pages — the operator/host landing pages, NOT the
    * per-tour deep links in tours.ts. Fill each in as it is collected: an empty
    * string renders no anchor and drops out of `sameAs` (see PERSON_SAMEAS), so
