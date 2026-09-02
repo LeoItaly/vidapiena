@@ -38,7 +38,10 @@ export interface WorkersAI {
   run(model: string, input: { messages: { role: string; content: string }[] }): Promise<unknown>;
 }
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct';
+// Was '@cf/meta/llama-3.1-8b-instruct' — Cloudflare DEPRECATED that id (same swap
+// as assist.ts). '-fast' is the current Llama-3.1 8B, identical messages→.response
+// contract, so the EN-twin translator keeps working. (updated 02/09/2026)
+const MODEL = '@cf/meta/llama-3.1-8b-instruct-fast';
 
 const SYSTEM = [
   'You translate Italian to English for a Rio de Janeiro tour guide’s travel blog.',

@@ -13,7 +13,11 @@
 
 import type { WorkersAI } from './translate';
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct';
+// Was '@cf/meta/llama-3.1-8b-instruct' — Cloudflare DEPRECATED that id, which is
+// why the summary button failed with "Non riesco a proporre un riassunto". The
+// '-fast' sibling is current, same Llama-3.1 8B family, same messages→.response
+// contract, and documented for text generation/summarization. (updated 02/09/2026)
+const MODEL = '@cf/meta/llama-3.1-8b-instruct-fast';
 /** Hard ceiling on what we hand back — a description Google would truncate anyway. */
 const MAX = 170;
 
