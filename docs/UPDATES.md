@@ -2,6 +2,34 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-03 — TikTok promoted to a first-class social exit 🎵
+
+Leo: *"put the TikTok logo with the link more visible"*. TikTok existed only as a 20px hairline
+glyph in the footer plus one button on `/contatti/` — Instagram had a homepage band, a CTA, a
+drawer link and `sameAs`. Now the two networks are billed equally everywhere.
+
+- **New `SocialGlyph.astro`** — both marks in one component (`network="instagram" | "tiktok"`,
+  optional `label` for the accessible name, `em`-based sizing so a glyph inside a `.btn` scales with
+  the button, exactly like the old inline `.ig-glyph`). The Instagram path was duplicated in three
+  files and the footer's TikTok path was an off-brand thin approximation — replaced with the
+  official note-and-tail mark, which is what actually reads as "TikTok" at small sizes.
+- **Instagram band (homepage):** the lone CTA became a two-button row — Instagram `btn-primary`
+  (unchanged) + TikTok `btn-ghost`, same "verb + glyph + · @handle" shape. New i18n key
+  `instagram.tiktokCta` (it *"Guardami su"* / en *"Watch me on"*).
+- **Final CTA:** fourth exit `finalCta.tiktokLabel` (it/en), and both social buttons now carry their
+  glyph. **Nav drawer:** Instagram + TikTok side by side at the drawer foot (the most-seen menu on
+  mobile), with glyphs and ouro hover. **Footer:** bare icons → bordered labelled pills
+  (`.social-pill`); `shrink-0` on the group keeps pills + IT/EN on one row at desktop.
+  **`/contatti/`:** glyphs added to the existing pair.
+- **SEO/GEO:** `SITE.tiktok` added to `PERSON_SAMEAS` — an owned profile of the same entity, so it
+  belongs in the Person/operator `sameAs` graph alongside Instagram (unlike `SITE.press`, which is
+  third-party coverage and stays out).
+- **Verified:** `npm run build` green (`astro check` 0 errors, all verify-build guards pass).
+  Dev-server DOM audit: 8 social anchors render with real box sizes and an inline `<svg>` — drawer
+  ×2, band ×2, final CTA ×2, footer ×2. Playwright screenshots at 1280 and 390 confirm the band
+  row, the four-button close, the drawer pair and the footer pills in both widths.
+  **NOT committed / NOT pushed** (push = deploy).
+
 ## 2026-09-01 — Press feature (Voglio Vivere Così) + guide photo → Christ 📰
 
 Francesco was interviewed by the Italian magazine **Voglio Vivere Così** (voglioviverecosi.com,

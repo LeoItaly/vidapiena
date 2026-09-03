@@ -1,5 +1,6 @@
 ---
 import BrandBadge from './BrandBadge.astro';
+import SocialGlyph from './SocialGlyph.astro';
 import LangSwitch from './LangSwitch.astro';
 import { SITE } from '../data/site';
 import { t, pagePath, localeHref, type Locale } from '../i18n';
@@ -50,32 +51,17 @@ const links = [
       </ul>
     </nav>
 
-    <div class="flex items-center gap-8">
-      <a
-        href={SITE.instagram}
-        class="opacity-80 transition-opacity hover:opacity-100"
-        rel="noopener"
-        target="_blank"
-        aria-label="Instagram"
-      >
-        <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path
-            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
-          />
-        </svg>
+    {/* Social exits as labelled pills, not bare 20px glyphs: the handle is the
+        point (people search "@vidapiena"), and TikTok now reads as loud as
+        Instagram instead of disappearing into the footer rule. */}
+    <div class="flex shrink-0 flex-wrap items-center gap-3">
+      <a href={SITE.instagram} class="social-pill" rel="noopener" target="_blank">
+        <SocialGlyph network="instagram" />
+        <span>Instagram</span>
       </a>
-      <a
-        href={SITE.tiktok}
-        class="opacity-80 transition-opacity hover:opacity-100"
-        rel="noopener"
-        target="_blank"
-        aria-label="TikTok"
-      >
-        <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path
-            d="M16.6 5.82a4.28 4.28 0 01-1.05-2.82h-3.2v12.63a2.59 2.59 0 01-2.59 2.5 2.59 2.59 0 01-2.59-2.59 2.59 2.59 0 012.59-2.59c.27 0 .53.04.78.12v-3.27a5.86 5.86 0 00-.78-.05A5.86 5.86 0 003.5 15.61a5.86 5.86 0 005.86 5.86 5.86 5.86 0 005.86-5.86V9.01a7.44 7.44 0 004.34 1.39V7.2a4.28 4.28 0 01-2.86-1.38z"
-          />
-        </svg>
+      <a href={SITE.tiktok} class="social-pill" rel="noopener" target="_blank">
+        <SocialGlyph network="tiktok" />
+        <span>TikTok</span>
       </a>
       <LangSwitch locale={locale} path={path} />
     </div>
@@ -84,3 +70,28 @@ const links = [
     © {year} Vidapiena
   </p>
 </footer>
+
+<style>
+  /* Bordered pill so each network is a visible target, not a hairline icon.
+     Ouro on hover matches the drawer + CTA language. */
+  .social-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-paper) 28%, transparent);
+    padding: 0.45rem 0.95rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .social-pill:hover,
+  .social-pill:focus-visible {
+    border-color: var(--color-ouro);
+    color: var(--color-ouro);
+  }
+</style>

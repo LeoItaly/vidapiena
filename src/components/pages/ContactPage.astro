@@ -4,6 +4,7 @@ import PageHero from './PageHero.astro';
 import Footer from '../Footer.astro';
 import JsonLdScript from '../JsonLdScript.astro';
 import PlatformBadges from '../PlatformBadges.astro';
+import SocialGlyph from '../SocialGlyph.astro';
 import WhatsAppButton from '../WhatsAppButton.astro';
 import { SITE, PERSON_SAMEAS } from '../../data/site';
 import { TOURS } from '../../data/tours';
@@ -55,9 +56,11 @@ const graph = {
           <div class="mt-6 flex flex-wrap items-center gap-4">
             <WhatsAppButton locale={locale} />
             <a href={SITE.instagram} class="btn btn-ghost-ink" rel="noopener" target="_blank">
+              <SocialGlyph network="instagram" />
               {dict.contact.instagramCta} · {SITE.instagramHandle}
             </a>
             <a href={SITE.tiktok} class="btn btn-ghost-ink" rel="noopener" target="_blank">
+              <SocialGlyph network="tiktok" />
               TikTok · {SITE.tiktokHandle}
             </a>
           </div>

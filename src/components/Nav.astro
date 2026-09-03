@@ -14,6 +14,7 @@
  * intro lifts.
  */
 import BrandBadge from './BrandBadge.astro';
+import SocialGlyph from './SocialGlyph.astro';
 import LangSwitch from './LangSwitch.astro';
 import { SITE } from '../data/site';
 import { t, pagePath, localeHref, type Locale } from '../i18n';
@@ -100,15 +101,18 @@ const links = [
       }
     </ul>
   </nav>
-  <a
-    href={SITE.instagram}
-    class="drawer-ig eyebrow"
-    rel="noopener"
-    target="_blank"
-    data-drawer-link
-  >
-    Instagram · {SITE.instagramHandle}
-  </a>
+  {/* Both social exits sit at the foot of the drawer — on mobile this is the
+      most-seen menu on the site, so TikTok gets the same billing as Instagram. */}
+  <div class="drawer-social">
+    <a href={SITE.instagram} class="drawer-ig eyebrow" rel="noopener" target="_blank" data-drawer-link>
+      <SocialGlyph network="instagram" />
+      Instagram · {SITE.instagramHandle}
+    </a>
+    <a href={SITE.tiktok} class="drawer-ig eyebrow" rel="noopener" target="_blank" data-drawer-link>
+      <SocialGlyph network="tiktok" />
+      TikTok · {SITE.tiktokHandle}
+    </a>
+  </div>
 </div>
 
 <script>
@@ -304,8 +308,20 @@ const links = [
   .drawer-link:focus-visible {
     color: var(--color-ouro);
   }
+  .drawer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.75rem;
+  }
   .drawer-ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     color: color-mix(in srgb, var(--color-paper) 75%, transparent);
+  }
+  .drawer-ig:hover,
+  .drawer-ig:focus-visible {
+    color: var(--color-ouro);
   }
 
   /* Per-link rise, pure CSS: staggered by --i, only for motion-tolerant users. */

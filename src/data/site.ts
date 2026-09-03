@@ -59,11 +59,12 @@ export const SITE = {
 
 /**
  * Every profile that corroborates the same Vidapiena/Francesco entity — Instagram
- * plus whichever OTA profile URLs are filled in above. Used as JSON-LD `sameAs`
+ * and TikTok, plus whichever OTA profile URLs are filled in above. Used as JSON-LD `sameAs`
  * on the Person (About page) and the operator references, so search engines and
  * AI assistants resolve the site, the guide and the OTA listings as one entity.
  */
 export const PERSON_SAMEAS: string[] = [
   SITE.instagram,
+  SITE.tiktok,
   ...Object.values(SITE.profiles).filter(Boolean),
 ];

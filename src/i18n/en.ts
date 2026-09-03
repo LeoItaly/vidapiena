@@ -391,6 +391,8 @@ export const en: typeof it = {
     heading: 'Rio, every day, on Instagram.',
     sub: 'Stories from the communities, behind the scenes of the tours, and everyday carioca life.',
     cta: 'Follow me on', // brand word rendered as the Instagram glyph in InstagramBand's CTA
+    /* Band's second CTA: same shape, TikTok glyph in place of the brand word. */
+    tiktokCta: 'Watch me on',
   },
 
   /* Press mention: Voglio Vivere Così interview (April 2026). Third-party
@@ -410,6 +412,7 @@ export const en: typeof it = {
     sub: 'Four tours, daily departures, guided in English, Italian or Portuguese. Pick yours — see you in Rio.',
     ctaTours: 'See the tours',
     instagramLabel: 'Follow me on Instagram',
+    tiktokLabel: 'Follow me on TikTok',
   },
 
   /* Real Google reviews as social proof (curated static layer). The review text

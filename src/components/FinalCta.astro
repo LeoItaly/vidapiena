@@ -1,9 +1,11 @@
 ---
 /**
- * The minimal close — one heading, one line, two exits (tours, Instagram).
+ * The minimal close — one heading, one line, four exits (tours, WhatsApp,
+ * Instagram, TikTok).
  * The sea-level/altitude framing retired with the descent.
  */
 import RouteMark from './RouteMark.astro';
+import SocialGlyph from './SocialGlyph.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 import { SITE } from '../data/site';
 import { t, localeHref, type Locale } from '../i18n';
@@ -34,7 +36,12 @@ const dict = t(locale);
       <a href={localeHref(locale, '#tour')} class="btn btn-primary">{dict.finalCta.ctaTours}</a>
       <WhatsAppButton locale={locale} variant="ghost" />
       <a href={SITE.instagram} class="btn btn-ghost" rel="noopener" target="_blank">
+        <SocialGlyph network="instagram" />
         {dict.finalCta.instagramLabel} · {SITE.instagramHandle}
+      </a>
+      <a href={SITE.tiktok} class="btn btn-ghost" rel="noopener" target="_blank">
+        <SocialGlyph network="tiktok" />
+        {dict.finalCta.tiktokLabel} · {SITE.tiktokHandle}
       </a>
     </div>
   </div>

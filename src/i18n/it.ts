@@ -395,6 +395,8 @@ export const it = {
     heading: 'Rio, ogni giorno, su Instagram.',
     sub: 'Storie dalle comunità, dietro le quinte dei tour e la vita carioca di tutti i giorni.',
     cta: 'Seguimi su', // brand word rendered as the Instagram glyph in InstagramBand's CTA
+    /* Secondo CTA della band: stessa forma, glifo TikTok al posto del nome. */
+    tiktokCta: 'Guardami su',
   },
 
   /* Menzione stampa: intervista di Voglio Vivere Così (aprile 2026). Prova di
@@ -414,6 +416,7 @@ export const it = {
     sub: 'Quattro tour, partenze ogni giorno, racconto in italiano. Scegli il tuo e ci vediamo a Rio.',
     ctaTours: 'Scopri i tour',
     instagramLabel: 'Seguimi su Instagram',
+    tiktokLabel: 'Seguimi su TikTok',
   },
 
   /* Recensioni Google reali come prova sociale (layer statico curato). Il testo
