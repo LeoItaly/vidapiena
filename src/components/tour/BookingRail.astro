@@ -1,0 +1,142 @@
+---
+/**
+ * The tour page's booking rail — price, the essentials, the direct CTA and live
+ * Bókun availability, in one sticky panel beside the description.
+ *
+ * Ink on the paper section by design: the calendar inside is a cross-origin
+ * iframe that paints its own white and cannot be recoloured (styles/bokun.css),
+ * so the dark panel turns that white into a deliberate inset rather than a
+ * foreign block. The widget is also laid out wider than the frame and scaled
+ * back down, which is what actually makes it read small enough for a rail.
+ *
+ * Two shapes, one component. From the lg breakpoint up the calendar is embedded
+ * inline (mounted lazily on scroll) and an 'enlarge' control opens the same
+ * calendar in the modal. Below lg the rail is a plain card in the flow and the
+ * calendar lives ONLY in the modal — 1300px of foreign iframe inline on a phone
+ * is not a booking flow. src/scripts/bokun.ts enforces the same breakpoint, so
+ * nothing is fetched for a frame that is not displayed.
+ *
+ * WhatsApp stays the primary CTA (direct-booking decision, 19 Aug 2026): the
+ * calendar is the self-serve twin of the same request-to-book model, not a
+ * replacement for it.
+ *
+ * ⚠ Never put a bare less-than sign in an Astro frontmatter comment. It makes
+ * the compiler drop the component's Props binding, so every prop silently
+ * becomes 'any' and the failure surfaces as unrelated implicit-any errors lower
+ * down the file. Cost an hour on 06/09/2026; write the words instead.
+ */
+import '../../styles/bokun.css';
+import CalendarCta from '../CalendarCta.astro';
+import Price from '../Price.astro';
+import WhatsAppButton from '../WhatsAppButton.astro';
+import { bokunCalendarSrc } from '../../lib/bokun';
+import { t, type Locale } from '../../i18n';
+import type { Tour } from '../../data/tours';
+
+interface Props {
+  tour: Tour;
+  locale: Locale;
+}
+const { tour, locale } = Astro.props;
+const dict = t(locale);
+const card = dict.tours.items[tour.id];
+const hasTiers = Boolean(tour.priceTiers?.length);
+---
+
+<aside class="lg:sticky lg:top-[calc(var(--nav-h)+1.25rem)]">
+  <div class="rounded-2xl bg-ink p-5 text-paper md:p-6 lg:p-5">
+    <p class="eyebrow text-paper/55">{dict.tourPage.priceHeading}</p>
+
+    <p class="mt-2 font-mono">
+      {tour.priceIsFrom && <span class="text-paper/60">{dict.tours.from} </span>}
+      <Price class="text-3xl font-medium text-ouro tabular-nums" brl={tour.priceBRL} eur={tour.priceEUR} />
+      <span class="text-paper/60"> {dict.tours.perPerson}</span>
+    </p>
+
+    {
+      card.note && (
+        <p class="mt-1.5 font-mono text-xs text-paper/55">
+          {card.note}
+          {tour.childPriceBRL && tour.childPriceEUR && (
+            <>
+              : <Price brl={tour.childPriceBRL} eur={tour.childPriceEUR} />
+            </>
+          )}
+        </p>
+      )
+    }
+
+    {
+      tour.priceTiers && (
+        <table class="mt-4 w-full font-mono text-xs tabular-nums">
+          <tbody>
+            {tour.priceTiers.map((tier) => (
+              <tr class="border-t border-paper/15">
+                <td class="py-1.5 pr-3 text-paper/60">
+                  {dict.tourPage.tierLabel(tier.minPax, tier.maxPax)}
+                </td>
+                <td class="py-1.5 text-right font-medium">
+                  <Price brl={tier.priceBRL} eur={tier.priceEUR} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    }
+
+    {/* One line, not a definition list: the same two facts are already in the
+        strip under the hero and in 'Informazioni pratiche'. Every row spent here
+        is a row the calendar below does not get within one screen. */}
+    <p class="mt-4 border-t border-paper/15 pt-4 font-mono text-xs text-paper/60">
+      {dict.tours.hours(tour.durationHours)} · {dict.tours.maxPeople(tour.maxGroup)}
+    </p>
+
+    <WhatsAppButton locale={locale} tour={tour} class="mt-5 w-full justify-center text-sm" />
+
+    <div class="mt-6 border-t border-paper/15 pt-4">
+      <div class="flex items-baseline justify-between gap-3">
+        <p class="eyebrow text-paper/55">{dict.booking.calendarEyebrow}</p>
+        {/* Desktop escape hatch: the same calendar, full size, in the modal. */}
+        <CalendarCta
+          tour={tour}
+          locale={locale}
+          variant="ghost"
+          label={dict.booking.calendarExpand}
+          class="hidden border-0 p-0 text-xs font-normal text-paper/60 underline underline-offset-4 hover:text-ouro lg:inline-flex"
+        />
+      </div>
+
+      {/* Desktop only: bokun.ts mounts the iframe here when it scrolls into view. */}
+      <div
+        class="vp-bokun-frame mt-3 hidden lg:block"
+        data-bokun-inline
+        data-bokun-src={bokunCalendarSrc(tour.bokunId, locale)}
+        data-bokun-title={dict.booking.calendarFrameTitle(card.name)}
+        data-compact={hasTiers ? '' : undefined}
+      >
+        <p class="vp-bokun-loading">{dict.booking.calendarLoading}</p>
+      </div>
+
+      <p class="mt-3 hidden text-xs leading-relaxed text-paper/60 lg:block">
+        {dict.booking.calendarNote}
+      </p>
+
+      {/* Small screens: the calendar opens as a full-screen sheet instead. */}
+      <p class="mt-2 text-xs leading-relaxed text-paper/65 lg:hidden">
+        {dict.booking.calendarLead}
+      </p>
+      <CalendarCta
+        tour={tour}
+        locale={locale}
+        variant="ghost"
+        label={dict.booking.calendarCtaLong}
+        class="mt-4 w-full justify-center text-sm lg:hidden"
+      />
+    </div>
+
+    <noscript>
+      <p class="mt-3 text-xs leading-relaxed text-paper/60">{dict.booking.calendarNoscript}</p>
+    </noscript>
+  </div>
+</aside>

@@ -59,6 +59,19 @@ html.nav-open {
   overflow-y: hidden;
 }
 
+/* And while the Bókun availability modal is up: showModal() makes the page
+   inert but does not stop it scrolling behind the backdrop.
+
+   Keyed off the dialog's own [open] rather than a class our script toggles.
+   [open] is set and cleared by the PLATFORM on every close path — button,
+   backdrop, and the Esc key, which has no JS hook other than the close event.
+   A missed event would otherwise leave the page permanently unscrollable;
+   here the worst case (no :has() support) is a page that scrolls behind the
+   modal. */
+html:has(dialog.vp-dialog[open]) {
+  overflow-y: hidden;
+}
+
 /* The nav stays out of sight under the intro overlay; nav.ts rides it in on
    `vp:intro-done` (motion path — the static path never has intro-pending). */
 html.intro-pending [data-nav] {

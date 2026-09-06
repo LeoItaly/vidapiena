@@ -1,5 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
+import CalendarCta from './CalendarCta.astro';
 import Price from './Price.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 import { getPhoto } from '../lib/photos';
@@ -70,8 +71,15 @@ const detailHref = pagePath(locale, `tour/${tour.slug}/`);
       )
     }
 
-    <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+    {/* Three actions on one line: read about it, peek at the dates, or just ask.
+        The calendar is icon-only on purpose — labelled, the three pills wrap to
+        two rows on every card, and this is the secondary 'have you got the 14th?'
+        move, not a headline. It opens the shared Bókun modal (BokunDialog,
+        rendered once by ToursGrid): no page change, and nothing is loaded from
+        bokun.io until it is clicked. */}
+    <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-3">
       <a href={detailHref} class="btn btn-primary text-sm">{dict.tours.ctaDetail}</a>
+      <CalendarCta tour={tour} locale={locale} variant="ghost-ink" iconOnly />
       <WhatsAppButton locale={locale} tour={tour} variant="ghost-ink" class="text-sm" />
     </div>
   </div>

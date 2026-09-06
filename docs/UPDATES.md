@@ -2,6 +2,97 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-06 (3) — The booking is instant, not a request: the copy said otherwise ✉️
+
+Leo asked a plain question — *what actually happens after someone clicks through the Bókun widget?*
+Answering it properly turned up a promise the site could not keep.
+
+- **The site was telling visitors a fiction.** `booking.calendarLead` and `calendarNote` said *"send
+  me the request, I confirm it personally"*. Read from the public widget API, all four experiences are
+  `capacityType: LIMITED` — plain instant confirmation — and the channel's **"pay on arrival"** switch
+  only removes the card step; it adds no supplier approval. The seat is taken the moment checkout
+  finishes and Francesco finds out afterwards; he cannot accept or decline, only cancel. Bókun's own
+  On-request mode exists, but its docs are explicit that on-request products **cannot stay connected
+  to Viator/GetYourGuide/Expedia** — so the fix was the copy, not the configuration. Both dictionaries
+  now say the place is confirmed straight away and paid in person on the day.
+- **The `+45` on the checkout phone field is not a bug.** The checkout chunk's phone component takes
+  `defaultCountry` / `disableCountryByIp` and resolves the country **from the visitor's IP**; our own
+  egress reads `loc=DK, colo=CPH`. Italian visitors already see +39, Brazilians +55. Nothing to fix,
+  and nothing reachable from outside a cross-origin iframe anyway.
+- **Back office (Bókun, not this repo, recorded here because it shapes the funnel):** four bilingual
+  auto messages now exist where there were none — confirmation, 24 h reminder, post-tour review
+  request, abandoned cart. The company **logo was missing entirely** and is now uploaded, so the
+  confirmation email and the checkout finally carry the brand. Booking cutoffs were harmonised to
+  **24 h on the favelas, 48 h on Un Giorno** (Tavares was already 48 h — Francesco's own stated
+  preference — and was deliberately left alone), verified through the public widget API rather than
+  the product page.
+- **One thing is deliberately parked.** The abandoned-cart message is saved but **inactive**: Bókun
+  refuses to arm it without a Privacy Policy and Terms & Conditions, and this site has neither. That
+  is legal text for a real business handling EU customers' data, so it is a separate job, not a
+  guess.
+
+## 2026-09-06 (2) — The calendar becomes a booking rail, and a popup on the home page 📅
+
+Leo asked for three things: the Bókun calendar **beside** each tour (mobile-safe), the widget
+**smaller and in our palette**, and a **calendar icon on the home cards** that opens it as a popup.
+Two of the three are ours to give. The third is not, and the session started by proving that.
+
+- **The widget cannot be recoloured — checked, not assumed.** It is a cross-origin iframe on
+  `widgets.bokun.io`, so no CSS of ours reaches inside it. Read live from its bundle: it is Tailwind
+  with a full token scale (`--primary-*`, `--tertiary-*`, `--accent`) but the tokens are **baked into
+  three hard-coded white-label themes** — `[data-theme="bokun" | "jtb" | "bookTravel"]` — selected by
+  an attribute we cannot set. No vendor colour API, no theme query parameter. So the brand work is
+  everything *around* the frame.
+- **The two levers that DO cross the boundary: `lang` and `currency`.** Verified live —
+  `?lang=it` renders the whole widget in Italian ("Partecipanti / Scegli una data / Settembre 2026")
+  and `?currency=EUR` quotes in €. Both are now passed from the page locale
+  (`src/lib/bokun.ts`), so the calendar finally speaks the visitor's language and the site's currency
+  instead of English + BRL. ⚠️ The widget's € is a LIVE conversion of the product's BRL price while
+  the site's € is the fixed authored twin in `tours.ts` — they agree only while Bókun carries the BRL
+  price the site was priced from (**today it does not: R$360 vs the site's €52 ≈ R$300** — being
+  handled in a separate session).
+- **BokunWidgetsLoader.js is gone.** Verified the widget URL works standalone end to end — calendar →
+  time slot → booking summary → `/checkout/main-contact` — so a plain `<iframe>` is enough. That drops
+  a third-party script from every tour page, removes the floating cart bubble it injected, and hands
+  us the frame's size. **Zero bytes are fetched from bokun.io until the visitor asks**: audited the
+  built HTML — 0 iframes shipped, 4 triggers, 1 dialog, and the whole controller inlines at 1.8 KB.
+- **`BookingRail.astro` (new)** replaces the inline calendar: a sticky ink panel beside the description
+  carrying price + tiers, the essentials, the WhatsApp CTA and the live calendar. Ink on the paper
+  section on purpose — the widget paints its own white, and a dark frame turns that white into a
+  deliberate inset instead of a foreign block.
+- **"Smaller" is a scale, not a squeeze.** The iframe is laid out at `100% / 0.84` and scaled back
+  down (`transform-origin: top left`), so the widget *composes* at a wider CSS width than it occupies.
+  The window is then capped against the viewport — `clamp(19rem, calc(100svh - 28rem), 34rem)`, and a
+  tighter pair for tiered tours — with the widget scrolling inside it. Those numbers are **measured,
+  not guessed**: the rail must stay shorter than the screen or `position: sticky` is worthless. Rocinha
+  808 px and Un Giorno 805 px against 816 px of room at 900 px tall.
+- **Mobile gets the modal, never the inline frame.** Below `lg` the rail is a plain card and the
+  calendar opens as a full-screen sheet; `bokun.ts` enforces the same breakpoint, so nothing is fetched
+  for a frame that is not displayed. 1300 px of foreign iframe inline on a phone is not a booking flow.
+- **`BokunDialog.astro` (new)** — one native `<dialog>` per page, re-pointed per tour, so a home page
+  with four cards still ships one frame. Native on purpose: focus trapping, Esc, inertness and focus
+  restoration are the platform's job. `CalendarCta.astro` is the trigger; on the home cards it is
+  **icon-only** (a calendar glyph with a verde "free day" dot) because three labelled pills wrap to two
+  rows on every card, and this is the secondary "have you got the 14th?" move, not a headline.
+- **The scroll lock reads the dialog's own `[open]`**, via `html:has(dialog.vp-dialog[open])`, not a
+  class our script toggles. Esc has no JS hook other than the `close` event, and a missed event would
+  leave the page permanently unscrollable; the worst case here is a page that scrolls behind the modal.
+- **The tour page lost its duplicated price block.** The price now lives in the rail, so the
+  "Informazioni pratiche" section gives its right-hand column to *Incluso nel prezzo* instead of
+  quoting the price a third time. Heading outline verified on the built page.
+- **🪤 Trap worth an hour: never put a bare `<` in an Astro frontmatter comment.** The compiler quietly
+  drops the component's `Props` binding, every prop becomes `any`, and the failure surfaces as
+  unrelated implicit-any errors further down the file. Bisected from a `≥ lg` / `< lg` note in
+  `BookingRail.astro`'s doc block.
+- **Verified:** `astro check` clean, `npm run build` green with all verify-build guards passing.
+  Live in the dev server: rail sticky at 352 px and inside the viewport on both tour shapes; mobile
+  rail static, inline frame `display:none`, never mounted, no horizontal overflow at 375 px; modal
+  opens with the right per-tour id and `lang`/`currency`, title and WhatsApp prefill swap per tour, one
+  iframe reused across tours, close via button + backdrop, `overflow-y` locking and unlocking with
+  `[open]`; card action row back to one line at 48 px. Loading label darkened to 65 % ink (55 % on
+  white measures ~4.2:1 at 11.5 px).
+- **Not pushed.**
+
 ## 2026-09-06 — "Stampa" becomes a rail of external mentions 🗞️
 
 Leo found a second external page that talks about Francesco and wanted it on the homepage "in a smooth

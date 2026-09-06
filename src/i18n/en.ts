@@ -453,12 +453,26 @@ export const en: typeof it = {
     waPrefillTour: (name: string) =>
       `Hi Francesco! I'd like to book the "${name}" tour. Could you share dates and availability?`,
     waPrefillGeneric: `Hi Francesco! I'd like some info about your Rio tours.`,
-    /* Bókun calendar (5 Sep 2026): a booking REQUEST, not a checkout — the
-       channel is set to "pay on arrival", so no card payment on the site. */
+    /* Bókun calendar (6 Sep 2026 — corrected): the booking is confirmed
+       INSTANTLY, it is not a request. All four experiences are capacityType
+       LIMITED, and the channel's "pay on arrival" switch only removes the card
+       step; it does not add supplier approval. So the seat is taken the moment
+       checkout finishes, and the money changes hands in person on the day. */
     calendarHeading: 'See available dates',
     calendarLead:
-      'Pick a day and send me the request. No online payment: I confirm personally and we settle up together.',
+      'Pick a day and book it in a couple of taps. No online payment: your place is confirmed straight away and you pay me in person on the day.',
     calendarNoscript: 'Enable JavaScript to see the calendar, or just message me on WhatsApp.',
+    calendarEyebrow: 'Live availability',
+    /* Short label: it has to fit the button row on the home page cards. */
+    calendarCta: 'Free dates',
+    calendarCtaLong: 'See the free dates',
+    calendarExpand: 'Enlarge',
+    calendarLoading: 'Loading the calendar',
+    calendarClose: 'Close the calendar',
+    calendarNote: 'No online payment: your booking is confirmed straight away and you pay on the day.',
+    /* The iframe title — what screen readers and the frame list read out. */
+    calendarFrameTitle: (name: string) => `Availability calendar — ${name}`,
+    calendarAria: (name: string) => `See the free dates for ${name}`,
   },
 
   badges: {

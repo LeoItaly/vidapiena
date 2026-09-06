@@ -457,13 +457,28 @@ export const it = {
     waPrefillTour: (name: string) =>
       `Ciao Francesco! Vorrei prenotare il tour "${name}". Mi dici date e disponibilità?`,
     waPrefillGeneric: 'Ciao Francesco! Vorrei qualche informazione sui tuoi tour a Rio.',
-    /* Calendario Bókun (05/09/2026): richiesta di prenotazione, non checkout —
-       il canale è su "pay on arrival", nessun pagamento con carta sul sito. */
+    /* Calendario Bókun (06/09/2026 — corretto): la prenotazione è confermata
+       SUBITO, non è una richiesta. Tutte e 4 le experience sono capacityType
+       LIMITED, e lo switch "pay on arrival" del canale toglie solo il passaggio
+       della carta, non aggiunge l'approvazione del fornitore. Il posto è quindi
+       occupato appena il cliente finisce il checkout; i soldi passano di
+       persona il giorno del tour. */
     calendarHeading: 'Guarda le date libere',
     calendarLead:
-      'Scegli il giorno e mandami la richiesta. Nessun pagamento online: ti confermo io personalmente e sistemiamo insieme il saldo.',
+      'Scegli il giorno e prenoti in due passaggi. Nessun pagamento online: il posto è confermato subito e mi paghi di persona il giorno del tour.',
     calendarNoscript:
       'Attiva JavaScript per vedere il calendario, oppure scrivimi direttamente su WhatsApp.',
+    calendarEyebrow: 'Disponibilità in tempo reale',
+    /* Etichetta corta: sta nella riga di bottoni della card in home. */
+    calendarCta: 'Date libere',
+    calendarCtaLong: 'Vedi le date libere',
+    calendarExpand: 'Ingrandisci',
+    calendarLoading: 'Carico il calendario',
+    calendarClose: 'Chiudi il calendario',
+    calendarNote: 'Nessun pagamento online: la prenotazione è confermata subito, paghi il giorno stesso.',
+    /* Titolo dell'iframe: è quello che leggono screen reader e lista dei frame. */
+    calendarFrameTitle: (name: string) => `Calendario disponibilità — ${name}`,
+    calendarAria: (name: string) => `Vedi le date libere per ${name}`,
   },
 
   badges: {

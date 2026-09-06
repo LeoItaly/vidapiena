@@ -6,13 +6,18 @@
  * badges below are unlinked "also on these platforms" proof, never booking links
  * — nothing here reads tour.otaLinks anymore.
  *
- * Since 5 Sep 2026 the Bókun calendar sits underneath as the self-serve twin of
- * the same direct model: it shows real availability and takes a booking REQUEST
- * (channel set to pay-on-arrival), so no card is charged on the site and
- * Francesco still collects the money himself. WhatsApp deliberately stays first
- * — the calendar is an addition, not a replacement.
+ * The Bókun calendar is the self-serve twin of the same direct model: it shows
+ * real availability and takes a booking REQUEST (the channel is set to
+ * pay-on-arrival), so no card is charged on the site and Francesco still
+ * collects the money himself.
+ *
+ * Since 6 Sep 2026 the calendar itself lives in the rail beside the description
+ * (BookingRail.astro) and in the shared modal — NOT inline here. Two live
+ * embeds of the same widget on one page is two iframes, two fetches and two
+ * places to pick a date; this section keeps a trigger for the same modal, which
+ * is what a visitor who scrolled straight to "Prenota" actually needs.
  */
-import BokunCalendar from './BokunCalendar.astro';
+import CalendarCta from '../CalendarCta.astro';
 import PlatformBadges from '../PlatformBadges.astro';
 import WhatsAppButton from '../WhatsAppButton.astro';
 import { SITE } from '../../data/site';
@@ -42,7 +47,22 @@ const dict = t(locale);
       </a>
     </div>
 
-    <BokunCalendar tour={tour} locale={locale} />
+    <div class="mt-8 border-t border-paper/15 pt-6">
+      <p class="eyebrow text-paper/55">{dict.booking.calendarEyebrow}</p>
+      <p class="mt-2 max-w-prose text-sm leading-relaxed text-paper/70">
+        {dict.booking.calendarLead}
+      </p>
+      <CalendarCta
+        tour={tour}
+        locale={locale}
+        variant="ghost"
+        label={dict.booking.calendarCtaLong}
+        class="mt-4 text-sm"
+      />
+      <noscript>
+        <p class="mt-3 text-sm text-paper/70">{dict.booking.calendarNoscript}</p>
+      </noscript>
+    </div>
 
     <p class="eyebrow mt-12 text-paper/55">{dict.badges.heading}</p>
     <PlatformBadges class="mt-4" />

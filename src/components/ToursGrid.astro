@@ -5,6 +5,7 @@
  * (cards rise from translateZ with a stagger, see tours-grid.ts) plus a light
  * pointer tilt. The static path renders this exact grid untouched.
  */
+import BokunDialog from './BokunDialog.astro';
 import RouteMark from './RouteMark.astro';
 import SprayStroke from './SprayStroke.astro';
 import TourCard from './TourCard.astro';
@@ -43,6 +44,9 @@ const dict = t(locale);
       }
     </ul>
   </div>
+
+  {/* One modal for all four cards — each CalendarCta just re-points it. */}
+  <BokunDialog locale={locale} />
 </section>
 
 <style>

@@ -1,0 +1,71 @@
+---
+/**
+ * The shared availability modal — rendered ONCE per page, driven by every
+ * `data-bokun-open` trigger on it (the homepage tour cards, the tour-page rail,
+ * the booking section). One <dialog>, one iframe, re-pointed per tour by
+ * src/scripts/bokun.ts, so a page with four tour cards still ships one frame and
+ * fetches nothing from bokun.io until someone opens it.
+ *
+ * Native <dialog> on purpose: focus trapping, Esc-to-close, inertness of the
+ * page behind and focus restoration to the trigger are all the platform's job,
+ * and hand-rolled versions of those are where accessibility bugs live.
+ *
+ * This panel is the whole of the brand work: the calendar inside is a
+ * cross-origin iframe whose own colours cannot be touched (see styles/bokun.css),
+ * so what we control is the frame around it — and it reads as a deliberate
+ * Vidapiena booking panel rather than a foreign block dropped on the page.
+ */
+import '../styles/bokun.css';
+import { SITE } from '../data/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const waGeneric = `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(dict.booking.waPrefillGeneric)}`;
+---
+
+<dialog class="vp-dialog" data-bokun-dialog aria-labelledby="bokun-dialog-title">
+  <div class="vp-dialog__panel">
+    <header class="vp-dialog__head">
+      <div class="min-w-0 grow">
+        <p class="eyebrow text-verde-scuro">{dict.booking.calendarEyebrow}</p>
+        <h2
+          id="bokun-dialog-title"
+          class="font-display mt-1 truncate text-lg font-bold"
+          data-bokun-dialog-title
+        >
+          {dict.booking.calendarHeading}
+        </h2>
+      </div>
+      <button type="button" class="vp-dialog__close" data-bokun-close aria-label={dict.booking.calendarClose}>
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="vp-dialog__body" data-bokun-dialog-frame>
+      <p class="vp-bokun-loading">{dict.booking.calendarLoading}</p>
+    </div>
+
+    <footer class="vp-dialog__foot">
+      <p class="max-w-[34ch] text-xs leading-relaxed text-ink/70 sm:max-w-none">
+        {dict.booking.calendarNote}
+      </p>
+      <a
+        href={waGeneric}
+        class="btn btn-ghost-ink px-4 py-2 text-xs"
+        target="_blank"
+        rel="noopener"
+        data-bokun-dialog-wa
+      >
+        {dict.booking.waCta}
+      </a>
+    </footer>
+  </div>
+</dialog>
+
+<script src="../scripts/bokun.ts"></script>
