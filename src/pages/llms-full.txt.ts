@@ -24,9 +24,14 @@ const durationText = (tour: Tour) =>
 
 const priceText = (tour: Tour) => {
   if (tour.priceTiers) {
-    return `from €${tour.priceEUR} per person (${tour.priceTiers
-      .map((x) => `${x.minPax}–${x.maxPax} people: €${x.priceEUR}`)
-      .join('; ')})`;
+    /* No "from" here. Tiers fall as the group grows, so `from €${tour.priceEUR}`
+       named the most EXPENSIVE band as the entry price — and leading with the
+       cheapest instead would have put a number below Viator's own €207 headline
+       into AI answers (rate parity, 22/08). Lead with the headline band and let
+       the full table speak. */
+    return `${tour.priceTiers
+      .map((x) => `€${x.priceEUR} per person for ${x.minPax}–${x.maxPax} people`)
+      .join('; ')}`;
   }
   const child = tour.childPriceEUR ? ` (children up to 12: €${tour.childPriceEUR})` : '';
   return `€${tour.priceEUR} per person${child}`;

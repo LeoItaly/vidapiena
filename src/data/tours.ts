@@ -36,6 +36,13 @@ export interface Tour {
   childPriceEUR?: number;
   /** Per-person price by group size — `giorno` only. BRL + fixed EUR display twin. */
   priceTiers?: { minPax: number; maxPax: number; priceBRL: number; priceEUR: number }[];
+  /**
+   * Bókun experience id — the product this tour maps to in the channel manager.
+   * Drives the booking-calendar widget (`experience-calendar/<bokunId>`), and is
+   * the same key the close-out scripts use in `Context Knowledge/Bokun Caricamento/`.
+   * Verified against the live Bókun account 05/09/2026.
+   */
+  bokunId: number;
   meetingPoint: string;
   /** Photo key into src/assets/photos/ (filled by the M1 manifest) */
   image: string;
@@ -72,6 +79,7 @@ export const TOURS: Tour[] = [
     priceBRL: 300,
     priceEUR: 52,
     priceIsFrom: false,
+    bokunId: 1251056,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
     image: 'tour-rocinha',
     galleryKeys: [
@@ -105,6 +113,7 @@ export const TOURS: Tour[] = [
     priceBRL: 300,
     priceEUR: 52,
     priceIsFrom: false,
+    bokunId: 1244607,
     meetingPoint: 'Praça do Vidigal',
     image: 'tour-vidigal',
     galleryKeys: [
@@ -144,6 +153,7 @@ export const TOURS: Tour[] = [
     priceBRL: 300,
     priceEUR: 52,
     priceIsFrom: false,
+    bokunId: 1243795,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
     image: 'tour-tavares',
     galleryKeys: [
@@ -174,6 +184,20 @@ export const TOURS: Tour[] = [
     priceBRL: 1200,
     priceEUR: 207,
     priceIsFrom: false,
+    /* Per-person price falls as the group grows — the table Francesco actually
+       runs on the OTAs (`note tours.md` §"Prezzi a scaglioni", 22/06/2026) and
+       the one live in Bókun `1248148` (verified 05/09/2026). Restored to the
+       site 05/09/2026 on Leo's instruction, reversing the 22/08 flat R$1200:
+       the platforms were never flat, so publishing a single price was the
+       parity break, not the fix. EUR twins are rounded UP from the same
+       ~5.77 BRL/€ rate as every other price here, so no tier undercuts the
+       platforms' live conversion. */
+    priceTiers: [
+      { minPax: 2, maxPax: 3, priceBRL: 1200, priceEUR: 207 },
+      { minPax: 4, maxPax: 6, priceBRL: 900, priceEUR: 156 },
+      { minPax: 7, maxPax: 15, priceBRL: 780, priceEUR: 136 },
+    ],
+    bokunId: 1248148,
     meetingPoint: 'Hotel pick-up',
     image: 'tour-giorno',
     galleryKeys: [

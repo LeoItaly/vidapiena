@@ -278,11 +278,11 @@ export const en: typeof it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — full-day city tour with an Italian guide | Vidapiena',
         metaDescription:
-          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. €207 per person.',
+          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. €207 per person, with a lower rate for larger groups.',
         kicker: 'City tour · full day',
         longDesc: [
           'The best of Rio in a single day, with nothing to organize: I pick you up at your hotel with a private car or van with driver, and off we go — Christ the Redeemer by the Corcovado cog train, the bohemian streets of Santa Teresa, the Selarón Steps, and Sugarloaf by cable car.',
-          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. €207 per person, everything included.',
+          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. The per-person price falls as the group grows: from €207 for 2-3 people down to €136 from 7, always everything included.',
         ],
         highlights: [
           'Christ the Redeemer by the Corcovado cog train',
@@ -306,7 +306,7 @@ export const en: typeof it = {
           },
           {
             q: 'How much does it cost and how does pricing work?',
-            a: '€207 per person. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
+            a: 'The price is per person and falls as the group grows: €207 for 2-3 people, €156 for 4 to 6, €136 for 7 to 15. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
           },
           {
             q: 'What do we see in one day?',

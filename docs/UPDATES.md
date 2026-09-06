@@ -2,6 +2,36 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-05 (later) — "Un Giorno" goes back to tiered pricing 💶
+
+Leo's call: **the price tiers have to be real, not flat** — this reverses the 22/08 decision that
+collapsed "Un Giorno" to a single R$1200. The platforms were never flat (Bókun `1248148` and the OTA
+table in `note tours.md` both run 1200 / 900 / 780), so publishing one price was itself the parity break.
+
+- **`priceTiers` was already wired** into `TourPage.astro`, `JsonLd.astro` and `llms-full.txt.ts` and
+  simply never populated. Filling it in on `giorno` was enough to light up the whole path.
+
+  | Group | R$ (Bókun / OTA) | € on the site |
+  |---|---|---|
+  | 2–3 | 1200 | **€207** |
+  | 4–6 | 900 | **€156** |
+  | 7–15 | 780 | **€136** |
+
+  The € twins are **rounded UP** at the same ~5.77 BRL/€ rate as every other price in `tours.ts`, so no
+  tier lands under the platforms' live conversion.
+- **Which number leads is a rate-parity decision.** Viator's public page for this tour shows
+  **"From €207.05"** (checked live 05/09). So the **shop window stays €207** — tour-card headline, page
+  headline, meta description — and €136 appears only inside the table, the long copy and the price FAQ.
+- **Fixed a real bug in `llms-full.txt.ts`:** it emitted `from €{tour.priceEUR}`, i.e. it advertised the
+  most EXPENSIVE band as the entry price. It now prints the table with no "from" claim at all.
+- **JSON-LD:** the `Offer` gains `priceSpecification { minPrice: 136, maxPrice: 207 }` whenever a tour has
+  tiers, instead of the old `priceIsFrom`-only branch that quoted a single number.
+- IT + EN dictionaries updated in step (meta description, long copy, price FAQ) — `Dict = typeof it` is
+  CI-enforced, so both move together.
+
+`npm run build` green; the three tier rows verified rendered **and visible** in both locales, and
+`llms-full.txt` + the JSON-LD block checked in the built output. **Not pushed, not deployed.**
+
 ## 2026-09-05 — Bókun booking calendar on the 4 tour pages 📅
 
 Leo paid for **Bókun Start** ($49/mo +1.5%, card on file — the free trial was already spent), which

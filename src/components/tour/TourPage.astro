@@ -72,6 +72,13 @@ const crumbs = [
   { label: card.name },
 ];
 
+/* A tiered tour's per-person price FALLS as the group grows, so its Offer has to
+   carry the whole span: minPrice is the cheapest tier (never the headline, which
+   is the small-group band). Untiered tours keep the old "from" behaviour. */
+const tierPricesEUR = tour.priceTiers?.map((tier) => tier.priceEUR) ?? [];
+const minPriceEUR = Math.min(tour.priceEUR, ...tierPricesEUR);
+const maxPriceEUR = Math.max(tour.priceEUR, ...tierPricesEUR);
+
 const graph = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -106,10 +113,11 @@ const graph = {
         priceCurrency: 'EUR',
         availability: 'https://schema.org/InStock',
         url: pageUrl,
-        ...(tour.priceIsFrom && {
+        ...((tour.priceIsFrom || tour.priceTiers) && {
           priceSpecification: {
             '@type': 'PriceSpecification',
-            minPrice: tour.priceEUR,
+            minPrice: minPriceEUR,
+            ...(tour.priceTiers && { maxPrice: maxPriceEUR }),
             priceCurrency: 'EUR',
           },
         }),

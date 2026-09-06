@@ -280,11 +280,11 @@ export const it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — city tour con guida italiana | Vidapiena',
         metaDescription:
-          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. €207 a persona.',
+          'Una giornata intera tra Cristo Redentore, Santa Teresa, Scalinata Selarón e Pan di Zucchero con Francesco, guida italiana: auto o van privato con autista, pick-up in hotel, trenino del Corcovado, funivia e pranzo a buffet. €207 a persona, con tariffa ridotta per i gruppi.',
         kicker: 'City tour · giornata intera',
         longDesc: [
           'Il meglio di Rio in una sola giornata, senza pensieri: ti vengo a prendere in hotel con auto o van privato con autista, e da lì si parte — il Cristo Redentore con il trenino del Corcovado, il quartiere bohémien di Santa Teresa, la Scalinata Selarón e il Pan di Zucchero in funivia.',
-          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. €207 a persona, tutto incluso.',
+          'È il tour premium di Vidapiena: 8 ore (9 con il pranzo a buffet), tutto organizzato e tutto incluso — trasporti, biglietti e racconto in italiano. Il prezzo scende al crescere del gruppo: da €207 a persona in 2-3 fino a €136 da 7 in su, sempre tutto incluso.',
         ],
         highlights: [
           'Il Cristo Redentore con il trenino del Corcovado',
@@ -308,7 +308,7 @@ export const it = {
           },
           {
             q: 'Quanto costa e come funziona il prezzo?',
-            a: '€207 a persona. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
+            a: 'Il prezzo è a persona e scende al crescere del gruppo: €207 in 2-3 persone, €156 da 4 a 6, €136 da 7 a 15. Include auto o van privato con autista, biglietti, trenino del Corcovado, funivia del Pan di Zucchero e pranzo a buffet (bevande escluse).',
           },
           {
             q: 'Cosa vediamo in una giornata?',
