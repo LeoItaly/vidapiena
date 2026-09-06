@@ -440,6 +440,13 @@ export const it = {
     waPrefillTour: (name: string) =>
       `Ciao Francesco! Vorrei prenotare il tour "${name}". Mi dici date e disponibilità?`,
     waPrefillGeneric: 'Ciao Francesco! Vorrei qualche informazione sui tuoi tour a Rio.',
+    /* Calendario Bókun (05/09/2026): richiesta di prenotazione, non checkout —
+       il canale è su "pay on arrival", nessun pagamento con carta sul sito. */
+    calendarHeading: 'Guarda le date libere',
+    calendarLead:
+      'Scegli il giorno e mandami la richiesta. Nessun pagamento online: ti confermo io personalmente e sistemiamo insieme il saldo.',
+    calendarNoscript:
+      'Attiva JavaScript per vedere il calendario, oppure scrivimi direttamente su WhatsApp.',
   },
 
   badges: {

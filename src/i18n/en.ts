@@ -436,6 +436,12 @@ export const en: typeof it = {
     waPrefillTour: (name: string) =>
       `Hi Francesco! I'd like to book the "${name}" tour. Could you share dates and availability?`,
     waPrefillGeneric: `Hi Francesco! I'd like some info about your Rio tours.`,
+    /* Bókun calendar (5 Sep 2026): a booking REQUEST, not a checkout — the
+       channel is set to "pay on arrival", so no card payment on the site. */
+    calendarHeading: 'See available dates',
+    calendarLead:
+      'Pick a day and send me the request. No online payment: I confirm personally and we settle up together.',
+    calendarNoscript: 'Enable JavaScript to see the calendar, or just message me on WhatsApp.',
   },
 
   badges: {

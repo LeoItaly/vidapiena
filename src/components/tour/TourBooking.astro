@@ -5,7 +5,14 @@
  * price with no OTA commission), Instagram the secondary direct channel. The OTA
  * badges below are unlinked "also on these platforms" proof, never booking links
  * — nothing here reads tour.otaLinks anymore.
+ *
+ * Since 5 Sep 2026 the Bókun calendar sits underneath as the self-serve twin of
+ * the same direct model: it shows real availability and takes a booking REQUEST
+ * (channel set to pay-on-arrival), so no card is charged on the site and
+ * Francesco still collects the money himself. WhatsApp deliberately stays first
+ * — the calendar is an addition, not a replacement.
  */
+import BokunCalendar from './BokunCalendar.astro';
 import PlatformBadges from '../PlatformBadges.astro';
 import WhatsAppButton from '../WhatsAppButton.astro';
 import { SITE } from '../../data/site';
@@ -34,6 +41,8 @@ const dict = t(locale);
         {dict.tourPage.instagramDm} · {SITE.instagramHandle}
       </a>
     </div>
+
+    <BokunCalendar tour={tour} locale={locale} />
 
     <p class="eyebrow mt-12 text-paper/55">{dict.badges.heading}</p>
     <PlatformBadges class="mt-4" />

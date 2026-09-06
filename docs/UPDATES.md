@@ -2,6 +2,40 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-05 — Bókun booking calendar on the 4 tour pages 📅
+
+Leo paid for **Bókun Start** ($49/mo +1.5%, card on file — the free trial was already spent), which
+unlocks the booking widget. Goal for the session: get a live availability calendar onto the site.
+
+- **Mode: request-to-book, not checkout.** Pay-on-site would have stacked Bókun's 1.5% on top of a
+  Stripe-Brazil gateway (~4.5–5.5% on the international cards tourists use) ≈ **~6% per booking** —
+  precisely the commission the 19/08 direct-booking pivot existed to remove. Bókun Pay is also closed
+  to new signups, so it would have meant a whole gateway project. Instead the **Default Channel
+  (`427386`)** was set to `Full Payments` OFF · `Deposits` OFF · **`Pay on Arrival` ON**, with no
+  payment provider and currency already **BRL**. The visitor picks a date and sends a *request*;
+  Francesco confirms and collects the money directly.
+- **New `BokunCalendar.astro`** — the loader script carries **`is:inline`**, or Astro tries to bundle a
+  cross-origin URL (same pattern as the Turnstile script in `admin/entra.astro`). There is no CSP
+  anywhere in this project, so nothing blocks `widgets.bokun.io`. Embed shape:
+  `https://widgets.bokun.io/online-sales/<channelUUID>/experience-calendar/<experienceId>` —
+  deterministic, so all 4 widgets are built from the tour data rather than by running the wizard
+  4 times. The channel UUID is a public identifier (it ships in the HTML of every Bókun embed).
+- **`tours.ts`** gains a `bokunId` field — the same experience ids the close-out scripts use.
+- **Placement:** inside `TourBooking.astro`, *below* the WhatsApp CTA. WhatsApp deliberately stays the
+  primary button; the calendar is the self-serve twin of the same direct model, not a replacement.
+- **Verified:** `npm run build` green (`astro check` clean, all verify-build guards pass — the channel
+  UUID does not trip the IBAN regex, which requires uppercase). All **8** built pages (4 tours × 2
+  locales) carry their own experience id, and loading each widget URL live confirms the mapping:
+  `1251056` Rocinha · `1244607` Vidigal · `1243795` Tavares Bastos · `1248148` All Inclusive.
+  Real availability renders (September 2026, BRL, closed dates greyed out).
+- **⚠️ Not deployed, and three things to settle first** — see
+  `Context Knowledge/Bokun Caricamento/Widget Sito - Piano 05-09-2026.md`:
+  1. **Price mismatch:** the widget shows **R$360**, the site shows **€52** (`priceBRL: 300`, per the
+     01/09 decision). Both would appear on the same page.
+  2. **16/09/2026 is still bookable** in the widget — the 7 un-pushed Ciro Pipoli close-outs, now
+     publicly exposed rather than just an internal risk.
+  3. **"Infant (Age 0–11)"** shows as a participant category; its removal had been deferred to Bókun.
+
 ## 2026-09-03 — TikTok promoted to a first-class social exit 🎵
 
 Leo: *"put the TikTok logo with the link more visible"*. TikTok existed only as a 20px hairline
