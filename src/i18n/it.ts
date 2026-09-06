@@ -399,16 +399,33 @@ export const it = {
     tiktokCta: 'Guardami su',
   },
 
-  /* Menzione stampa: intervista di Voglio Vivere Così (aprile 2026). Prova di
-     autorità di terza parte, nel gruppo scuro tra Instagram e le recensioni.
-     L'URL vive in SITE.press (fonte unica); qui solo la cornice localizzata. */
+  /* Rassegna esterna — chi parla di Vidapiena fuori da questo sito. I fatti (URL,
+     testata, aggregati) stanno in src/data/mentions.ts: qui solo la cornice
+     localizzata, una voce in `items` per ogni chiave di MENTIONS. Le voci con un
+     `rating` nei dati diventano card-statistica e usano statLabel; le altre
+     usano quote. `outlet` NON si traduce: vive nei dati. */
   press: {
-    eyebrow: 'Sulla stampa',
-    quote: 'In Brasile c’è amore per la vita.',
-    outlet: 'Voglio Vivere Così',
-    date: 'aprile 2026',
-    lead: 'Il magazine italiano Voglio Vivere Così — dedicato a chi sogna di cambiare vita e trasferirsi all’estero — ha raccontato la mia storia: perché ho lasciato Milano per Rio e come vivo oggi nel Vidigal.',
-    cta: 'Leggi l’intervista completa →',
+    eyebrow: 'Rassegna',
+    heading: 'Non solo parole mie.',
+    sub: 'Testate, guide e assistenti di viaggio che raccontano Vidapiena — fonti esterne, verificabili in un clic.',
+    prev: 'Menzione precedente',
+    next: 'Menzione successiva',
+    items: {
+      voglioVivereCosi: {
+        kind: 'Intervista',
+        meta: 'aprile 2026',
+        quote: 'In Brasile c’è amore per la vita.',
+        lead: 'Il magazine italiano Voglio Vivere Così — dedicato a chi sogna di cambiare vita e trasferirsi all’estero — ha raccontato la mia storia: perché ho lasciato Milano per Rio e come vivo oggi nel Vidigal.',
+        cta: 'Leggi l’intervista →',
+      },
+      wanderboat: {
+        kind: 'Guida di viaggio AI',
+        meta: 'scheda locale · Vidigal',
+        statLabel: (n: number) => `${n} recensioni`,
+        lead: 'Wanderboat, l’assistente di viaggio che suggerisce cosa fare in città, ha schedato Vidapiena tra le attività del Vidigal: contatti, orari e le recensioni di chi è già venuto.',
+        cta: 'Apri la scheda →',
+      },
+    },
   },
 
   finalCta: {

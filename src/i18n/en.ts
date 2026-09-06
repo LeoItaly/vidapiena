@@ -395,16 +395,33 @@ export const en: typeof it = {
     tiktokCta: 'Watch me on',
   },
 
-  /* Press mention: Voglio Vivere Così interview (April 2026). Third-party
-     authority proof, in the dark cluster between Instagram and the reviews. The
-     URL lives in SITE.press (single source); only the localized chrome is here. */
+  /* External coverage — who talks about Vidapiena off this site. The facts (URL,
+     outlet, aggregates) live in src/data/mentions.ts; this is only the localized
+     chrome, one `items` entry per MENTIONS key. Entries with a `rating` in the
+     data render as stat cards and use statLabel; the others use quote. `outlet`
+     is never translated — it lives in the data. */
   press: {
-    eyebrow: 'In the press',
-    quote: 'In Brazil, there’s a love for life.',
-    outlet: 'Voglio Vivere Così',
-    date: 'April 2026',
-    lead: 'Voglio Vivere Così — the Italian magazine for people dreaming of changing their life and moving abroad — told my story: why I left Milan for Rio, and how I live in Vidigal today.',
-    cta: 'Read the full interview →',
+    eyebrow: 'Featured in',
+    heading: 'Not just my own words.',
+    sub: 'Magazines, guides and travel assistants that cover Vidapiena — outside sources, one click away.',
+    prev: 'Previous mention',
+    next: 'Next mention',
+    items: {
+      voglioVivereCosi: {
+        kind: 'Interview',
+        meta: 'April 2026',
+        quote: 'In Brazil, there’s a love for life.',
+        lead: 'Voglio Vivere Così — the Italian magazine for people dreaming of changing their life and moving abroad — told my story: why I left Milan for Rio, and how I live in Vidigal today.',
+        cta: 'Read the interview →',
+      },
+      wanderboat: {
+        kind: 'AI travel guide',
+        meta: 'local listing · Vidigal',
+        statLabel: (n: number) => `${n} reviews`,
+        lead: 'Wanderboat, the AI travel assistant that suggests what to do in a city, lists Vidapiena among the things to do in Vidigal: contacts, hours and reviews from people who have already come.',
+        cta: 'Open the listing →',
+      },
+    },
   },
 
   finalCta: {

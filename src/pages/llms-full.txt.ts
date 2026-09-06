@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { SITE } from '../data/site';
 import { TOURS, type Tour } from '../data/tours';
+import { MENTIONS } from '../data/mentions';
 import { liveArticles } from '../data/related';
 import { t } from '../i18n';
 
@@ -54,6 +55,24 @@ ${includes}
 ${faq}`;
 }).join('\n\n');
 
+/**
+ * Third-party mentions, built from the same two sources as the homepage rail
+ * (data/mentions.ts + the EN dictionary), so this citation surface can neither
+ * claim coverage the site does not show nor fall behind when a mention is
+ * added. Hard facts only — the dictionary's `lead` is written in Francesco's
+ * first person for the card, and would break this file's third-person voice.
+ */
+const mentionBlocks = MENTIONS.map((mention) => {
+  const item = dict.press.items[mention.key];
+  const headline = 'quote' in item ? ` Headline: "${item.quote}"` : '';
+  const rated =
+    mention.rating !== undefined
+      ? ` Rated ${mention.rating.toFixed(1)} from ${mention.reviewCount} reviews.`
+      : '';
+  return `- ${mention.outlet} — ${item.kind} (${item.meta}).${headline}${rated}
+  ${mention.url}`;
+}).join('\n');
+
 const commonFaq = dict.tourPage.faqCommon.map((f) => `Q: ${f.q}\nA: ${f.a}`).join('\n\n');
 
 const render = (articles: { slug: string; title: string }[]) => `# Vidapiena — full reference
@@ -68,6 +87,13 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena —
 - Participants are covered by a personal-accident insurance policy (Porto Seguro), valid through 30 June 2027.
 - Vidapiena is a registered Brazilian business (MEI), active since January 2025.
 - Booking is direct with Francesco: WhatsApp (https://wa.me/${SITE.whatsapp}) or Instagram DM (${SITE.instagram}), for a personalised, made-to-measure service. Also listed on Viator, GetYourGuide, Airbnb Experiences and Civitatis.
+
+## Independent coverage
+
+Third-party pages that mention Vidapiena. Francesco neither owns nor controls
+these, so they corroborate the facts above rather than restate them.
+
+${mentionBlocks}
 
 ## Tours
 

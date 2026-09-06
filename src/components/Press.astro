@@ -1,18 +1,34 @@
 ---
 /**
- * Press — a third-party press mention as authority proof. Francesco was
- * interviewed by the Italian magazine "Voglio Vivere Così" (April 2026); the
- * band features the interview's headline as a pull-quote and links out to the
- * full piece — an "as featured in" signal a self-published page cannot give.
+ * Press — third-party authority proof as a horizontal rail of mention cards.
+ * Each card is one external page that talks about Francesco/Vidapiena, and the
+ * whole card is the call to action: it opens that source in a new tab.
  *
- * Ink band, slotted into the seamless dark region between InstagramBand and
- * Testimonials: the proof ladder before the final ask is follow → featured-in →
- * reviews → book. The interview URL is the single source in SITE.press; only the
- * localized chrome lives in dict.press. Reveals are declarative (data-scramble on
- * the eyebrow, data-reveal-heading on the quote), picked up document-wide by the
- * reveal scripts, so no wiring is needed here.
+ * Two shapes, chosen by the data (mentions.ts), not by a prop:
+ *   - QUOTE card, an editorial piece anchored by its pull-quote. Voglio Vivere
+ *     Cosi, the Italian expat magazine that interviewed him.
+ *   - STAT card, a listing that publishes an aggregate, anchored by the figure.
+ *     Wanderboat AI, the trip-planning assistant that indexes the business.
+ *
+ * The rail is a CSS scroll-snap strip: it works with no JS at all (swipe,
+ * shift-scroll, keyboard focus scrolls a card into view) and its cards grow to
+ * fill the row while they still fit, so two mentions read as a composed band and
+ * five read as a rail. The arrow buttons are inert chrome until the script below
+ * wires them, and they appear only once the rail actually overflows - the same
+ * discipline as the tour deck. Deliberately OUTSIDE the motion gate: scrolling a
+ * rail is navigation, not decoration, so a reduced-motion visitor still gets the
+ * buttons (they jump instead of gliding).
+ *
+ * Ink band in the seamless dark cluster between InstagramBand and Testimonials:
+ * the proof ladder before the final ask is follow -> featured-in -> reviews ->
+ * book. URLs live in SITE.press, per-mention facts in data/mentions.ts and the
+ * localized chrome in dict.press.items, so a new mention touches those three
+ * files and nothing here. Reveals are declarative (data-scramble on the eyebrow,
+ * data-reveal-heading on the h2) and picked up document-wide by the reveal
+ * scripts; the cards themselves are never JS-hidden, so a failed init cannot
+ * strand the proof.
  */
-import { SITE } from '../data/site';
+import { MENTIONS } from '../data/mentions';
 import { t, type Locale } from '../i18n';
 
 interface Props {
@@ -20,36 +36,323 @@ interface Props {
 }
 const { locale } = Astro.props;
 const dict = t(locale);
+
+/* "5,0" in Italian, "5.0" in English - the figure is data, its punctuation is
+   language. One formatter for the whole rail. */
+const rating = new Intl.NumberFormat(locale === 'it' ? 'it-IT' : 'en-US', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 ---
 
-<section id="stampa" class="relative bg-ink text-paper">
+<section id="stampa" class="band-tint-azzurro relative bg-ink text-paper">
   <div class="mx-auto w-full max-w-6xl px-5 pt-12 pb-16 md:px-10 md:pt-16 md:pb-24">
-    <p class="eyebrow text-ouro" data-scramble>{dict.press.eyebrow}</p>
-
-    <figure class="mt-6 max-w-4xl">
-      <blockquote
-        class="font-display text-3xl font-bold leading-tight text-balance md:text-5xl"
-        data-reveal-heading
-      >
-        <span class="text-ouro" aria-hidden="true">“</span>{dict.press.quote}<span
-          class="text-ouro"
-          aria-hidden="true">”</span
+    <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+      <div class="max-w-xl">
+        <p class="eyebrow text-ouro" data-scramble>{dict.press.eyebrow}</p>
+        <h2
+          class="font-display mt-3 text-3xl font-bold text-balance md:text-5xl"
+          data-reveal-heading
         >
-      </blockquote>
-      <figcaption class="eyebrow mt-5 text-paper/55">
-        {dict.press.outlet} · {dict.press.date}
-      </figcaption>
-    </figure>
+          {dict.press.heading}
+        </h2>
+        <p class="mt-4 leading-relaxed text-paper/80">{dict.press.sub}</p>
+      </div>
 
-    <p class="mt-8 max-w-2xl leading-relaxed text-paper/80">{dict.press.lead}</p>
+      <div class="press-nav" data-press-nav>
+        <button type="button" class="press-arrow" data-press-prev aria-label={dict.press.prev}>
+          <span aria-hidden="true">&lsaquo;</span>
+        </button>
+        <button type="button" class="press-arrow" data-press-next aria-label={dict.press.next}>
+          <span aria-hidden="true">&rsaquo;</span>
+        </button>
+      </div>
+    </div>
 
-    <a
-      href={SITE.press.voglioVivereCosi}
-      target="_blank"
-      rel="noopener"
-      class="link-sweep eyebrow mt-8 inline-block text-ouro"
-    >
-      {dict.press.cta}
-    </a>
+    <ul class="press-rail mt-9" data-press-rail>
+      {
+        MENTIONS.map((mention) => {
+          const item = dict.press.items[mention.key];
+          return (
+            <li class="press-item">
+              <article class="press-card rounded-lg border border-paper/10 bg-paper/5 p-6">
+                <p class="press-head eyebrow">
+                  <span class="press-kind">{item.kind}</span>
+                  <span class="text-paper/45">{item.meta}</span>
+                </p>
+
+                <p class="press-outlet font-display">{mention.outlet}</p>
+
+                {'quote' in item ? (
+                  <blockquote class="press-quote font-display">
+                    <span class="text-ouro" aria-hidden="true">
+                      &ldquo;
+                    </span>
+                    {item.quote}
+                    <span class="text-ouro" aria-hidden="true">
+                      &rdquo;
+                    </span>
+                  </blockquote>
+                ) : (
+                  <p class="press-stat">
+                    <span class="press-figure font-display text-ouro">
+                      {rating.format(mention.rating ?? 0)}
+                    </span>
+                    <span class="eyebrow text-paper/60">
+                      {item.statLabel(mention.reviewCount ?? 0)}
+                    </span>
+                  </p>
+                )}
+
+                <p class="press-lead text-paper/75">{item.lead}</p>
+
+                {/* The outlet is repeated for assistive tech only: in a link
+                    list "Apri la scheda" says nothing, "Apri la scheda,
+                    Wanderboat AI" says where it goes. On screen the card's
+                    own heading already carries it. */}
+                <a
+                  href={mention.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="press-cta eyebrow text-ouro"
+                >
+                  <span class="link-sweep">{item.cta}</span>
+                  <span class="sr-only">{mention.outlet}</span>
+                </a>
+              </article>
+            </li>
+          );
+        })
+      }
+    </ul>
   </div>
 </section>
+
+<style>
+  /* ------------------------------------------------------------------ *
+   * The rail. `flex: 1 0 <basis>` is the whole trick: a card may grow to
+   * fill a wide row (two mentions still compose a band) but may never
+   * shrink, so the moment the cards stop fitting the strip overflows and
+   * becomes a scroll-snap rail instead of squeezing them.
+   * ------------------------------------------------------------------ */
+  .press-rail {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    /* `proximity`, not `mandatory`: on a wide row nothing overflows, and
+       mandatory snapping would fight a stray trackpad nudge. */
+    scroll-snap-type: x proximity;
+    /* Room for a card's focus ring, which the scroll container would
+       otherwise clip at its own edge. */
+    padding: 0.25rem 0.25rem 0.75rem;
+    margin-inline: -0.25rem;
+    scrollbar-color: color-mix(in srgb, var(--color-paper) 26%, var(--color-ink)) transparent;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    list-style: none;
+  }
+  .press-item {
+    flex: 1 0 min(85%, 21rem);
+    max-width: 34rem;
+    scroll-snap-align: start;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * The card. One interactive unit: the CTA is the only real link, and
+   * its ::after stretches over the whole card so a click anywhere opens
+   * the source. That is why .press-cta stays `position: static` - the
+   * overlay's containing block has to be the card, not the anchor. The
+   * sweep underline therefore lives on an inner span (.link-sweep), which
+   * brings its own positioning with it.
+   * ------------------------------------------------------------------ */
+  .press-card {
+    position: relative;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    transition:
+      border-color 0.25s var(--ease-vp),
+      background-color 0.25s var(--ease-vp),
+      transform 0.35s var(--ease-vp);
+  }
+  .press-card:hover {
+    border-color: color-mix(in srgb, var(--color-ouro) 45%, transparent);
+    background-color: color-mix(in srgb, var(--color-paper) 8%, transparent);
+    transform: translateY(-2px);
+  }
+  /* Keyboard parity: focusing the CTA lights the card it belongs to. */
+  .press-card:focus-within {
+    border-color: color-mix(in srgb, var(--color-ouro) 45%, transparent);
+  }
+
+  .press-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 0.75rem;
+  }
+  .press-kind {
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-ouro) 40%, transparent);
+    padding: 0.2rem 0.6rem;
+    color: var(--color-ouro);
+  }
+
+  .press-outlet {
+    margin-top: 1.1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  /* The anchor of a quote card - big enough to carry the band on its own. */
+  .press-quote {
+    margin-top: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  @media (min-width: 768px) {
+    .press-quote {
+      font-size: 1.75rem;
+    }
+  }
+
+  /* The anchor of a stat card - the same optical weight as a pull-quote, so
+     the two shapes sit level in the rail instead of one out-shouting the
+     other. */
+  .press-stat {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .press-figure {
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .press-lead {
+    margin-top: 1.1rem;
+    flex-grow: 1;
+    line-height: 1.65;
+  }
+
+  .press-cta {
+    position: static; /* see the block comment above - never make this relative */
+    margin-top: 1.5rem;
+    align-self: flex-start;
+  }
+  .press-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  /* The sweep answers to the whole card, because the whole card is the target. */
+  .press-card:hover .link-sweep::after,
+  .press-cta:focus-visible .link-sweep::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  /* The stretched overlay swallows the anchor's own outline, so the ring is
+     drawn around the card instead - same 2px gold, just around what is hit. */
+  .press-cta:focus-visible {
+    outline: none;
+  }
+  .press-card:has(.press-cta:focus-visible) {
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 2px;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Rail chrome - inert until the script wires it AND the rail actually
+   * overflows, so a two-card row on a desktop shows no dead buttons.
+   * ------------------------------------------------------------------ */
+  .press-nav {
+    display: none;
+    gap: 0.5rem;
+    /* When the header row wraps (narrow viewports) the buttons drop onto their
+       own line; `auto` keeps them at the far edge there instead of letting them
+       collect under the paragraph as if they belonged to it. */
+    margin-inline-start: auto;
+  }
+  .press-nav.is-on {
+    display: flex;
+  }
+  .press-arrow {
+    display: grid;
+    height: 2.5rem;
+    width: 2.5rem;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-paper) 30%, transparent);
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--color-paper);
+    transition:
+      border-color 0.2s var(--ease-vp),
+      color 0.2s var(--ease-vp),
+      opacity 0.2s var(--ease-vp);
+  }
+  .press-arrow:hover:not(:disabled) {
+    border-color: var(--color-ouro);
+    color: var(--color-ouro);
+  }
+  .press-arrow:disabled {
+    cursor: default;
+    opacity: 0.3;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .press-card,
+    .press-arrow {
+      transition: none;
+    }
+    .press-card:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  /* Rail controls. Outside the motion gate on purpose: these are navigation,
+     and a reduced-motion or Save-Data visitor needs them just as much - they
+     simply jump instead of gliding. The buttons stay hidden while the cards
+     fit, so the chrome appears only when there is something to reach. */
+  const rail = document.querySelector<HTMLElement>('[data-press-rail]');
+  const nav = document.querySelector<HTMLElement>('[data-press-nav]');
+  const prev = document.querySelector<HTMLButtonElement>('[data-press-prev]');
+  const next = document.querySelector<HTMLButtonElement>('[data-press-next]');
+
+  if (rail && nav && prev && next) {
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* One card plus one gap, measured rather than assumed, so changing the
+       rail's gap or card width in CSS can never desync the buttons. */
+    const step = (): number => {
+      const items = Array.from(rail.children) as HTMLElement[];
+      if (items.length > 1) return items[1].offsetLeft - items[0].offsetLeft;
+      return items[0]?.offsetWidth ?? rail.clientWidth * 0.8;
+    };
+
+    const sync = (): void => {
+      const slack = rail.scrollWidth - rail.clientWidth;
+      nav.classList.toggle('is-on', slack > 4);
+      prev.disabled = rail.scrollLeft <= 2;
+      next.disabled = rail.scrollLeft >= slack - 2;
+    };
+
+    const go = (dir: number): void =>
+      rail.scrollBy({ left: dir * step(), behavior: smooth ? 'smooth' : 'auto' });
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    rail.addEventListener('scroll', sync, { passive: true });
+    new ResizeObserver(sync).observe(rail);
+    sync();
+  }
+</script>

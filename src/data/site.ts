@@ -27,13 +27,27 @@ export const SITE = {
   instagram: 'https://www.instagram.com/vidapiena/',
   instagramHandle: '@vidapiena',
   /**
-   * Press features — third-party articles about Francesco/Vidapiena, used by the
-   * homepage Press band (Press.astro) as authority proof. Single source of truth
-   * for each URL; the localized chrome lives in dict.press. Third-party coverage,
-   * not an owned profile, so deliberately NOT part of PERSON_SAMEAS.
+   * External mentions — third-party pages that talk about Francesco/Vidapiena,
+   * used by the homepage Press band (Press.astro) as authority proof. Single
+   * source of truth for each URL; the per-item facts live in data/mentions.ts
+   * and the localized chrome in dict.press.items, both keyed by the names below.
+   *
+   * Third-party coverage and directory listings, not owned profiles, so
+   * deliberately NOT part of PERSON_SAMEAS (that is for profiles Francesco
+   * controls — see SITE.profiles).
    */
   press: {
+    /** Interview in the Italian expat magazine Voglio Vivere Così, April 2026. */
     voglioVivereCosi: 'https://www.voglioviverecosi.com/francesco-brasile.html',
+    /**
+     * Wanderboat AI's local-business listing for VIDAPIENA in Vidigal — an AI
+     * trip-planning assistant that indexes the business, its hours and its
+     * reviews, so it is the site's one visible foothold in an AI travel guide.
+     * Percent-encoded exactly as Wanderboat publishes it in its own og:url and
+     * JSON-LD; do NOT decode "regi%C3%A3o" or the link 404s.
+     */
+    wanderboat:
+      'https://wanderboat.ai/local-businesses/brazil/regi%C3%A3o-geogr%C3%A1fica-imediata-do-rio-de-janeiro/vidapiena/81cLVeXvQt24YIjF4nHCRA',
   },
   tiktok: 'https://www.tiktok.com/@vidapiena',
   tiktokHandle: '@vidapiena',

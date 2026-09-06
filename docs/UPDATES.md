@@ -2,6 +2,58 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-06 — "Stampa" becomes a rail of external mentions 🗞️
+
+Leo found a second external page that talks about Francesco and wanted it on the homepage "in a smooth
+way": [Wanderboat AI](https://wanderboat.ai/local-businesses/brazil/regi%C3%A3o-geogr%C3%A1fica-imediata-do-rio-de-janeiro/vidapiena/81cLVeXvQt24YIjF4nHCRA),
+the AI trip-planning assistant, has indexed **VIDAPIENA** as a local business in Vidigal. Rather than
+bolt a second band onto the page, the single-quote Press section became **a scrollable rail of mention
+cards, each card a call to action** that opens its source.
+
+- **What Wanderboat actually is** (read off the live page, since it 403s to plain fetch and its SPA
+  redirects a cold visit to the homepage — the HTML had to be pulled from inside the origin): a
+  `LocalBusiness` listing with `aggregateRating` **5.0 / 132 reviews**, address, phone, hours, nearby
+  places, and 7 pages of reviews mirrored from Google. **No editorial blurb of its own**, so the card
+  makes no claim Wanderboat did not make: it shows the figure and says what the platform is.
+- **Two card shapes, chosen by the data, not by a prop.** An entry in the new `src/data/mentions.ts`
+  that carries a `rating` renders as a **stat card** (the big gold figure); one without renders as a
+  **quote card** (its pull-quote). So Voglio Vivere Così keeps its headline and Wanderboat leads with
+  5,0 — same optical weight, no invented quote.
+- **Three-file contract for the next mention:** URL → `SITE.press`, facts → `data/mentions.ts`,
+  localized chrome → `dict.press.items` (same key in all three). `Press.astro` never needs touching.
+  The IT/EN copy moved from a flat block to `items`, so `Dict = typeof it` still enforces the pair.
+- **The rail.** `flex: 1 0 min(85%, 21rem)` — cards may grow to fill a wide row but never shrink, so
+  **two mentions still read as a composed band** (2×528 px at 1440) and the strip only becomes a
+  scroll-snap rail once they stop fitting. Verified: overflow 0 at 1440 with the ‹› buttons
+  `display:none`; overflow 251 px at 390 with the buttons on, `next` scrolling one card and the
+  disabled states flipping correctly. Works with **no JS at all**.
+- **Whole card is the hit target** via a stretched `::after` on the CTA — which is why `.press-cta`
+  must stay `position: static` (the overlay's containing block has to be the card). The sweep underline
+  therefore lives on an inner `.link-sweep` span. Hit-tested at centre/top-left/bottom-right of both
+  cards; focus ring re-drawn on the card with `:has()`; the outlet is repeated `sr-only` so the link
+  name is "Apri la scheda, Wanderboat AI", not a bare "Apri la scheda".
+- **Rail controls sit OUTSIDE the motion gate** (`main.ts` skips every module for reduced-motion /
+  Save-Data visitors). Scrolling a rail is navigation, not decoration: the buttons work for everyone
+  and simply jump instead of gliding.
+- Band tint set to `azzurro`, so the dark cluster now grades ouro → azzurro → verde down the page.
+- **Deliberately not done:** no `Review`/`AggregateRating` JSON-LD for the Wanderboat figure (same
+  self-serving-markup reasoning as Testimonials), and the listing stays **out of `PERSON_SAMEAS`** —
+  it is a third-party directory entry, not a profile Francesco owns.
+
+- **`llms-full.txt` gained an `## Independent coverage` section** (Leo's follow-up ask), sitting between
+  Trust and Tours. Built from the SAME two sources as the rail — `MENTIONS` + the EN dictionary — so the
+  citation surface can neither claim coverage the site does not show nor fall behind when a mention is
+  added. Hard facts only: outlet, kind, date, the interview headline, the 5.0/132 figure, the URL. The
+  dictionary's `lead` is deliberately NOT emitted — it is written in Francesco's first person for the
+  card and would break this file's third-person voice.
+- `llms.txt` (the index) is untouched: its tour prose is hand-written by design, and the deep reference
+  is where an assistant goes for corroboration.
+
+`astro check` 0 errors; `npm run build` green (only the usual local placeholder-origin note). IT and EN
+both verified in the browser — the figure formats as **5,0** in Italian and **5.0** in English from one
+`Intl.NumberFormat` — and the coverage block checked in the built `dist/client/llms-full.txt`.
+**Not pushed, not deployed.**
+
 ## 2026-09-05 (later) — "Un Giorno" goes back to tiered pricing 💶
 
 Leo's call: **the price tiers have to be real, not flat** — this reverses the 22/08 decision that
