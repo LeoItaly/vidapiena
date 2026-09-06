@@ -52,7 +52,10 @@ cards, each card a call to action** that opens its source.
 `astro check` 0 errors; `npm run build` green (only the usual local placeholder-origin note). IT and EN
 both verified in the browser — the figure formats as **5,0** in Italian and **5.0** in English from one
 `Intl.NumberFormat` — and the coverage block checked in the built `dist/client/llms-full.txt`.
-**Not pushed, not deployed.**
+
+**✅ Committed and DEPLOYED 06/09** (`3b199c6`) — re-verified on riovidapiena.com: both cards render,
+each is clickable across its whole surface, the arrows stay hidden at desktop width, and
+`/llms-full.txt` carries the coverage block.
 
 ## 2026-09-05 (later) — "Un Giorno" goes back to tiered pricing 💶
 
@@ -82,7 +85,10 @@ table in `note tours.md` both run 1200 / 900 / 780), so publishing one price was
   CI-enforced, so both move together.
 
 `npm run build` green; the three tier rows verified rendered **and visible** in both locales, and
-`llms-full.txt` + the JSON-LD block checked in the built output. **Not pushed, not deployed.**
+`llms-full.txt` + the JSON-LD block checked in the built output.
+
+**✅ Committed and DEPLOYED 06/09** (`747ff59`) — live on riovidapiena.com: €207 / €156 / €136 all render
+on the tour page and the Offer carries `minPrice: 136, maxPrice: 207`.
 
 ## 2026-09-05 — Bókun booking calendar on the 4 tour pages 📅
 
@@ -110,7 +116,14 @@ unlocks the booking widget. Goal for the session: get a live availability calend
   locales) carry their own experience id, and loading each widget URL live confirms the mapping:
   `1251056` Rocinha · `1244607` Vidigal · `1243795` Tavares Bastos · `1248148` All Inclusive.
   Real availability renders (September 2026, BRL, closed dates greyed out).
-- **⚠️ Not deployed, and three things to settle first** — see
+- **⚠️ DEPLOYED 06/09 anyway** (`a102ca7`, on Leo's explicit instruction to commit and push) — so two of
+  the three caveats below are now LIVE on riovidapiena.com rather than hypothetical. Status re-checked
+  on the live Rocinha page 06/09: **(1) still open** — the widget prints `360,00` BRL under every date
+  while the same page's copy says €52 (≈R$300, the 01/09 figure the OTAs were aligned to on 02/09), so
+  the stale number is the one in Bókun; **(2) RESOLVED** — 16/09 renders greyed out and unbookable, the
+  close-outs having been pushed on 05/09; **(3) still open** — "Età 0 - 11" is still offered as a
+  participant category. Both open items are fixed in the Bókun admin, not in this repo.
+- **⚠️ The original three, as written on 05/09** — see
   `Context Knowledge/Bokun Caricamento/Widget Sito - Piano 05-09-2026.md`:
   1. **Price mismatch:** the widget shows **R$360**, the site shows **€52** (`priceBRL: 300`, per the
      01/09 decision). Both would appear on the same page.
@@ -144,7 +157,8 @@ drawer link and `sameAs`. Now the two networks are billed equally everywhere.
   Dev-server DOM audit: 8 social anchors render with real box sizes and an inline `<svg>` — drawer
   ×2, band ×2, final CTA ×2, footer ×2. Playwright screenshots at 1280 and 390 confirm the band
   row, the four-button close, the drawer pair and the footer pills in both widths.
-  **NOT committed / NOT pushed** (push = deploy).
+  **Committed and deployed 03/09** (`3d21f7b`) — status corrected 06/09; the entry was written before
+  the push.
 
 ## 2026-09-01 — Press feature (Voglio Vivere Così) + guide photo → Christ 📰
 
