@@ -116,13 +116,21 @@ unlocks the booking widget. Goal for the session: get a live availability calend
   locales) carry their own experience id, and loading each widget URL live confirms the mapping:
   `1251056` Rocinha · `1244607` Vidigal · `1243795` Tavares Bastos · `1248148` All Inclusive.
   Real availability renders (September 2026, BRL, closed dates greyed out).
-- **⚠️ DEPLOYED 06/09 anyway** (`a102ca7`, on Leo's explicit instruction to commit and push) — so two of
-  the three caveats below are now LIVE on riovidapiena.com rather than hypothetical. Status re-checked
-  on the live Rocinha page 06/09: **(1) still open** — the widget prints `360,00` BRL under every date
-  while the same page's copy says €52 (≈R$300, the 01/09 figure the OTAs were aligned to on 02/09), so
-  the stale number is the one in Bókun; **(2) RESOLVED** — 16/09 renders greyed out and unbookable, the
-  close-outs having been pushed on 05/09; **(3) still open** — "Età 0 - 11" is still offered as a
-  participant category. Both open items are fixed in the Bókun admin, not in this repo.
+- **⚠️ DEPLOYED 06/09** (`a102ca7`, on Leo's explicit instruction to commit and push). The 05/09 session
+  had closed all three blockers before stopping; re-checked against the live public widgets on 06/09,
+  **one of them did not actually stick**:
+  1. ⚠️ **PRICE MISMATCH IS LIVE on Rocinha and Vidigal.** Read straight off
+     `widgets.bokun.io/online-sales/<channel>/experience-calendar/<id>`, normalising for the default
+     participant count: Rocinha `1251056` **R$360/adult**, Vidigal `1244607` **R$360/adult**, Tavares
+     `1243795` **R$300/adult**. The page copy on all three says **€52 ≈ R$300**. This is **not** the
+     documented "Bókun caches the widget price" trap — Tavares serves its 300 correctly and a day has
+     passed — so the 05/09 `360 → 300` save on those two products did not take (consistent with the
+     other Bókun trap noted that day: a summary row read straight after Save can be stale, which is how
+     the change looked applied). → **Re-apply in the Bókun product editor and re-verify on the public
+     widget URL, not the product page.** Nothing to change in this repo.
+  2. ✅ **16/09** renders greyed out and unbookable — the close-outs pushed on 05/09 held.
+  3. ✅ **"Infant (0–11)" is correct and must stay** — it carries the child rate (R$180 on Rocinha);
+     deleting the category would delete the child price.
 - **⚠️ The original three, as written on 05/09** — see
   `Context Knowledge/Bokun Caricamento/Widget Sito - Piano 05-09-2026.md`:
   1. **Price mismatch:** the widget shows **R$360**, the site shows **€52** (`priceBRL: 300`, per the
