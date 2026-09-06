@@ -119,15 +119,25 @@ unlocks the booking widget. Goal for the session: get a live availability calend
 - **⚠️ DEPLOYED 06/09** (`a102ca7`, on Leo's explicit instruction to commit and push). The 05/09 session
   had closed all three blockers before stopping; re-checked against the live public widgets on 06/09,
   **one of them did not actually stick**:
-  1. ⚠️ **PRICE MISMATCH IS LIVE on Rocinha and Vidigal.** Read straight off
-     `widgets.bokun.io/online-sales/<channel>/experience-calendar/<id>`, normalising for the default
-     participant count: Rocinha `1251056` **R$360/adult**, Vidigal `1244607` **R$360/adult**, Tavares
-     `1243795` **R$300/adult**. The page copy on all three says **€52 ≈ R$300**. This is **not** the
-     documented "Bókun caches the widget price" trap — Tavares serves its 300 correctly and a day has
-     passed — so the 05/09 `360 → 300` save on those two products did not take (consistent with the
-     other Bókun trap noted that day: a summary row read straight after Save can be stale, which is how
-     the change looked applied). → **Re-apply in the Bókun product editor and re-verify on the public
-     widget URL, not the product page.** Nothing to change in this repo.
+  1. ⚠️ **PRICE MISMATCH IS LIVE on Rocinha and Vidigal, and it is a Bókun-side inconsistency — NOT a
+     price anyone can re-enter.** Investigated in the live account on 06/09 (Chrome, logged in as
+     Vidapiena 142183):
+     - **Bókun's product record is already correct.** Rocinha `1251056` → `Pricing` shows
+       **Adult 300 / Infant 180**, `Save prices` **disabled** (nothing pending), a single Default rate
+       `#2486112`, and **no** price schedule selected. Re-typing 300 over 300 leaves Save disabled —
+       there is genuinely nothing to save. The raw `/activities/editor/activity-options?id=1244607`
+       payload for Vidigal **contains no `360` at all**.
+     - **Bókun's own public booking API serves 360.** `widgets.bokun.io/widgets/<channel>/activity/<id>`
+       returns `nextDefaultPrice: 360` for Rocinha and Vidigal, and `600` for Tavares — which is right,
+       because the Tavares widget defaults to **2** adults (2 × 300) while the other two default to 1.
+     - **Everything that could legitimately add 60 was ruled out:** `bookableExtras: []` and
+       `activityPriceCatalogs: 0` on all three (so the channel's *"include prices of extras and pickup
+       that are preselected"* setting has nothing to include), no price schedule, one rate each, and the
+       availability records (`/availability-calendar/<id>`) carry **capacity only, no prices**.
+     → The product record and the booking channel disagree inside Bókun. **This is a Bókun support
+     ticket**, not a repo change and not a re-save. Verify any fix on the public widget URL
+     (`nextDefaultPrice`), never on the product page — the product page is what made this look done on
+     05/09.
   2. ✅ **16/09** renders greyed out and unbookable — the close-outs pushed on 05/09 held.
   3. ✅ **"Infant (0–11)" is correct and must stay** — it carries the child rate (R$180 on Rocinha);
      deleting the category would delete the child price.
