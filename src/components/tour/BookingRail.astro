@@ -113,6 +113,7 @@ const hasTiers = Boolean(tour.priceTiers?.length);
         data-bokun-inline
         data-bokun-src={bokunCalendarSrc(tour.bokunId, locale)}
         data-bokun-title={dict.booking.calendarFrameTitle(card.name)}
+        data-bokun-name={card.name}
         data-compact={hasTiers ? '' : undefined}
       >
         <p class="vp-bokun-loading">{dict.booking.calendarLoading}</p>

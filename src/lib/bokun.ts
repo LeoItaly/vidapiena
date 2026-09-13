@@ -14,12 +14,16 @@
  * ## Why we embed the URL ourselves instead of using BokunWidgetsLoader.js
  *
  * The official loader is a third-party script that runs on our page: it injects
- * a floating cart bubble, sizes the iframe by postMessage, and has to be present
- * before the widget mounts. Verified live on 06/09/2026 that the widget URL
- * works standalone end to end — calendar → time slot → booking summary →
- * /checkout/main-contact — so a plain <iframe> is enough. That buys three
- * things the loader cannot: zero third-party JS until the visitor asks for the
- * calendar, no injected floating chrome, and full control of the frame's size.
+ * a floating cart bubble and its own checkout modal (which would sit behind our
+ * native <dialog> and be inert). We embed the URL ourselves for zero third-party
+ * JS until the visitor asks for the calendar and no injected chrome.
+ *
+ * ⚠ A plain <iframe> is NOT enough, despite the 06/09 note that said so — that
+ * was verified with the widget opened STANDALONE, where it runs its own
+ * checkout. Embedded, the widget hands the checkout to the parent page and waits
+ * for an answer, so a site with no answer left every visitor stuck at "Vai al
+ * carrello" (found 13/09/2026). src/scripts/bokun.ts now plays the parent's half
+ * of that protocol; read its header before changing how the frame is mounted.
  *
  * ## lang / currency
  *

@@ -2,6 +2,29 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-13 — Nobody could book on the site: stuck at "Vai al carrello" 🛒
+
+Leo reported that clicking **Go to cart / Vai al carrello** in the calendar did nothing: no name,
+email or phone form, ever. The 06/09 claim that "a plain iframe is enough" was wrong. It had only
+been checked with the widget opened standalone, not embedded.
+
+- **First fix (commit `3cae013`) was necessary but not sufficient.** The widget runs behind
+  iframe-resizer and expects the parent to size the frame, so we added the iframe-resizer host. The
+  frames now grow and scroll. The button still did nothing.
+- **The real cause, traced in a real browser.** "Prenota" adds the tour to a server-side cart keyed
+  by `bokunSessionId`, then sends the parent page
+  `OpenModalRequest { src: "/<channel>/checkout", openFrom: "checkoutButton" }` and waits for
+  Bókun's loader to open its checkout modal. We don't run the loader, so nothing answered. Every
+  "Vai al carrello" click re-sent the same unanswered message.
+- **Two more conditions, both found by testing.** The checkout only sees the cart when it is loaded
+  with the **same `bokunSessionId`** and with **`isModal=true`**. Leave out either one and it shows
+  "Il carrello è vuoto".
+- **Fix.** `src/scripts/bokun.ts` now creates one session ID per page view and adds it to every
+  widget frame (rail and modal share one cart). It handles `OpenModalRequest` by opening the
+  `isModal=true` checkout in our own `<dialog>`, and also handles `CloseModalRequest` and
+  `OpenPopupModal`. We still don't load Bókun's script: its modal would sit behind our native
+  `<dialog>` (top layer) and be unclickable.
+
 ## 2026-09-06 (3) — The booking is instant, not a request: the copy said otherwise ✉️
 
 Leo asked a plain question — *what actually happens after someone clicks through the Bókun widget?*
