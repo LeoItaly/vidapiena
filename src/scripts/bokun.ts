@@ -4,10 +4,23 @@
  *
  * Loaded outside the motion gate (main.ts) on purpose: the modal is a booking
  * path, not a decoration, so it must work for reduced-motion and Save-Data
- * visitors too. It ships no third-party script — the widget is a plain iframe
- * (see src/lib/bokun.ts for why) — and nothing is fetched from bokun.io until
- * the visitor scrolls the rail into view or opens the modal.
+ * visitors too. Nothing is fetched from bokun.io until the visitor scrolls the
+ * rail into view or opens the modal.
+ *
+ * ## Why iframe-resizer (added 13/09/2026)
+ *
+ * The Bókun widget is built to run behind iframe-resizer: its checkout page
+ * reports its own height and expects the PARENT to grow the frame to fit — it
+ * even announces itself with `[iFrameResizerChild]Ready` the moment it loads.
+ * With a plain <iframe> (our first cut) nothing answers, so the frame stays at
+ * the calendar's height and the taller checkout that opens after "Prenota" is
+ * clipped and unreachable — the visitor is stuck at "Vai al carrello" and never
+ * sees the contact form. Verified live 13/09: dropping in the iframe-resizer
+ * host grows the same frame 150px -> 1182px. So we ship ONLY the resizer host
+ * (self-bundled, MIT) — not Bókun's full loader, which would also inject a
+ * floating cart bubble and third-party chrome we don't want.
  */
+import iframeResize from 'iframe-resizer/js/iframeResizer.js';
 
 /** Below this the rail's inline calendar is never mounted — the modal is used
  *  instead. A ~1300px foreign iframe inline on a phone is not a booking flow.
@@ -30,6 +43,16 @@ function mountFrame(host: HTMLElement, src: string, title: string): void {
   // the DOM signature in this project's types (same trap as the global Element).
   host.appendChild(frame);
   host.dataset.bokunMounted = src;
+
+  // Grow the frame to the widget's own content height so the checkout that opens
+  // after "Prenota" is reachable (see the header note). checkOrigin is pinned to
+  // the widget origin — the frame only ever loads widgets.bokun.io — and
+  // 'lowestElement' survives the widget swapping the calendar for the taller
+  // checkout without leaving the frame stuck at the shorter height.
+  iframeResize(
+    { checkOrigin: ['https://widgets.bokun.io'], heightCalculationMethod: 'lowestElement', log: false },
+    frame,
+  );
 }
 
 /* --- the inline rail calendar ------------------------------------------- */

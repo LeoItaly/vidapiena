@@ -16,18 +16,19 @@
  */
 
 /* ---------------------------------------------------------------------------
- * The frame: a fixed window that clips a deliberately oversized iframe.
+ * The frame: a capped-height window the widget scrolls inside.
  *
- * The iframe is laid out at 1/scale of the window and then scaled back down, so
- * the widget composes at a WIDER css width than it occupies — which is what
- * actually makes it read smaller, rather than just squeezing the same layout.
- * The window is capped against the viewport so the whole rail stays shorter
- * than the screen and `position: sticky` behaves; the widget scrolls inside it.
+ * iframe-resizer (src/scripts/bokun.ts) grows the iframe to the widget's own
+ * content height — tall once the checkout opens after "Prenota" — and this frame
+ * is a viewport onto it: `overflow-y: auto` so the visitor scrolls from the
+ * calendar through to the contact form, while the frame itself stays capped
+ * against the screen so the rail stays shorter than the viewport and
+ * `position: sticky` behaves.
  * ------------------------------------------------------------------------- */
 .vp-bokun-frame {
-  --bokun-scale: 0.84;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 0.75rem;
   /* The widget paints its own white; declare it so the frame never flashes
      paper-ivory behind a still-loading iframe. */
@@ -43,14 +44,11 @@
 }
 
 .vp-bokun-frame > iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: calc(100% / var(--bokun-scale));
-  height: calc(100% / var(--bokun-scale));
+  display: block;
+  width: 100%;
   border: 0;
-  transform: scale(var(--bokun-scale));
-  transform-origin: top left;
+  /* Height is owned by iframe-resizer (the widget's content height) — never set
+     it here, or the frame goes back to clipping the checkout. */
 }
 
 /* Loading floor — visible until the iframe fires `load`. Never a spinner that
@@ -155,14 +153,15 @@ dialog.vp-dialog::backdrop {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
   background: #fff;
 }
 .vp-dialog__body > iframe {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
-  height: 100%;
   border: 0;
+  /* Height is owned by iframe-resizer (the widget's content height); the body
+     scrolls. Never set height:100% here — it re-clips the checkout. */
 }
 
 .vp-dialog__foot {
