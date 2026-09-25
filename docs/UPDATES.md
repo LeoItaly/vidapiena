@@ -35,7 +35,7 @@ the nav and from the footer, built only from what already exists.
 - ⚠️ **Test trap:** Playwright's `locator.click()` into the zoomed iframe lands on the wrong element (it
   ignores `zoom` when mapping coordinates). Real mouse input is correct: click with `page.mouse` at
   `frameBox + innerRect × 1.5`.
-- Not pushed (push = deploy).
+- Deployed 26/09 (commit `03266bf`), verified live on riovidapiena.com.
 
 ## 2026-09-13 — Nobody could book on the site: stuck at "Vai al carrello" 🛒
 
