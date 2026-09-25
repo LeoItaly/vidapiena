@@ -28,6 +28,7 @@ export const en: typeof it = {
   nav: {
     home: 'Home',
     tours: 'Tours',
+    book: 'Book',
     blog: 'Blog',
     guide: 'The guide',
     contact: 'Contact',
@@ -367,6 +368,16 @@ export const en: typeof it = {
       'Every favela tour starts from the meeting point at the foot of the community; "Un Giorno a Rio" includes hotel pick-up.',
       'Mototaxi and the community visitation fee are included in the favela tours.',
     ],
+  },
+
+  bookPage: {
+    metaTitle: 'Book a tour in Rio — live availability | Vidapiena',
+    metaDescription:
+      'Pick the tour and the day: the Vidapiena calendar shows free dates in real time. Your booking is confirmed straight away, with no online payment.',
+    kicker: 'Book',
+    heading: 'Pick the tour, pick the day.',
+    pickerLabel: 'Choose a tour',
+    detailLink: 'See the tour',
   },
 
   blog: {

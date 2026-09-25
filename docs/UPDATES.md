@@ -2,6 +2,41 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-26 — New page: `/prenota` · `/en/prenota` (Book), one very large calendar 📅
+
+Leo asked for a page that is just the Bókun calendar, very big, on brand, linked from the middle of
+the nav and from the footer, built only from what already exists.
+
+- **Shape.** `PageHero` (kicker *Prenota*, *Scegli il tour, scegli il giorno.*, sub =
+  `booking.calendarLead`) → a 4-tile tour picker → ONE large calendar card → the shared
+  `BokunDialog` (needed: the widget's "Prenota" opens the checkout there) → `Footer`. All ink. Page
+  composition in `components/pages/BookPage.astro`; no new reusable component.
+- **One frame, a picker, not four calendars.** Bókun has no multi-product calendar (each tour is
+  `experience-calendar/<bokunId>`). The tiles (`data-bokun-pick`) re-point a single stage frame;
+  `scripts/bokun.ts` → `initPicker()`. The choice is mirrored as **`?tour=rocinha|vidigal|tavares|giorno`**,
+  so a tour page, a WhatsApp message or an ad can link straight to one calendar. Same session id
+  as the rest of the page, so the cart survives a switch.
+- **"Very big" is a zoom, not a wide frame.** Read live: the widget caps its own content at
+  **496px inside the iframe**, so a wide iframe is a narrow column in white. `styles/bokun.css`
+  (`.vp-bokun-frame[data-stage]`) lays the widget out at `32rem` and applies CSS **`zoom`** ×1.25 (md)
+  / ×1.5 (lg, ≈768px card). `zoom` grows the layout box, so iframe-resizer's height is still right
+  (1255px content → 1882px card), and the type stays crisp. Phones: full width, no zoom.
+- **Mounts at every width** (`data-bokun-always`) — the rail's `min-width: 64rem` gate stays for
+  tour pages only; here the calendar is the page.
+- **Motion, all existing:** PageHero scramble + char rise, `data-stagger` rise on the tiles, and a
+  CSS rise-in of each calendar on `is-loaded` (reduced-motion guarded). The spinner floor covers a
+  tour switch.
+- **Nav + footer:** *Home · Tour · **Prenota** · Blog · La guida · Contatti* (EN *Book*), the booking
+  link in ouro. Also added to `llms.txt` and `llms-full.txt`. New i18n: `nav.book`, `bookPage.*`.
+- **Verified (Playwright, dev server):** IT + EN mount with the right `lang`; the card measures 768px at
+  a 1280px viewport; tile switch + `?tour=giorno` deep link; real mouse flow day 30/09 → 11:00 →
+  Prenota → dialog on the checkout contact form (same `bokunSessionId`, `isModal=true`), nothing
+  submitted; 375px: full-width calendar, 2×2 tiles, drawer shows *Prenota*; `npm run build` green.
+- ⚠️ **Test trap:** Playwright's `locator.click()` into the zoomed iframe lands on the wrong element (it
+  ignores `zoom` when mapping coordinates). Real mouse input is correct: click with `page.mouse` at
+  `frameBox + innerRect × 1.5`.
+- Not pushed (push = deploy).
+
 ## 2026-09-13 — Nobody could book on the site: stuck at "Vai al carrello" 🛒
 
 Leo reported that clicking **Go to cart / Vai al carrello** in the calendar did nothing: no name,

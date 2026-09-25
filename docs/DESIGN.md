@@ -336,7 +336,10 @@ la-guida, contatti ×2, 404). Rules added by that redesign:
 - The drawer is a full-screen ink panel *under* the bar (bar stays usable), its
   a11y state machine ships **outside** the motion gate, and its stagger is pure
   CSS (`--i` delays) behind `prefers-reduced-motion`. The footer duplicates the
-  five links — that is the no-JS path into the site.
+  six links — that is the no-JS path into the site.
+- **Six links since 26 Sep 2026**: Home · Tour · **Prenota** · Blog · La guida ·
+  Contatti. The booking page sits in the middle and is the only link in ouro
+  (`accent: true` in both arrays) — same size and type, colour only.
 - In-page anchor targets need `scroll-margin-top: calc(var(--nav-h) + …)`.
 
 ### Scrollbar

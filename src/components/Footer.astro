@@ -19,6 +19,7 @@ const year = new Date().getFullYear();
 const links = [
   { label: dict.nav.home, href: pagePath(locale) },
   { label: dict.nav.tours, href: localeHref(locale, '#tour') },
+  { label: dict.nav.book, href: pagePath(locale, 'prenota/'), accent: true },
   { label: dict.nav.blog, href: pagePath(locale, 'blog/') },
   { label: dict.nav.guide, href: pagePath(locale, 'la-guida/') },
   { label: dict.nav.contact, href: pagePath(locale, 'contatti/') },
@@ -42,7 +43,10 @@ const links = [
         {
           links.map((l) => (
             <li>
-              <a href={l.href} class="link-sweep opacity-80 transition-opacity hover:opacity-100">
+              <a
+                href={l.href}
+                class:list={['link-sweep opacity-80 transition-opacity hover:opacity-100', l.accent && 'text-ouro']}
+              >
                 {l.label}
               </a>
             </li>

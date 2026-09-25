@@ -27,9 +27,12 @@ interface Props {
 const { locale, path = '', variant = 'solid' } = Astro.props;
 const dict = t(locale);
 
+/* `accent` marks the booking page: same link style, in ouro, so the one place
+   to book reads as the way in from every page ("Ouro works", DESIGN.md). */
 const links = [
   { label: dict.nav.home, href: pagePath(locale) },
   { label: dict.nav.tours, href: localeHref(locale, '#tour') },
+  { label: dict.nav.book, href: pagePath(locale, 'prenota/'), accent: true },
   { label: dict.nav.blog, href: pagePath(locale, 'blog/') },
   { label: dict.nav.guide, href: pagePath(locale, 'la-guida/') },
   { label: dict.nav.contact, href: pagePath(locale, 'contatti/') },
@@ -58,7 +61,10 @@ const links = [
             <li>
               <a
                 href={l.href}
-                class="link-sweep font-mono text-xs tracking-[0.18em] uppercase opacity-85 transition-opacity hover:opacity-100"
+                class:list={[
+                  'link-sweep font-mono text-xs tracking-[0.18em] uppercase opacity-85 transition-opacity hover:opacity-100',
+                  l.accent && 'text-ouro',
+                ]}
               >
                 {l.label}
               </a>
@@ -93,7 +99,7 @@ const links = [
       {
         links.map((l, i) => (
           <li class="drawer-item" style={`--i: ${i}`}>
-            <a href={l.href} class="drawer-link font-display" data-drawer-link>
+            <a href={l.href} class:list={['drawer-link font-display', l.accent && 'text-ouro']} data-drawer-link>
               {l.label}
             </a>
           </li>

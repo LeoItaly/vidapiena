@@ -27,6 +27,7 @@ export const it = {
   nav: {
     home: 'Home',
     tours: 'Tour',
+    book: 'Prenota',
     blog: 'Blog',
     guide: 'La guida',
     contact: 'Contatti',
@@ -369,6 +370,18 @@ export const it = {
       'Ogni favela tour parte dal punto d’incontro ai piedi della comunità; "Un Giorno a Rio" prevede il pick-up in hotel.',
       'Mototaxi e tassa di visita alla comunità sono inclusi nei favela tour.',
     ],
+  },
+
+  /* Pagina /prenota: un solo grande calendario Bókun, un tour alla volta.
+     Il testo sotto il titolo riusa booking.calendarLead. */
+  bookPage: {
+    metaTitle: 'Prenota un tour a Rio — date libere in tempo reale | Vidapiena',
+    metaDescription:
+      'Scegli il tour e il giorno: il calendario di Vidapiena mostra le date libere in tempo reale. Prenotazione confermata subito, nessun pagamento online.',
+    kicker: 'Prenota',
+    heading: 'Scegli il tour, scegli il giorno.',
+    pickerLabel: 'Scegli il tour',
+    detailLink: 'Scopri il tour',
   },
 
   blog: {

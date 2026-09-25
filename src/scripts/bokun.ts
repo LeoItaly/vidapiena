@@ -209,7 +209,9 @@ function initInline(): void {
 
   const sync = (): void => {
     for (const host of hosts) {
-      if (wide.matches) observer.observe(host);
+      // data-bokun-always: the /prenota stage, where the calendar IS the page,
+      // mounts at every width — the breakpoint gate is for the tour-page rail.
+      if (wide.matches || host.hasAttribute('data-bokun-always')) observer.observe(host);
       else observer.unobserve(host);
     }
   };
@@ -217,6 +219,62 @@ function initInline(): void {
   // A phone rotated to landscape (or a resized desktop window) crosses the
   // breakpoint; mount then rather than leaving an empty frame behind.
   wide.addEventListener('change', sync);
+}
+
+/* --- the /prenota tour picker ------------------------------------------ */
+
+/** Four tiles re-point ONE stage frame (Bókun has no multi-tour calendar). The
+ *  choice is mirrored in ?tour=id so a tour page or a message can link straight
+ *  to its calendar. Runs before initInline so a deep link never loads the
+ *  default tour first. */
+function initPicker(): void {
+  const picker = document.querySelector<HTMLElement>('[data-bokun-picker]');
+  const stage = document.querySelector<HTMLElement>('[data-bokun-stage]');
+  if (!picker || !stage) return;
+
+  const picks = Array.from(picker.querySelectorAll<HTMLButtonElement>('[data-bokun-pick]'));
+  const heading = document.querySelector<HTMLElement>('[data-bokun-stage-name]');
+  const detail = document.querySelector<HTMLAnchorElement>('[data-bokun-stage-link]');
+  const waLink = document.querySelector<HTMLAnchorElement>('[data-bokun-dialog-wa]');
+
+  const select = (pick: HTMLButtonElement, updateUrl: boolean): void => {
+    const { bokunPick: id, bokunSrc: src, bokunName: name, bokunTitle: title, bokunHref: href, bokunWa: wa } =
+      pick.dataset;
+    if (!src) return;
+
+    for (const p of picks) p.setAttribute('aria-pressed', String(p === pick));
+    stage.dataset.bokunSrc = src;
+    if (title) stage.dataset.bokunTitle = title;
+    if (name) stage.dataset.bokunName = name;
+    if (heading && name) heading.textContent = name;
+    if (detail && href) detail.href = href;
+    // The checkout modal's "ask on WhatsApp" names the tour on screen.
+    if (waLink && wa) waLink.href = wa;
+
+    // Already on screen: swap now. Not mounted yet: initInline's observer picks
+    // up the new data-bokun-src when it gets there.
+    if (stage.dataset.bokunMounted) mountFrame(stage, widgetUrl(src), title ?? 'Bókun');
+
+    if (updateUrl && id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tour', id);
+      history.replaceState(history.state, '', url);
+    }
+  };
+
+  const wanted = new URLSearchParams(window.location.search).get('tour');
+  const initial =
+    picks.find((p) => p.dataset.bokunPick === wanted) ??
+    picks.find((p) => p.getAttribute('aria-pressed') === 'true');
+  if (initial) select(initial, false);
+
+  picker.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const pick = target.closest<HTMLButtonElement>('[data-bokun-pick]');
+    if (!pick || pick.getAttribute('aria-pressed') === 'true') return;
+    select(pick, true);
+  });
 }
 
 /* --- the shared modal ---------------------------------------------------- */
@@ -254,6 +312,11 @@ function initDialog(): void {
 }
 
 function init(): void {
+  try {
+    initPicker();
+  } catch (err) {
+    console.error('[vp] bokun picker init failed', err);
+  }
   try {
     initInline();
   } catch (err) {

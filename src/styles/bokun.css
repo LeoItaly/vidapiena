@@ -51,6 +51,55 @@
      it here, or the frame goes back to clipping the checkout. */
 }
 
+/* ---------------------------------------------------------------------------
+ * The /prenota stage: the same frame, as big as the page allows.
+ *
+ * No height cap here — the page scrolls, not the frame — so the window is the
+ * widget's own content height (iframe-resizer). The widget caps its content at
+ * 496px INSIDE the iframe (read live 26/09/2026), so a wide iframe would only
+ * be a narrow column in white: instead it is laid out at 32rem and ZOOMED up
+ * (the inverse of the rail's old 0.84 scale). `zoom`, not transform: it grows
+ * the layout box with the widget — iframe-resizer's height stays right — and
+ * the browser re-rasterises the frame at the new size, so the type stays crisp.
+ * ------------------------------------------------------------------------- */
+.vp-bokun-frame[data-stage] {
+  height: auto;
+  /* The loading floor needs a body before the widget arrives, and a tour
+     switch must not collapse the page under the visitor's thumb. */
+  min-height: 34rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-paper) 14%, transparent),
+    0 40px 90px -30px rgb(0 0 0 / 0.75);
+}
+@media (min-width: 48rem) {
+  .vp-bokun-frame[data-stage] > iframe {
+    width: 32rem;
+    zoom: 1.25;
+  }
+}
+@media (min-width: 64rem) {
+  .vp-bokun-frame[data-stage] > iframe {
+    zoom: 1.5;
+  }
+}
+
+/* Each calendar rises into the card once it has painted — first load and
+   every tour switch (bokun.ts drops `is-loaded` while the next one loads, so
+   the verde spinner floor covers the gap). */
+@media (prefers-reduced-motion: no-preference) {
+  .vp-bokun-frame[data-stage].is-loaded > iframe {
+    animation: vp-stage-in 0.6s var(--ease-vp-out) both;
+  }
+}
+@keyframes vp-stage-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+
 /* Loading floor — visible until the iframe fires `load`. Never a spinner that
    outlives the widget: bokun.ts adds `is-loaded` and this layer goes. */
 .vp-bokun-loading {

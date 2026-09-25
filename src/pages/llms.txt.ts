@@ -77,6 +77,7 @@ Full details, including the FAQ for every tour: ${o}/llms-full.txt
 
 - Home (IT): ${o}/ · EN: ${o}/en/
 - The guide: ${o}/la-guida/ · EN: ${o}/en/la-guida/
+- Book (live availability calendar, all four tours): ${o}/prenota/ · EN: ${o}/en/prenota/
 - Contact: ${o}/contatti/ · EN: ${o}/en/contatti/
 - Blog: ${o}/blog/ · EN: ${o}/en/blog/
 - Tour pages (EN versions under /en/tour/…): see the four tours above.

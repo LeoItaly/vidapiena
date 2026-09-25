@@ -111,6 +111,7 @@ ${articles.map((a) => `- ${a.title}\n  IT: ${o}/blog/${a.slug}/ · EN: ${o}/en/b
 
 - Home (IT): ${o}/ · EN: ${o}/en/
 - The guide: ${o}/la-guida/ · EN: ${o}/en/la-guida/
+- Book (live availability calendar, all four tours): ${o}/prenota/ · EN: ${o}/en/prenota/
 - Contact: ${o}/contatti/ · EN: ${o}/en/contatti/
 - Blog: ${o}/blog/ · EN: ${o}/en/blog/
 `;
