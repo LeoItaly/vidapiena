@@ -2,6 +2,30 @@
 
 > Newest first. One entry per working session.
 
+## 2026-09-29 — PayPal switch: 100% online payment on the site calendar 💳
+
+Francesco approved the PayPal plan (`Context Knowledge/Bokun Caricamento/PIANO - PayPal Online su Bokun (360) 26-09-2026.md`).
+
+- **Bókun (done in the back office, not in this repo).** Payment provider **PayPal PPCP** (Complete
+  Payments — PayPal *or* card) connected to Francesco's business account and assigned to Default
+  Channel `427386`. Checkout → Payment methods = **Full payment only** (deposits and pay-on-arrival
+  now locked). Channel payment currency = **BRL**, "allow any currency" OFF — every booking is
+  charged in reais whatever the widget displays.
+- **Widget currency `EUR` → `BRL`** (`lib/bokun.ts`). Client decision: favour Francesco — he settles
+  in R$, so charging € would cost him PayPal's conversion spread. The calendar note now says the
+  payment is in reais.
+- **`PaymentRedirect` + receipt** (`scripts/bokun.ts`). Until today the site ignored the widget's
+  `PaymentRedirect` (no payments were taken). Now it does what `BokunWidgetsLoader` does: a hidden
+  form (method/url/parameters from the message) submitted from the top page. Every frame now carries
+  `hostUrl` (this page) so the provider sends the visitor back here with `?bookingId&bookingHash`;
+  `openReceipt()` then shows `/booking-receipt/<id>/<hash>?loadReceipt=true` in the shared modal and
+  strips the params. Read from the loader bundle (`static.bokun.io/BokunWidgets.<sha>.js`).
+- **Copy (IT + EN):** `bookPage.metaDescription`, `booking.calendarLead`, `booking.calendarNote` no
+  longer say "no online payment / pay on the day". FAQ "rain or cancel" = the new policy in two
+  blocks: *you cancel* (>48h 100%, ≤48h 75%, no-show 0%) · *we cancel* (new date or 100%, your choice).
+- ⚠️ **Still to verify live:** a real paid booking end-to-end (redirect/popup → return → receipt →
+  Sticky → email #1 → refund from Bókun).
+
 ## 2026-09-26 — New page: `/prenota` · `/en/prenota` (Book), one very large calendar 📅
 
 Leo asked for a page that is just the Bókun calendar, very big, on brand, linked from the middle of

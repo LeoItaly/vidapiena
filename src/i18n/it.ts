@@ -162,7 +162,7 @@ export const it = {
       },
       {
         q: 'E se piove o devo cancellare?',
-        a: 'Con maltempo forte concordiamo insieme un’altra data. Per date, modifiche o cancellazioni scrivimi direttamente su WhatsApp o Instagram; il minimo è 2 persone.',
+        a: 'Se cancelli più di 48 ore prima ti rimborso tutto; entro le 48 ore il 75%; il no-show non è rimborsabile. Se devo cancellare io (maltempo, sicurezza o un mio impedimento) scegli tu: una nuova data o il rimborso completo. Per modifiche scrivimi su WhatsApp o Instagram; il minimo è 2 persone.',
       },
     ],
     items: {
@@ -377,7 +377,7 @@ export const it = {
   bookPage: {
     metaTitle: 'Prenota un tour a Rio — date libere in tempo reale | Vidapiena',
     metaDescription:
-      'Scegli il tour e il giorno: il calendario di Vidapiena mostra le date libere in tempo reale. Prenotazione confermata subito, nessun pagamento online.',
+      'Scegli il tour e il giorno: il calendario di Vidapiena mostra le date libere in tempo reale. Paghi online in sicurezza con PayPal o carta e il posto è confermato subito.',
     kicker: 'Prenota',
     heading: 'Scegli il tour, scegli il giorno.',
     pickerLabel: 'Scegli il tour',
@@ -470,15 +470,13 @@ export const it = {
     waPrefillTour: (name: string) =>
       `Ciao Francesco! Vorrei prenotare il tour "${name}". Mi dici date e disponibilità?`,
     waPrefillGeneric: 'Ciao Francesco! Vorrei qualche informazione sui tuoi tour a Rio.',
-    /* Calendario Bókun (06/09/2026 — corretto): la prenotazione è confermata
-       SUBITO, non è una richiesta. Tutte e 4 le experience sono capacityType
-       LIMITED, e lo switch "pay on arrival" del canale toglie solo il passaggio
-       della carta, non aggiunge l'approvazione del fornitore. Il posto è quindi
-       occupato appena il cliente finisce il checkout; i soldi passano di
-       persona il giorno del tour. */
+    /* Calendario Bókun (29/09/2026 — switch PayPal): il Default Channel incassa
+       il PAGAMENTO INTERO ONLINE con PayPal Complete Payments (PayPal o carta).
+       Tutte e 4 le experience sono capacityType LIMITED: il posto è occupato
+       appena il pagamento va a buon fine; il giorno del tour non si paga nulla. */
     calendarHeading: 'Guarda le date libere',
     calendarLead:
-      'Scegli il giorno e prenoti in due passaggi. Nessun pagamento online: il posto è confermato subito e mi paghi di persona il giorno del tour.',
+      'Scegli il giorno e prenoti in due passaggi. Paghi online in sicurezza con PayPal o carta: il posto è confermato subito e il giorno del tour non devi pagare nulla.',
     calendarNoscript:
       'Attiva JavaScript per vedere il calendario, oppure scrivimi direttamente su WhatsApp.',
     calendarEyebrow: 'Disponibilità in tempo reale',
@@ -488,7 +486,7 @@ export const it = {
     calendarExpand: 'Ingrandisci',
     calendarLoading: 'Carico il calendario',
     calendarClose: 'Chiudi il calendario',
-    calendarNote: 'Nessun pagamento online: la prenotazione è confermata subito, paghi il giorno stesso.',
+    calendarNote: 'Pagamento online sicuro con PayPal o carta, addebitato in reais brasiliani (R$): la prenotazione è confermata subito. Cancellazione gratuita fino a 48 ore prima.',
     /* Titolo dell'iframe: è quello che leggono screen reader e lista dei frame. */
     calendarFrameTitle: (name: string) => `Calendario disponibilità — ${name}`,
     calendarAria: (name: string) => `Vedi le date libere per ${name}`,

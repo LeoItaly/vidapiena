@@ -1,12 +1,12 @@
 /**
  * The one place that knows how to address a Bókun booking widget.
  *
- * The channel is configured for PAY ON ARRIVAL (full payments and deposits both
- * off), so every widget here is a REQUEST to book, not a checkout: the visitor
- * picks a date and sends the request, Francesco confirms and collects the money
- * directly. That keeps the 19/08 direct-booking decision intact — no card fees,
- * no OTA commission — while availability stays in sync with Viator (and, once
- * connected, GetYourGuide) through Bókun.
+ * The channel takes FULL PAYMENT ONLINE (29/09/2026): PayPal Complete Payments
+ * is the payment provider and pay-on-arrival is off, so the seat is confirmed
+ * only once the visitor has paid (PayPal or card). Still no OTA commission, and
+ * availability stays in sync with Viator (and, once connected, GetYourGuide)
+ * through Bókun. The provider may redirect the whole page and come back with
+ * ?bookingId&bookingHash — src/scripts/bokun.ts handles both halves.
  *
  * The channel UUID is a PUBLIC identifier — it ships in the page HTML of every
  * Bókun embed on the web and is not a secret.
@@ -30,8 +30,7 @@
  * Both query parameters are honoured by the widget (verified live 06/09/2026:
  * `?lang=it` renders "Partecipanti / Scegli una data / Settembre 2026", and
  * `?currency=EUR` renders the prices in €). We pass both so the calendar speaks
- * the page's language and quotes the page's currency instead of defaulting to
- * English + BRL.
+ * the page's language. Currency is pinned to BRL (see BOKUN_CURRENCY).
  *
  * ⚠ The widget's € is a LIVE conversion of the product's BRL price, while the
  * site's € is the fixed authored twin in tours.ts (kept at or above the
@@ -45,8 +44,12 @@ import type { Locale } from '../i18n';
 /** Booking channel "Default Channel" (427386) — public identifier, not a secret. */
 export const BOKUN_CHANNEL_UUID = 'd72739bc-dacd-4937-ba51-5d79fbfce9cb';
 
-/** Match the site, which shows € to every visitor (client decision 01/09/2026). */
-const BOKUN_CURRENCY = 'EUR';
+/** BRL, not the site's €: since the PayPal switch (29/09/2026) this is the
+ *  currency the visitor is CHARGED in, and Francesco settles in R$ — charging €
+ *  would cost him PayPal's conversion spread. The visitor's own PayPal/card does
+ *  the conversion instead (client decision: favour Francesco). The calendar note
+ *  in i18n tells the visitor the payment is in reais. */
+const BOKUN_CURRENCY = 'BRL';
 
 /** Availability calendar for one experience, in the page's language and currency. */
 export function bokunCalendarSrc(bokunId: number, locale: Locale): string {

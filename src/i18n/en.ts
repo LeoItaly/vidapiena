@@ -160,7 +160,7 @@ export const en: typeof it = {
       },
       {
         q: 'What if it rains or I need to cancel?',
-        a: 'In heavy weather we agree on another date together. For dates, changes or cancellations just message me directly on WhatsApp or Instagram; the minimum is 2 people.',
+        a: 'If you cancel more than 48 hours before, you get a full refund; within 48 hours, 75%; a no-show is not refunded. If I have to cancel (bad weather, safety, or I can’t make it), you choose: a new date or a full refund. For changes just message me on WhatsApp or Instagram; the minimum is 2 people.',
       },
     ],
     items: {
@@ -373,7 +373,7 @@ export const en: typeof it = {
   bookPage: {
     metaTitle: 'Book a tour in Rio — live availability | Vidapiena',
     metaDescription:
-      'Pick the tour and the day: the Vidapiena calendar shows free dates in real time. Your booking is confirmed straight away, with no online payment.',
+      'Pick the tour and the day: the Vidapiena calendar shows free dates in real time. Pay securely online with PayPal or card and your place is confirmed straight away.',
     kicker: 'Book',
     heading: 'Pick the tour, pick the day.',
     pickerLabel: 'Choose a tour',
@@ -464,14 +464,13 @@ export const en: typeof it = {
     waPrefillTour: (name: string) =>
       `Hi Francesco! I'd like to book the "${name}" tour. Could you share dates and availability?`,
     waPrefillGeneric: `Hi Francesco! I'd like some info about your Rio tours.`,
-    /* Bókun calendar (6 Sep 2026 — corrected): the booking is confirmed
-       INSTANTLY, it is not a request. All four experiences are capacityType
-       LIMITED, and the channel's "pay on arrival" switch only removes the card
-       step; it does not add supplier approval. So the seat is taken the moment
-       checkout finishes, and the money changes hands in person on the day. */
+    /* Bókun calendar (29 Sep 2026 — PayPal switch): the Default Channel takes
+       FULL PAYMENT ONLINE through PayPal Complete Payments (PayPal or card).
+       All four experiences are capacityType LIMITED, so the seat is taken the
+       moment the payment goes through; nothing is due on the day. */
     calendarHeading: 'See available dates',
     calendarLead:
-      'Pick a day and book it in a couple of taps. No online payment: your place is confirmed straight away and you pay me in person on the day.',
+      'Pick a day and book it in a couple of taps. Pay securely online with PayPal or card: your place is confirmed straight away and there is nothing to pay on the day.',
     calendarNoscript: 'Enable JavaScript to see the calendar, or just message me on WhatsApp.',
     calendarEyebrow: 'Live availability',
     /* Short label: it has to fit the button row on the home page cards. */
@@ -480,7 +479,7 @@ export const en: typeof it = {
     calendarExpand: 'Enlarge',
     calendarLoading: 'Loading the calendar',
     calendarClose: 'Close the calendar',
-    calendarNote: 'No online payment: your booking is confirmed straight away and you pay on the day.',
+    calendarNote: 'Secure online payment with PayPal or card, charged in Brazilian reais (R$): your booking is confirmed straight away. Free cancellation up to 48 hours before.',
     /* The iframe title — what screen readers and the frame list read out. */
     calendarFrameTitle: (name: string) => `Availability calendar — ${name}`,
     calendarAria: (name: string) => `See the free dates for ${name}`,

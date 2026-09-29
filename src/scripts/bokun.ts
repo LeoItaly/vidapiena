@@ -32,6 +32,7 @@
  * host (self-bundled, MIT) and the handful of messages below.
  */
 import iframeResize from 'iframe-resizer/js/iframeResizer.js';
+import { BOKUN_CHANNEL_UUID } from '../lib/bokun';
 
 const BOKUN_ORIGIN = 'https://widgets.bokun.io';
 
@@ -54,10 +55,20 @@ function newSessionId(): string {
   }
 }
 
+/** This page without the receipt params, so a payment provider redirects the
+ *  visitor back here (Bókun's loader sends `hostUrl` on every frame for this). */
+function hostUrl(): string {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('bookingId');
+  url.searchParams.delete('bookingHash');
+  return url.toString();
+}
+
 /** A widget URL carrying this page's cart session (plus any extra params). */
 function widgetUrl(src: string, extra: Record<string, string> = {}): string {
   const url = new URL(src, BOKUN_ORIGIN);
   url.searchParams.set('bokunSessionId', SESSION_ID);
+  url.searchParams.set('hostUrl', hostUrl());
   for (const [key, value] of Object.entries(extra)) url.searchParams.set(key, value);
   return url.toString();
 }
@@ -98,10 +109,17 @@ function mountFrame(host: HTMLElement, src: string, title: string): void {
 
 /* --- the widget's requests to the parent page ----------------------------- */
 
+interface RedirectRequest {
+  method?: unknown;
+  url?: unknown;
+  parameters?: { name?: unknown; value?: unknown }[];
+}
+
 interface WidgetMessage {
   messageType?: string;
   options?: { src?: unknown; openFrom?: unknown };
   url?: unknown;
+  redirectRequest?: RedirectRequest;
 }
 
 /** The widget double-encodes: iframe-resizer JSON.parses the body once and gets
@@ -155,15 +173,49 @@ function onWidgetMessage({ iframe, message }: { iframe: HTMLIFrameElement; messa
       document.querySelector<HTMLDialogElement>('[data-bokun-dialog]')?.close();
       break;
     case 'OpenPopupModal':
-      // Used by Bókun for payment-provider windows. The channel takes no
-      // payments today (pay on arrival), but never swallow it if that changes.
+      // Used by Bókun for payment-provider windows.
       if (typeof data.url === 'string' && data.url.startsWith('https://')) {
         window.open(data.url, '_blank', 'noopener');
       }
       break;
-    // PaymentRedirect is not handled: full payments and deposits are both off on
-    // this channel (see lib/bokun.ts). Revisit if card payments are ever enabled.
+    case 'PaymentRedirect':
+      // Full payment online (PayPal, 29/09/2026): the checkout hands the whole
+      // page to the provider. Bókun's loader does exactly this — a hidden form
+      // submitted from the top page — and the provider sends the visitor back
+      // to hostUrl with ?bookingId&bookingHash (see openReceipt).
+      if (data.redirectRequest) submitRedirect(data.redirectRequest);
+      break;
   }
+}
+
+function submitRedirect({ method, url, parameters }: RedirectRequest): void {
+  if (typeof url !== 'string' || !url.startsWith('https://')) return;
+  const form = document.createElement('form');
+  form.method = typeof method === 'string' ? method : 'POST';
+  form.action = url;
+  form.hidden = true;
+  for (const { name, value } of parameters ?? []) {
+    if (typeof name !== 'string') continue;
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = String(value ?? '');
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
+}
+
+/** Back from the payment provider: show Bókun's receipt in the shared modal,
+ *  then drop the params so a reload doesn't reopen it. */
+function openReceipt(): void {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.getAll('bookingId').pop();
+  const hash = params.getAll('bookingHash').pop();
+  if (!id || !hash) return;
+  history.replaceState(history.state, '', hostUrl());
+  const src = `${BOKUN_ORIGIN}/online-sales/${BOKUN_CHANNEL_UUID}/booking-receipt/${encodeURIComponent(id)}/${encodeURIComponent(hash)}`;
+  openInDialog(widgetUrl(src, { isModal: 'true', loadReceipt: 'true' }));
 }
 
 /** Show a widget URL in the shared modal, opening it if needed. */
@@ -326,6 +378,11 @@ function init(): void {
     initDialog();
   } catch (err) {
     console.error('[vp] bokun dialog init failed', err);
+  }
+  try {
+    openReceipt();
+  } catch (err) {
+    console.error('[vp] bokun receipt failed', err);
   }
 }
 
