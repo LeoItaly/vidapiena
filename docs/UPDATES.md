@@ -23,8 +23,23 @@ Francesco approved the PayPal plan (`Context Knowledge/Bokun Caricamento/PIANO -
 - **Copy (IT + EN):** `bookPage.metaDescription`, `booking.calendarLead`, `booking.calendarNote` no
   longer say "no online payment / pay on the day". FAQ "rain or cancel" = the new policy in two
   blocks: *you cancel* (>48h 100%, ≤48h 75%, no-show 0%) · *we cancel* (new date or 100%, your choice).
-- ⚠️ **Still to verify live:** a real paid booking end-to-end (redirect/popup → return → receipt →
-  Sticky → email #1 → refund from Bókun).
+- ✅ **Verified live (same day):** paid test booking with a 99% promo code (since deleted, promo
+  codes switched off again) → Bókun audit "Confirming booking after payment callback" → Sticky closed
+  the overlapping slots on the other tours → refund from Bókun (**Cancel does NOT refund: then
+  Payments → Refund**) went back through PayPal and reopened the slots. An abandoned checkout left no
+  ghost booking. Email #1 was sent to a fake address → its delivery is still unchecked.
+- **Bókun legal pages:** T&C + Privacy rewritten for online payment (PayPal as processor) and
+  translated to **IT and PT-BR** (Settings → Translations). Not in this repo.
+- **Google Things to Do still blocked (for a later session).** With PayPal connected, Bókun now
+  rejects the toggle for other reasons. The real reason is in the `mappingResult` of the
+  `/google-things-to-do-config` response, not in the toast:
+  - A **Custom Link** to `/prenota?tour=…` fails with *"No applicable Bókun widgets found in the
+    supplied URL"*. Bókun crawls the page, and our iframe is injected by JS.
+  - The **Bókun product page** fails with *"does not meet Google product eligibility requirements"*
+    (`policyBreachFlagged`) on Tavares and Un Giorno.
+
+  If the Custom Link route is chosen later, `/prenota` must expose a widget Bókun can detect in its
+  static HTML.
 
 ## 2026-09-26 — New page: `/prenota` · `/en/prenota` (Book), one very large calendar 📅
 
