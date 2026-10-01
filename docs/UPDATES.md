@@ -2,6 +2,19 @@
 
 > Newest first. One entry per working session.
 
+## 2026-10-01 — Prices +8.7% to absorb PayPal + Bókun fees 💶
+
+Francesco found ~8% of each online PayPal booking goes to PayPal + Bókun. New price = old ÷ 0.92,
+rounded UP to R$10 (so his net never drops). Applied on every channel except Civitatis (frozen).
+
+- **Site (`c2b0a1d`):** `data/tours.ts` BRL 300→330, Un Giorno tiers 1200/900/780 → 1310/980/850;
+  EUR twins €52→€58, €207/156/136 → €229/171/149, plus every hardcoded € in `i18n/{it,en}.ts`,
+  the 10 blog posts, `llms.txt`. € = new R$ ÷ Viator's live ~5.743 BRL/€, rounded UP — a plain
+  "€ × 1.08" (€57) would have undercut Viator's €57.46.
+- **Off-repo:** Bókun default price row **and** price schedule `2026-09-01 – ∞` (both, or the
+  schedule silently keeps the old price) → Viator syncs from Bókun · GYG Rocinha + Tavares by
+  hand · Airbnb Vidigal (R$330, private min R$1310) + Un Giorno (R$1310, private min R$2620).
+
 ## 2026-09-29 — PayPal switch: 100% online payment on the site calendar 💳
 
 Francesco approved the PayPal plan (`Context Knowledge/Bokun Caricamento/PIANO - PayPal Online su Bokun (360) 26-09-2026.md`).
