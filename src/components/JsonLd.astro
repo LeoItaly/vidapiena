@@ -17,7 +17,7 @@ const dict = t(locale);
 const otaSameAs = TOURS.flatMap((tour) => Object.values(tour.otaLinks)).filter(Boolean);
 
 /* priceRange for the LocalBusiness node — the euro span the site displays
-   (€52 … €207), read from tours.ts so it can't drift from the pages. R$ stays
+   (€58 … €229), read from tours.ts so it can't drift from the pages. R$ stays
    the on-the-ground settlement currency (see Price.astro / tours.ts). */
 const allPrices = TOURS.flatMap((tour) => [
   tour.priceEUR,

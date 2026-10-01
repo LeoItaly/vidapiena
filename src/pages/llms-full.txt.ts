@@ -27,7 +27,7 @@ const priceText = (tour: Tour) => {
   if (tour.priceTiers) {
     /* No "from" here. Tiers fall as the group grows, so `from €${tour.priceEUR}`
        named the most EXPENSIVE band as the entry price — and leading with the
-       cheapest instead would have put a number below Viator's own €207 headline
+       cheapest instead would have put a number below Viator's own €229 headline
        into AI answers (rate parity, 22/08). Lead with the headline band and let
        the full table speak. */
     return `${tour.priceTiers

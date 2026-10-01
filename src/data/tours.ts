@@ -76,8 +76,8 @@ export const TOURS: Tour[] = [
     durationHours: 3,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 300,
-    priceEUR: 52,
+    priceBRL: 330,
+    priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1251056,
     meetingPoint: 'Av. Niemeyer 780, São Conrado',
@@ -110,8 +110,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 19,
-    priceBRL: 300,
-    priceEUR: 52,
+    priceBRL: 330,
+    priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1244607,
     meetingPoint: 'Praça do Vidigal',
@@ -150,8 +150,8 @@ export const TOURS: Tour[] = [
     durationHours: 2.5,
     minPax: 2,
     maxGroup: 20,
-    priceBRL: 300,
-    priceEUR: 52,
+    priceBRL: 330,
+    priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1243795,
     meetingPoint: 'Rua Bento Lisboa 72, Catete',
@@ -181,8 +181,8 @@ export const TOURS: Tour[] = [
     durationHours: 8,
     minPax: 2,
     maxGroup: 15,
-    priceBRL: 1200,
-    priceEUR: 207,
+    priceBRL: 1310,
+    priceEUR: 229,
     priceIsFrom: false,
     /* Per-person price falls as the group grows — the table Francesco actually
        runs on the OTAs (`note tours.md` §"Prezzi a scaglioni", 22/06/2026) and
@@ -190,12 +190,15 @@ export const TOURS: Tour[] = [
        site 05/09/2026 on Leo's instruction, reversing the 22/08 flat R$1200:
        the platforms were never flat, so publishing a single price was the
        parity break, not the fix. EUR twins are rounded UP from the same
-       ~5.77 BRL/€ rate as every other price here, so no tier undercuts the
-       platforms' live conversion. */
+       BRL/€ rate as every other price here, so no tier undercuts the
+       platforms' live conversion.
+       01/10/2026: every BRL price raised ~8.7% (÷0.92, rounded up to R$10) to
+       absorb the ~8% PayPal + Bókun fee on direct online bookings; EUR twins
+       re-derived at Viator's live ~5.743 BRL/€ and rounded up. */
     priceTiers: [
-      { minPax: 2, maxPax: 3, priceBRL: 1200, priceEUR: 207 },
-      { minPax: 4, maxPax: 6, priceBRL: 900, priceEUR: 156 },
-      { minPax: 7, maxPax: 15, priceBRL: 780, priceEUR: 136 },
+      { minPax: 2, maxPax: 3, priceBRL: 1310, priceEUR: 229 },
+      { minPax: 4, maxPax: 6, priceBRL: 980, priceEUR: 171 },
+      { minPax: 7, maxPax: 15, priceBRL: 850, priceEUR: 149 },
     ],
     bokunId: 1248148,
     meetingPoint: 'Hotel pick-up',

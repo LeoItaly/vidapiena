@@ -9,7 +9,7 @@ export const en: typeof it = {
   meta: {
     title: 'Favela tours in Rio de Janeiro with an Italian guide — Vidapiena',
     description:
-      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour with Francesco, Italian guide in Rio de Janeiro for 9 years. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from €52 per person.',
+      'Walking tours of Rio’s favelas — Rocinha, Vidigal, Tavares Bastos — and the full-day "Un Giorno a Rio" city tour with Francesco, Italian guide in Rio de Janeiro for 9 years. Tours in English, Italian and Portuguese. Small groups, mototaxi included, from €58 per person.',
     ogAlt: 'The Vidapiena logo spray-painted on a wall in Rio',
   },
 
@@ -46,7 +46,7 @@ export const en: typeof it = {
   hero: {
     kicker: 'Rocinha · Vidigal · Tavares Bastos · Un Giorno a Rio',
     h1: ['Favela tours in Rio de Janeiro,', 'with an Italian guide.'],
-    sub: 'I’m Francesco — Italian, 9 years in Rio. I take you on foot through the real life of the community: small groups, mototaxi included, in English, Italian or Portuguese, from €52 per person.',
+    sub: 'I’m Francesco — Italian, 9 years in Rio. I take you on foot through the real life of the community: small groups, mototaxi included, in English, Italian or Portuguese, from €58 per person.',
     ctaTours: 'See the tours',
     otaLabel: 'Also on',
     scrollCue: 'Scroll to explore',
@@ -167,7 +167,7 @@ export const en: typeof it = {
       rocinha: {
         metaTitle: 'Rocinha Favela Tour — 3 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '3-hour walking tour of Rocinha, Brazil’s largest favela, with Francesco, Italian guide in Rio: mototaxi to the top, panoramic views, a graffiti artist’s gallery and an Italian NGO. €52 per person. Tours in English, Italian and Portuguese.',
+          '3-hour walking tour of Rocinha, Brazil’s largest favela, with Francesco, Italian guide in Rio: mototaxi to the top, panoramic views, a graffiti artist’s gallery and an Italian NGO. €58 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 3 hours',
         longDesc: [
           'Rocinha is Brazil’s largest favela: a city within the city, leaning on the mountain above São Conrado. The tour opens riding local mototaxis to the very top — from there we walk down, into the real life of the community.',
@@ -195,7 +195,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: '€52 per person. It includes the mototaxi to the top, the community visitation fee and the guide in English, Italian or Portuguese.',
+            a: '€58 per person. It includes the mototaxi to the top, the community visitation fee and the guide in English, Italian or Portuguese.',
           },
           {
             q: 'How much walking is there?',
@@ -206,7 +206,7 @@ export const en: typeof it = {
       vidigal: {
         metaTitle: 'Vidigal Favela Tour — 2.5 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '2.5-hour walking tour of Vidigal with Francesco, Italian guide in Rio: mototaxi to the top, views over Leblon and Ipanema, the alleys, and a terrace bar facing Christ the Redeemer. €52 per person. Tours in English, Italian and Portuguese.',
+          '2.5-hour walking tour of Vidigal with Francesco, Italian guide in Rio: mototaxi to the top, views over Leblon and Ipanema, the alleys, and a terrace bar facing Christ the Redeemer. €58 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 2.5 hours',
         longDesc: [
           'Vidigal is the favela over the sea, between Leblon and the Dois Irmãos peaks. We ride mototaxis to the upper part — revitalized, with its pitch and park — then walk down, alley by alley.',
@@ -232,7 +232,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: '€52 per person. It includes the mototaxi up to upper Vidigal, the community visitation fee and the guide in English, Italian or Portuguese.',
+            a: '€58 per person. It includes the mototaxi up to upper Vidigal, the community visitation fee and the guide in English, Italian or Portuguese.',
           },
           {
             q: 'What is the best view?',
@@ -243,7 +243,7 @@ export const en: typeof it = {
       tavares: {
         metaTitle: 'Tavares Bastos Favela Tour — 2.5 hours with an Italian guide | Vidapiena',
         metaDescription:
-          '2.5-hour walking tour of Tavares Bastos, downtown Rio’s most laid-back community, with Francesco, Italian guide: alleys, everyday life and a game on the iconic FIFA Street pitch. €52 per person. Tours in English, Italian and Portuguese.',
+          '2.5-hour walking tour of Tavares Bastos, downtown Rio’s most laid-back community, with Francesco, Italian guide: alleys, everyday life and a game on the iconic FIFA Street pitch. €58 per person. Tours in English, Italian and Portuguese.',
         kicker: 'Favela tour · 2.5 hours',
         longDesc: [
           'Tavares Bastos is downtown Rio’s most laid-back community, perched above the Catete neighborhood. We ride mototaxis up and walk down, through alleys, small shops and everyday stories.',
@@ -268,7 +268,7 @@ export const en: typeof it = {
           },
           {
             q: 'What is included in the price?',
-            a: '€52 per person. It includes the mototaxi and the guide in English, Italian or Portuguese. Tavares Bastos is downtown Rio’s most laid-back community.',
+            a: '€58 per person. It includes the mototaxi and the guide in English, Italian or Portuguese. Tavares Bastos is downtown Rio’s most laid-back community.',
           },
           {
             q: 'Do we really play on the FIFA Street pitch?',
@@ -279,11 +279,11 @@ export const en: typeof it = {
       giorno: {
         metaTitle: 'Un Giorno a Rio — full-day city tour with an Italian guide | Vidapiena',
         metaDescription:
-          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. €207 per person, with a lower rate for larger groups.',
+          'A full day across Christ the Redeemer, Santa Teresa, the Selarón Steps and Sugarloaf with Francesco, Italian guide: private car or van with driver, hotel pick-up, Corcovado cog train, cable car and buffet lunch. €229 per person, with a lower rate for larger groups.',
         kicker: 'City tour · full day',
         longDesc: [
           'The best of Rio in a single day, with nothing to organize: I pick you up at your hotel with a private car or van with driver, and off we go — Christ the Redeemer by the Corcovado cog train, the bohemian streets of Santa Teresa, the Selarón Steps, and Sugarloaf by cable car.',
-          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. The per-person price falls as the group grows: from €207 for 2-3 people down to €136 from 7, always everything included.',
+          'It’s Vidapiena’s premium tour: 8 hours (9 with the buffet lunch), everything arranged and everything included — transport, tickets and the storytelling. The per-person price falls as the group grows: from €229 for 2-3 people down to €149 from 7, always everything included.',
         ],
         highlights: [
           'Christ the Redeemer by the Corcovado cog train',
@@ -307,7 +307,7 @@ export const en: typeof it = {
           },
           {
             q: 'How much does it cost and how does pricing work?',
-            a: 'The price is per person and falls as the group grows: €207 for 2-3 people, €156 for 4 to 6, €136 for 7 to 15. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
+            a: 'The price is per person and falls as the group grows: €229 for 2-3 people, €171 for 4 to 6, €149 for 7 to 15. It includes a private car or van with driver, tickets, the Corcovado cog train, the Sugarloaf cable car and a buffet lunch (drinks excluded).',
           },
           {
             q: 'What do we see in one day?',

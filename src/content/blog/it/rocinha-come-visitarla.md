@@ -33,7 +33,7 @@ una onlus italiana che lavora nella comunità da più di 20 anni.
 
 - **3 ore** di tour, dall’alto verso il basso.
 - **Max 19 persone** — gruppi piccoli, ritmo umano.
-- **€52 a persona**, mototaxi e tassa di visita inclusi.
+- **€58 a persona**, mototaxi e tassa di visita inclusi.
 - **Lun–ven 11:00 e 15:30 · sab–dom 09:00 e 14:00.**
 - **Punto d’incontro:** Av. Niemeyer 780, São Conrado.
 

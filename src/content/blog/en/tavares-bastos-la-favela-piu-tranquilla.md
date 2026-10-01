@@ -32,7 +32,7 @@ angle almost no tourist knows.
 
 - **2 hours 30** of tour.
 - **Min 2 · max 20 people.**
-- **€52 per person**, mototaxi included.
+- **€58 per person**, mototaxi included.
 - **Every day, 10:00 and 14:00.**
 - **Meeting point:** Rua Bento Lisboa 72, Catete.
 
