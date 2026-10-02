@@ -2,6 +2,27 @@
 
 > Newest first. One entry per working session.
 
+## 2026-10-02 — Google Things to Do enabled for all 4 tours 🔎
+
+Follow-up to the 29/09 blocker. Nothing changed in this repo; it was all done in the Bókun back office.
+
+- **Setup:** each tour has destination **Bókun Product Page Widget**
+  (`widgets.bokun.io/online-sales/<channel UUID>/experience/<id>`), booking channel = Default Channel
+  `427386` (PayPal), and the Google eligibility attestation ticked. The Custom Link to `/prenota` stays
+  unused: Bókun's crawler can't see our JS-injected iframe.
+- **Rocinha + Vidigal** passed on the first try (29/09) and were **sent to Google on 02/10 07:42**.
+- **Tavares + Un Giorno** kept failing with *"does not meet Google product eligibility requirements"*
+  (`policyBreachFlagged`). It was **not** the tiered pricing, as we had guessed. Google's first-round
+  check is automated and also trips on wording. **Bókun chat support approved both by hand** (02/10),
+  and both are now Enabled. They are waiting for the next feed run to show "Sent to Google".
+- Support also enabled the internal not-for-sale package by mistake. It was **disabled again** right
+  away and must never be on Google.
+- ⚠️ **Any edit to a product (price, text, photos) sends it back through the automated check.** After
+  editing Tavares or Un Giorno, re-check *Sales tools → Google Things to do*. If the red error is
+  back, ask Bókun chat to approve it again.
+- Goal: Google shows Francesco's own 0%-commission booking next to the Viator/Priceline prices that
+  were already on his Google profile.
+
 ## 2026-10-01 — Prices +8.7% to absorb PayPal + Bókun fees 💶
 
 Francesco found ~8% of each online PayPal booking goes to PayPal + Bókun. New price = old ÷ 0.92,
