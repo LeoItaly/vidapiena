@@ -11,6 +11,13 @@ Scheduled check of *Sales tools → Google Things to do* in Bókun. Nothing chan
 - The internal not-for-sale package is still **Disabled / Not sent**, as it should be.
 - Reminder: editing Tavares or Un Giorno re-runs Google's automated check, so re-check this list after
   any product edit.
+- **Public Google Maps check (same day, no login needed):** the profile's *Booking options* still list
+  only Priceline, Tripadvisor, Viator and GetYourGuide, at the pre-01/10 price (€51). The Vidapiena
+  option isn't there yet. That's expected: Google needs a few days to pick up a new feed and match it to
+  the place. A recheck is scheduled for 12/10.
+- Google's search snippets for `/prenota` ("no online payment") and *Un Giorno a Rio* (old €207–€136
+  prices) are **stale cache only**. The live pages already show online PayPal payment and €229–€149, so
+  no site change was needed. Google will refresh them on its next crawl.
 
 ## 2026-10-02 — Google Things to Do enabled for all 4 tours 🔎
 
