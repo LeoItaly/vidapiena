@@ -2,6 +2,16 @@
 
 > Newest first. One entry per working session.
 
+## 2026-10-05 — Google Things to Do recheck ✅
+
+Scheduled check of *Sales tools → Google Things to do* in Bókun. Nothing changed in this repo.
+
+- **All 4 tours are Enabled and "Sent to Google" on 05/10 07:25** (Rocinha, Vidigal, Tavares Bastos,
+  Un Giorno a Rio). No errors or warnings on any row.
+- The internal not-for-sale package is still **Disabled / Not sent**, as it should be.
+- Reminder: editing Tavares or Un Giorno re-runs Google's automated check, so re-check this list after
+  any product edit.
+
 ## 2026-10-02 — Google Things to Do enabled for all 4 tours 🔎
 
 Follow-up to the 29/09 blocker. Nothing changed in this repo; it was all done in the Bókun back office.
