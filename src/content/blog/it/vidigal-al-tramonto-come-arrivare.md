@@ -15,7 +15,7 @@ città si accende.
 
 ## Come si arriva
 
-Si parte dalla Praça do Vidigal, l’ingresso della comunità. Da lì scaldiamo
+Si parte dall’ingresso della comunità. Da lì scaldiamo
 subito i motori: i mototaxi dei ragazzi locali ci portano fino alla parte
 alta, riqualificata, con il campetto e il parco. Nei giorni feriali il tour
 del pomeriggio parte alle 15:30 — i tempi giusti per arrivare in alto con la
@@ -38,7 +38,7 @@ finale è una terrazza panoramica con vista sul Cristo Redentore.
 - **Min 2 · max 19 persone.**
 - **€58 a persona**, mototaxi e tassa di visita inclusi.
 - **Lun–ven 09:00 e 15:30 · sab–dom 09:00 e 14:00.**
-- **Punto d’incontro:** Praça do Vidigal.
+- **Punto d’incontro:** Vidigal (l’indirizzo esatto arriva con la conferma).
 
 ![La discesa lungo la ladeira del Vidigal](../../../assets/photos/zone-4-ladeira.jpg)
 

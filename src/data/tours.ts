@@ -80,7 +80,7 @@ export const TOURS: Tour[] = [
     priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1251056,
-    meetingPoint: 'Av. Niemeyer 780, São Conrado',
+    meetingPoint: 'São Conrado',
     image: 'tour-rocinha',
     galleryKeys: [
       'tour-rocinha',
@@ -114,7 +114,7 @@ export const TOURS: Tour[] = [
     priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1244607,
-    meetingPoint: 'Praça do Vidigal',
+    meetingPoint: 'Vidigal',
     image: 'tour-vidigal',
     galleryKeys: [
       'tour-vidigal',
@@ -154,7 +154,7 @@ export const TOURS: Tour[] = [
     priceEUR: 58,
     priceIsFrom: false,
     bokunId: 1243795,
-    meetingPoint: 'Rua Bento Lisboa 72, Catete',
+    meetingPoint: 'Catete',
     image: 'tour-tavares',
     galleryKeys: [
       'tour-tavares',

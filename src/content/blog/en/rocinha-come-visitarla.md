@@ -35,7 +35,7 @@ in the community for more than 20 years.
 - **Max 19 people** — small groups, human pace.
 - **€58 per person**, mototaxi and visitation fee included.
 - **Mon–Fri 11:00 and 15:30 · Sat–Sun 09:00 and 14:00.**
-- **Meeting point:** Av. Niemeyer 780, São Conrado.
+- **Meeting point:** São Conrado (exact address with your booking confirmation).
 
 ![The walk down inside Rocinha](../../../assets/photos/rocinha-05.jpg)
 

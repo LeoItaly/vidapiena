@@ -34,7 +34,7 @@ angle almost no tourist knows.
 - **Min 2 · max 20 people.**
 - **€58 per person**, mototaxi included.
 - **Every day, 10:00 and 14:00.**
-- **Meeting point:** Rua Bento Lisboa 72, Catete.
+- **Meeting point:** Catete (exact address with your booking confirmation).
 
 ![A glimpse of the Tavares Bastos community](../../../assets/photos/tavares-02.jpg)
 

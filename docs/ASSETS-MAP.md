@@ -46,9 +46,9 @@ Before web use: select → edit/crop → export responsive AVIF/WebP into the si
 
 | Tour | Duration | Group | Price (retail) | Meeting point |
 | :--- | :--- | :--- | :--- | :--- |
-| Favela Tour Rocinha | 3h | max 19 | R$270 pp (child ≤12: R$180) | Av. Niemeyer 780, São Conrado |
-| Favela Tour Vidigal | 2h30 | max 19 | R$270 pp | Praça do Vidigal |
-| Favela Tour Tavares Bastos | 2h30 | max 20 | R$270 pp | Rua Bento Lisboa 72, Catete |
+| Favela Tour Rocinha | 3h | max 19 | R$270 pp (child ≤12: R$180) | São Conrado (address only after payment) |
+| Favela Tour Vidigal | 2h30 | max 19 | R$270 pp | Vidigal (address only after payment) |
+| Favela Tour Tavares Bastos | 2h30 | max 20 | R$270 pp | Catete (address only after payment) |
 | Un Giorno a Rio (premium day) | 8–9h | 2–15 | from R$780 pp (tiered by group size) | Hotel pick-up anywhere in Rio |
 
 Common facts: tours in **Italian, English, Portuguese** (no German) · min 2 pax · favela tours include mototaxi ride + community visitation fee · drone video optional extra · Instagram [@vidapiena](https://www.instagram.com/vidapiena/).

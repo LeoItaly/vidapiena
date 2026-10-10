@@ -34,7 +34,7 @@ un’angolazione che quasi nessun turista conosce.
 - **Min 2 · max 20 persone.**
 - **€58 a persona**, mototaxi incluso.
 - **Tutti i giorni, 10:00 e 14:00.**
-- **Punto d’incontro:** Rua Bento Lisboa 72, Catete.
+- **Punto d’incontro:** Catete (l’indirizzo esatto arriva con la conferma).
 
 ![Uno scorcio della comunità di Tavares Bastos](../../../assets/photos/tavares-02.jpg)
 

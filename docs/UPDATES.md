@@ -2,6 +2,21 @@
 
 > Newest first. One entry per working session.
 
+## 2026-10-10 — Meeting-point addresses removed from the site 📍
+
+Francesco's rule (09/10): customers get the exact meeting point **only after paying**, together with
+the booking confirmation. The site now shows only the neighbourhood.
+
+- `src/data/tours.ts` → `meetingPoint` is now **São Conrado · Vidigal · Catete** (Un Giorno stays
+  "Hotel pick-up"). This also feeds the facts box, the JSON-LD `itinerary` and `llms-full.txt`.
+- `src/i18n/it.ts` + `en.ts`: the `meetingNote` and the "where do we meet?" FAQ answers now say the
+  exact address comes with the booking confirmation.
+- `llms.txt`, the 3 favela blog posts (IT + EN) and `docs/ASSETS-MAP.md` no longer carry street addresses.
+- `npm run build` passed, and grepping `dist/` finds none of the old addresses.
+- The OTA listings still show the meeting point. That's expected and stays as is.
+- ⚠️ Still on the site and not touched: the Un Giorno note says pick-up "anywhere in Rio", but Francesco
+  doesn't go to **Barra or Recreio**.
+
 ## 2026-10-05 — Google Things to Do recheck ✅
 
 Scheduled check of *Sales tools → Google Things to do* in Bókun. Nothing changed in this repo.

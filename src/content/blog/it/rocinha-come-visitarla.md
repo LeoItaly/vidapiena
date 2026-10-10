@@ -35,7 +35,7 @@ una onlus italiana che lavora nella comunità da più di 20 anni.
 - **Max 19 persone** — gruppi piccoli, ritmo umano.
 - **€58 a persona**, mototaxi e tassa di visita inclusi.
 - **Lun–ven 11:00 e 15:30 · sab–dom 09:00 e 14:00.**
-- **Punto d’incontro:** Av. Niemeyer 780, São Conrado.
+- **Punto d’incontro:** São Conrado (l’indirizzo esatto arriva con la conferma).
 
 ![La discesa a piedi dentro la Rocinha](../../../assets/photos/rocinha-05.jpg)
 

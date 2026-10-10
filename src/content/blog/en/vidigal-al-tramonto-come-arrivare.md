@@ -15,7 +15,7 @@ city switches on.
 
 ## How to get there
 
-We start from Praça do Vidigal, the entrance to the community. From there we
+We start at the entrance to the community. From there we
 warm up the engines right away: the local mototaxi riders take us to the
 upper part — revitalised, with the football pitch and the park. On weekdays
 the afternoon tour leaves at 15:30 — just the right timing to be up top with
@@ -38,7 +38,7 @@ terrace facing Christ the Redeemer.
 - **Min 2 · max 19 people.**
 - **€58 per person**, mototaxi and visitation fee included.
 - **Mon–Fri 09:00 and 15:30 · Sat–Sun 09:00 and 14:00.**
-- **Meeting point:** Praça do Vidigal.
+- **Meeting point:** Vidigal (exact address with your booking confirmation).
 
 ![The walk down Vidigal's ladeira](../../../assets/photos/zone-4-ladeira.jpg)
 

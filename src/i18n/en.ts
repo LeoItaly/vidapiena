@@ -187,11 +187,11 @@ export const en: typeof it = {
           'Community visitation fee',
           'Guide in English, Italian or Portuguese',
         ],
-        meetingNote: 'Av. Niemeyer 780, São Conrado (Igreja Universal). The tour starts and ends at the same spot.',
+        meetingNote: 'São Conrado, at the foot of Rocinha. The exact address comes with your booking confirmation. The tour starts and ends at the same spot.',
         faq: [
           {
             q: 'Where and when do we meet?',
-            a: 'We meet at Av. Niemeyer 780, São Conrado, in front of the Igreja Universal. The tour starts and ends at the same spot and lasts about 3 hours. Daily departures, minimum 2 people.',
+            a: 'We meet in São Conrado, at the foot of Rocinha: the exact address comes with your booking confirmation, after payment. The tour starts and ends at the same spot and lasts about 3 hours. Daily departures, minimum 2 people.',
           },
           {
             q: 'What is included in the price?',
@@ -224,11 +224,11 @@ export const en: typeof it = {
           'Community visitation fee',
           'Guide in English, Italian or Portuguese',
         ],
-        meetingNote: 'Praça do Vidigal, at the entrance to the community.',
+        meetingNote: 'Vidigal, at the entrance to the community. The exact address comes with your booking confirmation.',
         faq: [
           {
             q: 'Where and when do we meet?',
-            a: 'We meet at Praça do Vidigal, at the entrance to the community. The tour lasts about 2.5 hours. Daily departures, minimum 2 people.',
+            a: 'We meet in Vidigal, at the entrance to the community: the exact address comes with your booking confirmation, after payment. The tour lasts about 2.5 hours. Daily departures, minimum 2 people.',
           },
           {
             q: 'What is included in the price?',
@@ -260,11 +260,11 @@ export const en: typeof it = {
           'Community visitation fee',
           'Guide in English, Italian or Portuguese',
         ],
-        meetingNote: 'Rua Bento Lisboa 72, Catete.',
+        meetingNote: 'Catete, at the foot of Tavares Bastos. The exact address comes with your booking confirmation.',
         faq: [
           {
             q: 'Where and when do we meet?',
-            a: 'We meet at Rua Bento Lisboa 72, Catete. The tour lasts about 2.5 hours. Daily departures, minimum 2 people.',
+            a: 'We meet in Catete, at the foot of Tavares Bastos: the exact address comes with your booking confirmation, after payment. The tour lasts about 2.5 hours. Daily departures, minimum 2 people.',
           },
           {
             q: 'What is included in the price?',

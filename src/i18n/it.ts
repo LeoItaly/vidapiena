@@ -189,11 +189,11 @@ export const it = {
           'Tassa di visita alla comunità',
           'Guida in italiano, inglese o portoghese',
         ],
-        meetingNote: 'Av. Niemeyer 780, São Conrado (Igreja Universal). Il tour inizia e finisce nello stesso punto.',
+        meetingNote: 'São Conrado, ai piedi della Rocinha. L’indirizzo esatto arriva con la conferma della prenotazione. Il tour inizia e finisce nello stesso punto.',
         faq: [
           {
             q: 'Dove e quando ci incontriamo?',
-            a: 'Ci troviamo in Av. Niemeyer 780, São Conrado, davanti all’Igreja Universal. Il tour inizia e finisce nello stesso punto e dura circa 3 ore. Partenze ogni giorno, minimo 2 persone.',
+            a: 'Ci troviamo a São Conrado, ai piedi della Rocinha: l’indirizzo esatto arriva con la conferma della prenotazione, dopo il pagamento. Il tour inizia e finisce nello stesso punto e dura circa 3 ore. Partenze ogni giorno, minimo 2 persone.',
           },
           {
             q: 'Cosa è incluso nel prezzo?',
@@ -226,11 +226,11 @@ export const it = {
           'Tassa di visita alla comunità',
           'Guida in italiano, inglese o portoghese',
         ],
-        meetingNote: 'Praça do Vidigal, all’ingresso della comunità.',
+        meetingNote: 'Vidigal, all’ingresso della comunità. L’indirizzo esatto arriva con la conferma della prenotazione.',
         faq: [
           {
             q: 'Dove e quando ci incontriamo?',
-            a: 'Ci troviamo in Praça do Vidigal, all’ingresso della comunità. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
+            a: 'Ci troviamo a Vidigal, all’ingresso della comunità: l’indirizzo esatto arriva con la conferma della prenotazione, dopo il pagamento. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
           },
           {
             q: 'Cosa è incluso nel prezzo?',
@@ -262,11 +262,11 @@ export const it = {
           'Tassa di visita alla comunità',
           'Guida in italiano, inglese o portoghese',
         ],
-        meetingNote: 'Rua Bento Lisboa 72, Catete.',
+        meetingNote: 'Catete, ai piedi di Tavares Bastos. L’indirizzo esatto arriva con la conferma della prenotazione.',
         faq: [
           {
             q: 'Dove e quando ci incontriamo?',
-            a: 'Ci troviamo in Rua Bento Lisboa 72, Catete. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
+            a: 'Ci troviamo a Catete, ai piedi di Tavares Bastos: l’indirizzo esatto arriva con la conferma della prenotazione, dopo il pagamento. Il tour dura circa 2 ore e 30. Partenze ogni giorno, minimo 2 persone.',
           },
           {
             q: 'Cosa è incluso nel prezzo?',
