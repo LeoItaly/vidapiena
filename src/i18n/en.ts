@@ -148,7 +148,7 @@ export const en: typeof it = {
       },
       {
         q: 'Is it suitable for kids and families?',
-        a: 'Yes, the pace adapts to the group; for very young kids we will figure out the mototaxi together.',
+        a: 'The favela tours aren’t suitable for children. For families there’s Un Giorno a Rio, the full day in the city with hotel pick-up.',
       },
       {
         q: 'What should I bring and wear?',

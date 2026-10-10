@@ -150,7 +150,7 @@ export const it = {
       },
       {
         q: 'Va bene per bambini e famiglie?',
-        a: 'Sì, il ritmo si adatta al gruppo; per i più piccoli valutiamo insieme il mototaxi.',
+        a: 'I favela tour non sono adatti ai bambini. Per le famiglie c’è Un Giorno a Rio, la giornata in città con pick-up in hotel.',
       },
       {
         q: 'Cosa porto e come mi vesto?',

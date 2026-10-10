@@ -17,6 +17,8 @@ the booking confirmation. The site now shows only the neighbourhood.
 - Same day, second commit: Un Giorno no longer says pick-up "anywhere in Rio". It now lists **Copacabana,
   Ipanema, Leblon, Botafogo, Flamengo, Centro**, and the FAQ adds "no pick-up in Barra or Recreio"
   (`it.ts`, `en.ts`, the IT+EN day-in-Rio blog post, `llms.txt`).
+- Third commit: the shared FAQ "Is it suitable for kids and families?" now says the favela tours aren't
+  suitable for children and points families to Un Giorno a Rio (Leo's decision 10/10: no kids in the favelas).
 
 ## 2026-10-05 — Google Things to Do recheck ✅
 
