@@ -40,7 +40,7 @@ the day comes to 9 hours.
 - **From 2 to 15 people**: €229 per person, everything included.
 - **Included:** private car or van with driver, Corcovado rack railway,
   Sugarloaf cable car, buffet lunch.
-- **Hotel pick-up**, anywhere in Rio.
+- **Hotel pick-up** in Copacabana, Ipanema, Leblon, Botafogo, Flamengo or Centro.
 - **Book 5–7 days in advance.**
 
 ![On the road during A Day in Rio](../../../assets/photos/giorno-03.jpg)

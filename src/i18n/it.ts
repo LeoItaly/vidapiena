@@ -301,11 +301,11 @@ export const it = {
           'Pranzo a buffet (bevande escluse)',
           'Guida in italiano, inglese o portoghese',
         ],
-        meetingNote: 'Pick-up direttamente nel tuo hotel, ovunque a Rio. Fatti trovare pronto circa 30 minuti prima.',
+        meetingNote: 'Pick-up direttamente nel tuo hotel a Copacabana, Ipanema, Leblon, Botafogo, Flamengo o Centro. Fatti trovare pronto circa 30 minuti prima.',
         faq: [
           {
             q: 'Dove e quando ci incontriamo?',
-            a: 'Ti vengo a prendere direttamente in hotel, ovunque a Rio. La giornata dura circa 8 ore (9 con il pranzo); fatti trovare pronto circa 30 minuti prima. Partenze ogni giorno, minimo 2 persone.',
+            a: 'Ti vengo a prendere direttamente in hotel a Copacabana, Ipanema, Leblon, Botafogo, Flamengo o Centro (niente pick-up a Barra e Recreio). La giornata dura circa 8 ore (9 con il pranzo); fatti trovare pronto circa 30 minuti prima. Partenze ogni giorno, minimo 2 persone.',
           },
           {
             q: 'Quanto costa e come funziona il prezzo?',

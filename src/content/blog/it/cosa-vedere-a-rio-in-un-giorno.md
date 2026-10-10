@@ -39,7 +39,7 @@ pranzo la giornata arriva a 9 ore.
 - **Da 2 a 15 persone**: €229 a persona, tutto incluso.
 - **Inclusi:** auto o van privato con autista, trenino del Corcovado, funivia
   del Pan di Zucchero, pranzo a buffet.
-- **Pick-up in hotel**, ovunque a Rio.
+- **Pick-up in hotel** a Copacabana, Ipanema, Leblon, Botafogo, Flamengo o Centro.
 - **Prenotate con 5–7 giorni di anticipo.**
 
 ![In viaggio durante Un Giorno a Rio](../../../assets/photos/giorno-03.jpg)

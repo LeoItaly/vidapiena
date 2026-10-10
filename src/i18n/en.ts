@@ -299,11 +299,11 @@ export const en: typeof it = {
           'Buffet lunch (drinks excluded)',
           'Guide in English, Italian or Portuguese',
         ],
-        meetingNote: 'Pick-up straight from your hotel, anywhere in Rio. Please be ready about 30 minutes early.',
+        meetingNote: 'Pick-up straight from your hotel in Copacabana, Ipanema, Leblon, Botafogo, Flamengo or Centro. Please be ready about 30 minutes early.',
         faq: [
           {
             q: 'Where and when do we meet?',
-            a: 'I pick you up straight from your hotel, anywhere in Rio. The day lasts about 8 hours (9 with lunch); please be ready about 30 minutes early. Daily departures, minimum 2 people.',
+            a: 'I pick you up straight from your hotel in Copacabana, Ipanema, Leblon, Botafogo, Flamengo or Centro (no pick-up in Barra or Recreio). The day lasts about 8 hours (9 with lunch); please be ready about 30 minutes early. Daily departures, minimum 2 people.',
           },
           {
             q: 'How much does it cost and how does pricing work?',

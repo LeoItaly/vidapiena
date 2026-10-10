@@ -14,8 +14,9 @@ the booking confirmation. The site now shows only the neighbourhood.
 - `llms.txt`, the 3 favela blog posts (IT + EN) and `docs/ASSETS-MAP.md` no longer carry street addresses.
 - `npm run build` passed, and grepping `dist/` finds none of the old addresses.
 - The OTA listings still show the meeting point. That's expected and stays as is.
-- ⚠️ Still on the site and not touched: the Un Giorno note says pick-up "anywhere in Rio", but Francesco
-  doesn't go to **Barra or Recreio**.
+- Same day, second commit: Un Giorno no longer says pick-up "anywhere in Rio". It now lists **Copacabana,
+  Ipanema, Leblon, Botafogo, Flamengo, Centro**, and the FAQ adds "no pick-up in Barra or Recreio"
+  (`it.ts`, `en.ts`, the IT+EN day-in-Rio blog post, `llms.txt`).
 
 ## 2026-10-05 — Google Things to Do recheck ✅
 

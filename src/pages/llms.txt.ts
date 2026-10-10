@@ -47,7 +47,7 @@ const render = (articles: { slug: string; title: string }[]) => `# Vidapiena
   Features the iconic FIFA Street football pitch.
   Page: ${o}/tour/favela-tour-tavares-bastos/
 - **Un Giorno a Rio** — full-day (8–9 h) premium city tour, €229 per person, daily with hotel
-  pick-up anywhere in Rio. Christ the Redeemer (Corcovado rack train), Santa Teresa,
+  pick-up in Copacabana, Ipanema, Leblon, Botafogo, Flamengo or Centro (not Barra or Recreio). Christ the Redeemer (Corcovado rack train), Santa Teresa,
   Selarón Steps, Sugarloaf cable car, private car/van with driver, buffet lunch included.
   Page: ${o}/tour/un-giorno-a-rio/
 
