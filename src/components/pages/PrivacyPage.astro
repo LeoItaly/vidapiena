@@ -1,0 +1,124 @@
+---
+/**
+ * Privacy policy (/privacy, /en/privacy) — added 16 Oct 2026 as the "Privacy
+ * Policy URL" for the Meta app review (WhatsApp Tech Provider). Copy lives in
+ * dict.privacy; every duration and provider there was read off the bot code.
+ *
+ * The contact links are built from SITE here, not written into the copy. The
+ * WhatsApp link deliberately carries NO prefilled text: with ENTRY_GATE on, the
+ * bot only opens chats that start with the site/Instagram prefill, so a data
+ * request sent from this page reaches Francesco in person, not the assistant.
+ */
+import Base from '../../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import Footer from '../Footer.astro';
+import { SITE } from '../../data/site';
+import { t, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const copy = dict.privacy;
+const path = 'privacy/';
+
+/** Bump together with the copy whenever what the page says changes. */
+const UPDATED = '2026-10-16';
+const updatedText = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
+  new Date(`${UPDATED}T00:00:00Z`),
+);
+---
+
+<Base locale={locale} path={path} title={copy.metaTitle} description={copy.metaDescription}>
+  <PageHero kicker={copy.kicker} heading={copy.heading} sub={copy.sub} />
+
+  <main id="main">
+    <section class="bg-paper text-ink">
+      <div class="mx-auto max-w-6xl px-5 py-16 md:px-10 md:py-24">
+        <p class="eyebrow text-ink/55">
+          {copy.updatedLabel} · <time datetime={UPDATED}>{updatedText}</time>
+        </p>
+
+        <nav aria-label={copy.tocLabel} class="mt-8 max-w-prose">
+          <p class="eyebrow text-ink/55">{copy.tocLabel}</p>
+          <ol class="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+            {
+              copy.sections.map((s) => (
+                <li>
+                  <a href={`#${s.id}`} class="text-verde underline-offset-2 hover:underline">
+                    {s.heading}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </nav>
+
+        {
+          copy.sections.map((s) => (
+            <section
+              id={s.id}
+              class="mt-14 max-w-prose scroll-mt-[calc(var(--nav-h)+1.5rem)] border-t border-ink/15 pt-10 md:mt-16"
+            >
+              <h2 class="font-display text-2xl font-bold md:text-3xl">{s.heading}</h2>
+              {s.body.map((p) => (
+                <p class="mt-4 leading-relaxed text-ink-soft">{p}</p>
+              ))}
+              {s.items && (
+                <ul class="mt-4 space-y-2.5">
+                  {s.items.map((item) => (
+                    <li class="flex gap-3 leading-relaxed text-ink-soft">
+                      <span class="mt-[0.55em] block h-1.5 w-1.5 flex-none rounded-full bg-verde" aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {s.rows && (
+                <dl class="mt-6 border-t border-ink/15">
+                  {s.rows.map((r) => (
+                    <div class="grid gap-1 border-b border-ink/15 py-3.5 sm:grid-cols-[11rem_1fr] sm:gap-4">
+                      <dt class="font-display font-semibold">{r.k}</dt>
+                      <dd class="leading-relaxed text-ink-soft">{r.v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {s.after?.map((p) => (
+                <p class="mt-4 leading-relaxed text-ink-soft">{p}</p>
+              ))}
+              {s.contacts && (
+                <dl class="mt-6 space-y-2">
+                  <div class="flex flex-wrap gap-x-3">
+                    <dt class="eyebrow pt-[0.3em] text-ink/55">{copy.emailLabel}</dt>
+                    <dd>
+                      <a href={`mailto:${SITE.email}`} class="break-all text-verde underline underline-offset-2">
+                        {SITE.email}
+                      </a>
+                    </dd>
+                  </div>
+                  <div class="flex flex-wrap gap-x-3">
+                    <dt class="eyebrow pt-[0.3em] text-ink/55">{copy.whatsappLabel}</dt>
+                    <dd>
+                      <a
+                        href={`https://wa.me/${SITE.whatsapp}`}
+                        class="text-verde underline underline-offset-2"
+                        rel="noopener"
+                        target="_blank"
+                      >
+                        {SITE.whatsappDisplay}
+                      </a>
+                    </dd>
+                  </div>
+                </dl>
+              )}
+            </section>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+
+  <Footer locale={locale} path={path} />
+</Base>

@@ -4,6 +4,22 @@
  * `Context Knowledge/note tours.md`. Le etichette delle zone restano in portoghese
  * (voce del brand), qui vivono glosse e testi.
  */
+
+/**
+ * Una sezione della pagina /privacy, resa in quest'ordine: paragrafi, elenco,
+ * tabella delle durate, paragrafi finali, contatti. Tipo esplicito perché le
+ * sezioni non hanno tutte gli stessi campi.
+ */
+type PrivacySection = {
+  id: string;
+  heading: string;
+  body: string[];
+  items?: string[];
+  rows?: { k: string; v: string }[];
+  after?: string[];
+  contacts?: boolean;
+};
+
 export const it = {
   meta: {
     title: 'Favela tour a Rio de Janeiro in italiano — Vidapiena',
@@ -501,8 +517,183 @@ export const it = {
     seaLevel: 'livello del mare',
   },
 
+  /* Pagina /privacy (16/10/2026). È anche la "Privacy Policy URL" dell'app Meta
+     (App Review del Tech Provider) e la sezione #cancellare-i-dati vale come
+     istruzioni per la cancellazione. Ogni durata e ogni fornitore è verificato
+     sul codice di whatsapp-bot/ e telegram-assistant/ (cartella madre, locale):
+     se il bot cambia, va aggiornata anche questa pagina (e la data). */
+  privacy: {
+    metaTitle: 'Privacy — come tratto i tuoi dati | Vidapiena',
+    metaDescription:
+      'Informativa privacy di Vidapiena: quali dati raccolgo dal sito, dalle prenotazioni e dalla chat WhatsApp, per quanto li tengo, con chi li condivido e come chiederne la cancellazione.',
+    kicker: 'Informativa privacy',
+    heading: 'Come tratto i tuoi dati.',
+    sub: 'In breve: uso i tuoi dati solo per risponderti e per organizzare il tuo tour. Non li vendo e non li uso per la pubblicità. Qui sotto trovi tutto, in parole semplici.',
+    updatedLabel: 'Ultimo aggiornamento',
+    tocLabel: 'In questa pagina',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    sections: [
+      {
+        id: 'titolare',
+        heading: 'Chi sono',
+        body: [
+          'Il titolare del trattamento sono io, Francesco Motta Mendes dos Santos, guida turistica a Rio de Janeiro (Brasile), e lavoro con il marchio Vidapiena. Questa informativa vale per questo sito, per la chat WhatsApp di Vidapiena e per le prenotazioni dirette.',
+          'Per qualsiasi domanda sui tuoi dati puoi scrivermi qui:',
+        ],
+        contacts: true,
+      },
+      {
+        id: 'sito',
+        heading: 'Quando visiti il sito',
+        body: [
+          'Il sito non usa cookie propri, non ha strumenti di statistica, pubblicità o pixel di tracciamento. Anche i caratteri tipografici sono ospitati qui, non su servizi esterni.',
+          'Il sito è ospitato da Cloudflare, che per farlo funzionare e proteggerlo dagli attacchi tratta dati tecnici come l’indirizzo IP e il tipo di browser.',
+          'Le pagine con il calendario caricano il calendario di Bókun, il mio sistema di prenotazione: lì dentro Bókun può usare i propri cookie tecnici, per esempio per ricordare il carrello.',
+          'I pulsanti di WhatsApp, Instagram e TikTok portano fuori dal sito: da lì valgono le regole di quei servizi.',
+        ],
+      },
+      {
+        id: 'prenotazioni',
+        heading: 'Quando prenoti',
+        body: [
+          'Per una prenotazione raccolgo nome, cognome, email e telefono; per "Un Giorno a Rio" anche l’hotel dove passo a prenderti. Mi servono per confermare il tour, mandarti il link di pagamento e il punto d’incontro, e avvisarti se cambia qualcosa.',
+          'Le prenotazioni sono gestite da Bókun. Il pagamento è online con PayPal, con il conto PayPal o con la carta: i dati della carta li vede solo PayPal, mai io.',
+          'Se prenoti su una piattaforma come Viator, GetYourGuide o Airbnb, la piattaforma mi passa i dati che servono per il tour; per il resto valgono le sue regole sulla privacy.',
+          'Conservo i dati delle prenotazioni per il tempo che serve al tour e agli obblighi fiscali e contabili previsti dalla legge brasiliana.',
+        ],
+      },
+      {
+        id: 'whatsapp',
+        heading: 'Quando mi scrivi su WhatsApp',
+        body: [
+          'Se apri la chat dal sito o da Instagram, con il messaggio già pronto, all’inizio ti risponde un assistente automatico: conosce i miei tour, controlla le date libere e può prepararti la prenotazione. Quando serve, o se lo chiedi, la chat passa a me. Se mi scrivi in un altro modo, ti rispondo io.',
+          'Per farlo l’assistente tratta:',
+        ],
+        items: [
+          'il tuo numero di WhatsApp e i messaggi che scrivi;',
+          'i messaggi vocali, che vengono trascritti in testo con Workers AI di Cloudflare. L’audio non viene salvato;',
+          'le foto, che vengono mandate a Claude solo per rispondere, per esempio se mi mandi lo screenshot di una prenotazione. La foto non viene salvata;',
+          'video, documenti e sticker non li apre: legge solo l’eventuale didascalia e ti chiede di scrivere a parole.',
+        ],
+        after: [
+          'Le risposte le scrive Claude, l’intelligenza artificiale di Anthropic: per ogni risposta riceve il tuo messaggio e gli ultimi messaggi della chat. Anthropic lavora come mio fornitore e, secondo le sue condizioni per le aziende, non usa questi dati per addestrare i suoi modelli.',
+          'La chat resta anche nell’app WhatsApp Business del mio telefono, come qualsiasi conversazione WhatsApp.',
+          'L’assistente non manda pubblicità. Se hai prenotato in chat e mi riscrivi dopo il tour, ti chiede una sola volta una recensione su Google.',
+        ],
+      },
+      {
+        id: 'memoria',
+        heading: 'Cosa ricorda l’assistente, e per quanto',
+        body: [
+          'L’assistente salva pochissimo, nel database di Cloudflare, legato al tuo numero. Ogni dato si cancella da solo alla scadenza:',
+        ],
+        rows: [
+          {
+            k: 'La conversazione',
+            v: 'Gli ultimi 12 messaggi (6 scambi): le foto mai, i vocali solo come testo. Si cancella 2 ore dopo l’ultimo messaggio.',
+          },
+          {
+            k: 'Una proposta di prenotazione',
+            v: 'Tour, data, persone, nome, email ed eventuale hotel: 1 ora, o finché non confermi o annulli.',
+          },
+          {
+            k: 'Il tour prenotato in chat',
+            v: 'Codice, tour, data e ora: fino a 3 giorni dopo il tour, per l’eventuale richiesta di recensione.',
+          },
+          {
+            k: 'Il primo contatto',
+            v: 'Che ci siamo già scritti e che la chat è partita dal sito o da Instagram, per non ripeterti il saluto: 30 giorni.',
+          },
+          {
+            k: 'La chat passata a me',
+            v: 'Il motivo del passaggio, oppure il fatto che ti sto scrivendo io e l’assistente deve stare zitto: 24 ore.',
+          },
+          {
+            k: 'I contatori anti-spam',
+            v: 'Quanti messaggi, vocali e foto mandi in un giorno: 2 giorni.',
+          },
+        ],
+        after: [
+          'I registri tecnici del servizio sono scritti per non contenere il testo dei messaggi: del numero riportano solo le ultime 4 cifre. Cloudflare li cancella in automatico dopo pochi giorni.',
+        ],
+      },
+      {
+        id: 'avvisi',
+        heading: 'Gli avvisi che ricevo su Telegram',
+        body: [
+          'Quando l’assistente passa la chat a me, o quando prenoti in chat, ricevo un avviso su Telegram con il tuo numero, il motivo, il tuo ultimo messaggio o un breve riassunto e, per le prenotazioni, tour, data, nome ed email. Così posso risponderti di persona.',
+          'Se mi scrivi via email ricevo su Telegram un breve avviso con mittente e oggetto; il testo dell’email resta solo nella mia casella di posta.',
+          'Gli avvisi arrivano solo a me e al consulente tecnico che gestisce il sito e l’assistente per conto mio.',
+        ],
+      },
+      {
+        id: 'fornitori',
+        heading: 'I fornitori che uso',
+        body: ['Ognuno tratta i dati solo per il servizio che mi dà:'],
+        items: [
+          'Meta (WhatsApp): consegna i messaggi tra te e me;',
+          'Cloudflare: ospita il sito e l’assistente, ne salva la memoria breve, trascrive i vocali e mi inoltra gli avvisi delle email;',
+          'Anthropic (Claude): scrive le risposte dell’assistente e legge le foto;',
+          'Bókun: prenotazioni, calendario ed email di conferma;',
+          'PayPal: pagamenti e rimborsi;',
+          'Microsoft (Outlook): la casella email di Vidapiena;',
+          'Telegram: gli avvisi che ricevo.',
+        ],
+        after: [
+          'Alcuni di questi fornitori trattano i dati fuori dal Brasile e dall’Unione Europea, per esempio negli Stati Uniti. Non vendo i tuoi dati e non li cedo a nessuno per la pubblicità.',
+        ],
+      },
+      {
+        id: 'perche',
+        heading: 'Perché posso usarli',
+        body: [
+          'Uso i tuoi dati per rispondere alle tue domande e per il tour che prenoti (servono al contratto o a prepararlo), per rispettare gli obblighi fiscali e per un interesse legittimo: proteggere il servizio da spam e abusi.',
+          'Nessuna decisione importante la prende l’assistente da solo: cambi di data, rimborsi e reclami passano sempre da me.',
+        ],
+      },
+      {
+        id: 'diritti',
+        heading: 'I tuoi diritti',
+        body: [
+          'Secondo la legge brasiliana sulla protezione dei dati (LGPD) e, se vivi nell’Unione Europea, secondo il GDPR, puoi chiedermi in qualsiasi momento di:',
+        ],
+        items: [
+          'sapere se ho dati su di te e riceverne una copia;',
+          'correggerli se sono sbagliati o incompleti;',
+          'cancellarli;',
+          'limitarne l’uso, oppure opporti a un uso;',
+          'riceverli in un formato leggibile, per portarli altrove;',
+          'sapere con chi li ho condivisi;',
+          'ritirare il consenso, quando un uso si basa sul consenso.',
+        ],
+        after: [
+          'Se pensi che io abbia trattato male i tuoi dati puoi rivolgerti all’ANPD, l’autorità brasiliana per la protezione dei dati, oppure all’autorità del tuo paese se vivi nell’Unione Europea.',
+        ],
+      },
+      {
+        id: 'cancellare-i-dati',
+        heading: 'Come chiedere la cancellazione',
+        body: [
+          'Scrivimi via email, oppure su WhatsApp dal numero che hai usato con me, con la frase «cancella i miei dati». Se hai prenotato, aggiungi il codice della prenotazione.',
+          'Cancello quello che conservo io: la chat sul mio telefono, gli avvisi su Telegram e la memoria dell’assistente, che comunque si cancella da sola entro le scadenze scritte sopra. Delle prenotazioni tengo solo quello che la legge fiscale mi obbliga a conservare, e solo per quello.',
+          'Ti rispondo entro 15 giorni. Se hai prenotato su Viator, GetYourGuide o Airbnb, per i dati che tiene la piattaforma scrivi anche a lei.',
+        ],
+        contacts: true,
+      },
+      {
+        id: 'modifiche',
+        heading: 'Modifiche',
+        body: [
+          'Se cambio il modo in cui tratto i dati aggiorno questa pagina e la data in alto.',
+        ],
+      },
+    ] as PrivacySection[],
+  },
+
   footer: {
     line: 'Vidapiena — Francesco, guida italiana a Rio de Janeiro.',
     langNames: { it: 'Italiano', en: 'English' },
+    privacy: 'Privacy',
   },
 };

@@ -2,6 +2,39 @@
 
 > Newest first. One entry per working session.
 
+## 2026-10-16 — Privacy policy: `/privacy` · `/en/privacy` 🔒
+
+Meta's App Review (Francesco's portfolio becoming a WhatsApp Tech Provider, so the bot can move to
+his real number with coexistence) asks for a **Privacy Policy URL**, and the site had none. The page
+also serves customers: the WhatsApp bot handles personal data.
+
+- **New page** `components/pages/PrivacyPage.astro` + `pages/privacy.astro` + `pages/en/privacy.astro`
+  (EN twin, hreflang pair, in the sitemap). `PageHero` → "last updated" line → table of contents →
+  11 sections on paper, `max-w-prose`. Copy in `dict.privacy` (`it.ts` / `en.ts`), first person,
+  plain words. The update date is the `UPDATED` constant in the component.
+- **Every fact was read off the code before writing it**, not assumed: KV durations from
+  `whatsapp-bot/src/index.js` (conversation 2 h after the last message, last 12 messages; booking
+  proposal 1 h; tour booked in chat until 3 days after the tour; first contact / chat opened from the
+  site 30 days; handed-over or muted chat 24 h; counters 2 days); voice notes → Workers AI and never
+  saved, photos → Claude and never saved, videos/documents/stickers not opened (`media.js`,
+  `messages.js`); Telegram alerts carry number + reason + last message, and name + email for chat
+  bookings (`telegram-assistant` `handoffText`); email alerts carry sender + subject only
+  (`email.js`). No analytics: `Base.astro`'s slot is empty and the live riovidapiena.com HTML has no
+  beacon and sets no cookie.
+- **Leo's decisions (16/10):** no CNPJ on the page (still blocked by `verify-build.mjs`); contact =
+  **email + WhatsApp**. The mailbox is now `SITE.email` (`vidapiena-riotours@outlook.com`), shown
+  only on this page. ⚠️ Outlook forwards every message there to Telegram, so spam that finds the
+  address will reach the alerts too.
+- **Deletion instructions** sit in their own section, `#cancellare-i-dati` / `#delete-your-data`,
+  so that URL can also go in Meta's "data deletion instructions" field if asked. The WhatsApp link
+  there has **no prefilled text** on purpose: with `ENTRY_GATE` on, the bot ignores it and the
+  request reaches Francesco himself.
+- **Footer:** `© 2026 Vidapiena · Privacy` on every page with the footer (`footer.privacy`).
+- ⚠️ **If the bot changes** (a new provider, a different TTL, a new kind of data), this page has to
+  change with it, and so does `UPDATED`.
+- `npm run build` green (`astro check` 0/0/0, verify-build passed). Checked on the dev server: IT and
+  EN, anchors, contact links, hreflang, footer link, no horizontal scroll at 375 px.
+
 ## 2026-10-10 — Meeting-point addresses removed from the site 📍
 
 Francesco's rule (09/10): customers get the exact meeting point **only after paying**, together with

@@ -18,6 +18,12 @@ export const SITE = {
   /** Human-readable form for display next to the WhatsApp CTA. */
   whatsappDisplay: '+55 21 98148-1718',
   /**
+   * Business mailbox — published only on /privacy as the contact for data
+   * requests (Leo's decision 16 Oct 2026). Outlook forwards every message here
+   * to Francesco's Telegram alerts, so spam reaching it also reaches Telegram.
+   */
+  email: 'vidapiena-riotours@outlook.com',
+  /**
    * Production origin. Read from the `site` value in astro.config.mjs rather
    * than repeated here, so the custom-domain cutover is a one-place change and
    * the two can never drift apart. The fallback only ever applies if `site` is

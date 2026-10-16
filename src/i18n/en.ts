@@ -494,8 +494,176 @@ export const en: typeof it = {
     seaLevel: 'sea level',
   },
 
+  privacy: {
+    metaTitle: 'Privacy policy — how I handle your data | Vidapiena',
+    metaDescription:
+      'Vidapiena’s privacy policy: what data I collect on the website, in bookings and in the WhatsApp chat, how long I keep it, who I share it with and how to ask for it to be deleted.',
+    kicker: 'Privacy policy',
+    heading: 'How I handle your data.',
+    sub: 'In short: I only use your data to answer you and to organise your tour. I don’t sell it and I don’t use it for advertising. Everything is below, in plain words.',
+    updatedLabel: 'Last updated',
+    tocLabel: 'On this page',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    sections: [
+      {
+        id: 'who-i-am',
+        heading: 'Who I am',
+        body: [
+          'The data controller is me, Francesco Motta Mendes dos Santos, a tour guide in Rio de Janeiro (Brazil) working under the Vidapiena brand. This policy covers this website, the Vidapiena WhatsApp chat and direct bookings.',
+          'For any question about your data, you can reach me here:',
+        ],
+        contacts: true,
+      },
+      {
+        id: 'website',
+        heading: 'When you visit the website',
+        body: [
+          'The website sets no cookies of its own and has no analytics, advertising or tracking pixels. Even the fonts are hosted here, not on outside services.',
+          'The website is hosted by Cloudflare, which processes technical data such as your IP address and browser type to run it and protect it from attacks.',
+          'Pages with the calendar load the calendar of Bókun, my booking system: inside it, Bókun may use its own technical cookies, for example to remember your cart.',
+          'The WhatsApp, Instagram and TikTok buttons take you off this website: from there, those services’ rules apply.',
+        ],
+      },
+      {
+        id: 'bookings',
+        heading: 'When you book',
+        body: [
+          'For a booking I collect your first name, last name, email and phone number; for "Un Giorno a Rio" also the hotel where I pick you up. I need them to confirm the tour, send you the payment link and the meeting point, and let you know if anything changes.',
+          'Bookings are managed by Bókun. Payment is online with PayPal, using a PayPal account or a card: only PayPal sees your card details, never me.',
+          'If you book on a platform such as Viator, GetYourGuide or Airbnb, the platform passes me the data needed for the tour; for everything else its own privacy rules apply.',
+          'I keep booking data for as long as the tour and the tax and accounting duties under Brazilian law require.',
+        ],
+      },
+      {
+        id: 'whatsapp',
+        heading: 'When you message me on WhatsApp',
+        body: [
+          'If you open the chat from the website or from Instagram, with the ready-made message, an automated assistant answers first: it knows my tours, checks free dates and can prepare your booking. When needed, or if you ask, the chat is handed to me. If you message me any other way, I answer myself.',
+          'To do this, the assistant processes:',
+        ],
+        items: [
+          'your WhatsApp number and the messages you write;',
+          'voice messages, which are transcribed to text with Cloudflare Workers AI. The audio is not saved;',
+          'photos, which are sent to Claude only to answer you, for example if you send a screenshot of a booking. The photo is not saved;',
+          'videos, documents and stickers are not opened: it only reads any caption and asks you to write in words.',
+        ],
+        after: [
+          'The replies are written by Claude, Anthropic’s artificial intelligence: for each reply it receives your message and the latest messages of the chat. Anthropic works as my provider and, under its terms for businesses, does not use this data to train its models.',
+          'The chat also stays in the WhatsApp Business app on my phone, like any WhatsApp conversation.',
+          'The assistant sends no advertising. If you booked in the chat and message me after the tour, it asks you once, and only once, for a Google review.',
+        ],
+      },
+      {
+        id: 'memory',
+        heading: 'What the assistant remembers, and for how long',
+        body: [
+          'The assistant saves very little, in Cloudflare’s database, linked to your number. Each item deletes itself when it expires:',
+        ],
+        rows: [
+          {
+            k: 'The conversation',
+            v: 'The last 12 messages (6 exchanges): never photos, voice messages only as text. Deleted 2 hours after the last message.',
+          },
+          {
+            k: 'A booking proposal',
+            v: 'Tour, date, people, name, email and hotel if any: 1 hour, or until you confirm or cancel.',
+          },
+          {
+            k: 'The tour booked in the chat',
+            v: 'Booking code, tour, date and time: until 3 days after the tour, for the review request.',
+          },
+          {
+            k: 'The first contact',
+            v: 'That we have already talked and that the chat started from the website or Instagram, so you aren’t greeted twice: 30 days.',
+          },
+          {
+            k: 'A chat handed to me',
+            v: 'Why it was handed over, or the fact that I’m writing to you myself and the assistant must stay quiet: 24 hours.',
+          },
+          {
+            k: 'Anti-spam counters',
+            v: 'How many messages, voice messages and photos you send in a day: 2 days.',
+          },
+        ],
+        after: [
+          'The service’s technical logs are written so as not to contain the text of messages: they show only the last 4 digits of the number. Cloudflare deletes them automatically after a few days.',
+        ],
+      },
+      {
+        id: 'alerts',
+        heading: 'The alerts I receive on Telegram',
+        body: [
+          'When the assistant hands the chat to me, or when you book in the chat, I get an alert on Telegram with your number, the reason, your last message or a short summary and, for bookings, the tour, date, name and email. That way I can answer you in person.',
+          'If you email me, I get a short alert on Telegram with the sender and the subject; the text of the email stays only in my mailbox.',
+          'The alerts go only to me and to the technical consultant who runs the website and the assistant on my behalf.',
+        ],
+      },
+      {
+        id: 'providers',
+        heading: 'The providers I use',
+        body: ['Each one processes data only for the service it gives me:'],
+        items: [
+          'Meta (WhatsApp): delivers the messages between you and me;',
+          'Cloudflare: hosts the website and the assistant, stores its short memory, transcribes voice messages and forwards me the email alerts;',
+          'Anthropic (Claude): writes the assistant’s replies and reads photos;',
+          'Bókun: bookings, calendar and confirmation emails;',
+          'PayPal: payments and refunds;',
+          'Microsoft (Outlook): the Vidapiena mailbox;',
+          'Telegram: the alerts I receive.',
+        ],
+        after: [
+          'Some of these providers process data outside Brazil and the European Union, for example in the United States. I don’t sell your data and I don’t give it to anyone for advertising.',
+        ],
+      },
+      {
+        id: 'legal-basis',
+        heading: 'Why I’m allowed to use it',
+        body: [
+          'I use your data to answer your questions and for the tour you book (it is needed for the contract, or to prepare it), to meet my tax obligations, and for a legitimate interest: protecting the service from spam and abuse.',
+          'The assistant never takes an important decision on its own: date changes, refunds and complaints always go through me.',
+        ],
+      },
+      {
+        id: 'your-rights',
+        heading: 'Your rights',
+        body: [
+          'Under Brazil’s data protection law (LGPD) and, if you live in the European Union, under the GDPR, you can ask me at any time to:',
+        ],
+        items: [
+          'tell you whether I hold data about you and give you a copy;',
+          'correct it if it is wrong or incomplete;',
+          'delete it;',
+          'restrict its use, or object to a use;',
+          'give it to you in a readable format, to take it elsewhere;',
+          'tell you who I have shared it with;',
+          'withdraw your consent, where a use is based on consent.',
+        ],
+        after: [
+          'If you think I have mishandled your data, you can turn to the ANPD, Brazil’s data protection authority, or to the authority of your country if you live in the European Union.',
+        ],
+      },
+      {
+        id: 'delete-your-data',
+        heading: 'How to ask for deletion',
+        body: [
+          'Email me, or message me on WhatsApp from the number you used with me, with the words "delete my data". If you booked, add the booking code.',
+          'I delete what I keep myself: the chat on my phone, the Telegram alerts and the assistant’s memory, which deletes itself anyway within the times listed above. For bookings I keep only what tax law requires me to keep, and only for that.',
+          'I reply within 15 days. If you booked on Viator, GetYourGuide or Airbnb, also write to the platform for the data it holds.',
+        ],
+        contacts: true,
+      },
+      {
+        id: 'changes',
+        heading: 'Changes',
+        body: ['If I change how I handle data, I update this page and the date at the top.'],
+      },
+    ],
+  },
+
   footer: {
     line: 'Vidapiena — Francesco, Italian tour guide in Rio de Janeiro.',
     langNames: { it: 'Italiano', en: 'English' },
+    privacy: 'Privacy',
   },
 };
